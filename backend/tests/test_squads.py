@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import User, build_engine
 from app.squads import register_squads
 from app.squad_models import Squad, SquadLeg
+from app.xrpl_models import XRPLSettlement
 
 
 class Feed:
@@ -183,3 +184,12 @@ def test_sse_member_scope_and_cursor(setup):
         body = json.loads(chunk.split('data: ')[1].strip())
         assert body['body'] == 'Visible message' and body['id'] > first
     asyncio.run(check())
+
+
+def test_escrow_journal_freezes_all_pick_and_vote_mutations(setup):
+    c, _, engine = setup; squad = create(c)['id']; leg = add_leg(c, squad)['legs'][0]
+    with Session(engine) as session:
+        session.add(XRPLSettlement(squad_id=squad, network='testnet', cancel_after=900000000)); session.commit()
+    assert c.post(f'/squads/{squad}/legs', json={'user_id': 'a', 'market_id': 'm2', 'outcome': 'yes'}).status_code == 409
+    assert c.post(f'/squads/{squad}/votes', json={'user_id': 'a', 'leg_id': leg['id'], 'reaction': 'agree'}).status_code == 409
+    assert c.post(f'/squads/{squad}/join', json={'user_id': 'b'}).status_code == 409

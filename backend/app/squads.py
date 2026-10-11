@@ -23,6 +23,7 @@ from .database import User, timestamp
 from .providers import ProviderError
 from .squad_models import Squad, SquadMember, SquadLeg, SquadVote, SquadEvent
 from .squad_metrics import track_record, payout_plan
+from .xrpl_models import XRPLSettlement
 
 
 def _date(value):
@@ -188,6 +189,8 @@ def register_squads(app, engine, feed):
 
     def require_open(session, squad):
         apply_deadline(session, squad)
+        if session.get(XRPLSettlement, squad.id):
+            raise HTTPException(409, 'Escrow setup has frozen this squad. Picks, joins, and reactions cannot change.')
         if squad.status != 'open': raise HTTPException(409, 'This squad is locked. Picks, joins, and reactions are frozen.')
 
     def event_json(session, row):
@@ -215,6 +218,7 @@ def register_squads(app, engine, feed):
         return rows
 
     def detail(session, squad):
+        from .xrpl_service import squad_xrpl_detail
         apply_deadline(session, squad)
         people = members(session, squad.id)
         picks = active_legs(session, squad.id)
@@ -233,14 +237,15 @@ def register_squads(app, engine, feed):
         plan = None
         if squad.status == 'resolved' and complete(session, squad):
             plan = payout_plan(squad.stake_cents, [member.user_id for member in people], [leg.user_id for leg in picks if leg.status == 'lost'])
+        xrpl = squad_xrpl_detail(session, squad.id)
         return {'id': squad.id, 'name': squad.name, 'creator_id': squad.creator_id, 'invite_code': squad.invite_code,
                 'stake_cents': squad.stake_cents, 'member_limit': squad.member_limit, 'lock_at': squad.lock_at,
                 'locked_at': squad.locked_at, 'created_at': squad.created_at, 'status': squad.status,
                 'members': [{'user_id': member.user_id, 'name': get_user(session, member.user_id).name} for member in people],
                 'legs': legs, 'messages': events, 'events': events, 'leaderboard': leaderboard(session, squad),
-                'escrow': {'status': 'not_configured', 'message': 'XRPL escrow is not configured. No funds are locked or transferred.'},
+                'escrow': xrpl, 'xrpl': xrpl,
                 'combo': {'status': 'not_placed', 'message': 'This is a proposed squad slip. No combined Gemini order has been placed.'},
-                'payout_plan': plan, 'swarm': {'status': 'unavailable', 'message': 'No agent swarm is configured, so no swarm forecast is available.'}}
+                'payout_plan': plan, 'swarm': {'status': 'unavailable', 'message': 'Swarm forecasts have not been connected to squad records yet.'}}
 
     def provider(method, *args):
         try: return method(*args)

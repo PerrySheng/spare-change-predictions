@@ -7,7 +7,7 @@ from typing import Literal
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[2]/'.env')
-from fastapi import FastAPI,HTTPException,Request
+from fastapi import FastAPI,HTTPException,Request,BackgroundTasks
 from fastapi.responses import JSONResponse,FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel,Field,field_validator
@@ -18,6 +18,11 @@ from .money import parse_cents,roundup_cents,order_quote,fee_cents
 from .providers import Gemini,Plaid,ProviderError,ProviderRejected
 from .scoring import TOPICS,WEIGHTS,rank_markets,topic_for
 from .context_reading import ContextReading
+from . import squad_models,swarm_models,xrpl_models
+from .squads import register_squads
+from .news import register_news
+from .swarm import register_swarm
+from .xrpl_service import register_xrpl,xrpl_configured
 
 class Onboarding(BaseModel):
     name:str=Field(min_length=1,max_length=50)
@@ -78,7 +83,7 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
     mode=mode or os.getenv('TRADING_MODE','paper')
     feed=feed or Gemini(Gemini.SANDBOX if mode=='sandbox' else None); plaid=plaid or Plaid()
     reading=ContextReading()
-    app.state.engine=engine; app.state.feed=feed; app.state.mode=mode
+    app.state.engine=engine; app.state.feed=feed; app.state.mode=mode; app.state.reading=reading
     @contextmanager
     def db(write=False):
         with Session(engine) as s:
@@ -116,11 +121,13 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
     @app.exception_handler(ProviderError)
     def provider_error(request,exc): return JSONResponse(status_code=503,content={'detail':str(exc)})
     @app.get('/health')
-    def health(): return {'status':'ok','trading_mode':mode,'plaid_configured':bool(os.getenv('PLAID_CLIENT_ID') and os.getenv('PLAID_SECRET')),'gemini_configured':bool(os.getenv('GEMINI_API_KEY') and os.getenv('GEMINI_API_SECRET')),'context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY'))}
+    def health(): return {'status':'ok','trading_mode':mode,'plaid_configured':bool(os.getenv('PLAID_CLIENT_ID') and os.getenv('PLAID_SECRET')),'gemini_configured':bool(os.getenv('GEMINI_API_KEY') and os.getenv('GEMINI_API_SECRET')),'context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY')),'anthropic_configured':bool(os.getenv('ANTHROPIC_API_KEY'))}
     @app.post('/users',status_code=201)
-    def create_user(payload:Onboarding):
+    def create_user(payload:Onboarding,background_tasks:BackgroundTasks):
         with db(True) as s:
-            u=User(**payload.model_dump()); s.add(u); s.flush(); s.add(Pot(user_id=u.id)); return user_json(u)
+            u=User(**payload.model_dump()); s.add(u); s.flush(); s.add(Pot(user_id=u.id)); result=user_json(u)
+        if xrpl_configured(): background_tasks.add_task(app.state.xrpl_service.create_wallet_in_background,result['id'])
+        return result
     @app.get('/users/{id}')
     def read_user(id:str):
         with db() as s: return user_json(get_user(s,id))
@@ -160,6 +167,25 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
         market=next((m for m in feed.markets() if m['id']==market_id and m['outcome']==outcome),None)
         if not market: raise HTTPException(404,'This contract is no longer in the open market feed.')
         return reading.materials(market.get('title',''),market.get('label',''))
+    @app.get('/markets/quote')
+    def market_quote(user_id:str,roundup_id:str,market_id:str,outcome:Literal['yes','no']='yes'):
+        with db() as s:
+            u=get_user(s,user_id); p,r=get_roundup(s,roundup_id,user_id)
+            if r.allocation!='pending': raise HTTPException(409,'This round-up already has a destination.')
+            if u.paused: raise HTTPException(409,'Market picks are paused in your preferences.')
+            remaining=max(0,u.weekly_cap_cents-weekly_spent(s,user_id))
+            budget=min(r.amount_cents+s.get(Pot,user_id).rollover_cents,remaining)
+        market=feed.market(market_id,outcome)
+        if not market or market.get('id')!=market_id or market.get('outcome')!=outcome or market.get('status')!='active' or market.get('market_state') not in (None,'open') or market.get('resolution'): raise HTTPException(404,'This market is no longer open.')
+        try:
+            closes=datetime.fromisoformat(market['closes_at'].replace('Z','+00:00'))
+            if closes.tzinfo is None or closes<=datetime.now(timezone.utc): raise ValueError()
+            price=Decimal(str(market['price']))
+            if not price.is_finite() or not 0<price<1: raise ValueError()
+        except (ValueError,KeyError,TypeError,ArithmeticError): raise HTTPException(409,'A current buy quote is unavailable.')
+        quote=order_quote(budget,price,market.get('quantity_minimum') or '1',market.get('quantity_increment') or '1')
+        if not quote or not quote['quantity']: raise HTTPException(409,'This quote exceeds your available change or weekly cap.')
+        return {'market':market,'quote':quote,'budget_cents':budget,'mode':mode}
     def position_from(s,u,r,m,q,entry,trade_mode):
         pos=Position(user_id=u,roundup_id=r.id,market_id=m['id'],event_ticker=m['event_ticker'],title=m['title']+' · '+m.get('label',''),category=m['category'],outcome=m['outcome'],quantity=q['quantity'],entry_price=str(entry),cost_cents=q['cost_cents'],fee_cents=q['fee_cents'],mode=trade_mode)
         s.add(pos); r.allocation='market'; r.market_title=pos.title; r.allocated_at=timestamp(); return pos
@@ -348,6 +374,10 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
             if not item: return {'status':'ignored'}
             user_id=item.user_id
         return sync(UserInput(user_id=user_id))
+    register_squads(app,engine,feed)
+    register_swarm(app,engine,feed,reading)
+    register_news(app,engine,feed,reading)
+    register_xrpl(app,engine,feed)
     static=Path(__file__).resolve().parents[2]/'frontend'/'dist'
     if static.exists():
         app.mount('/assets',StaticFiles(directory=static/'assets'),name='assets')
