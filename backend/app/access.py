@@ -12,15 +12,16 @@ from .squad_models import Squad
 
 ACCESS_COOKIE='spare-access'
 PROFILE_COOKIE='spare-profile'
-PRIVATE=('/users/','/squads','/roundups','/purchases','/transactions','/dashboard','/suggestions','/swarm/run','/xrpl','/news','/markets/quote','/markets/context','/demo','/plaid')
+PRIVATE=('/users/','/squads','/roundups','/purchases','/transactions','/dashboard','/suggestions','/swarm','/xrpl','/news','/markets/quote','/markets/context','/demo','/plaid')
 
 class FriendAccess:
     def __init__(self):
         self.enabled=os.getenv('APP_ENV','development')=='production'
+        self.public=os.getenv('APP_PUBLIC_DEMO','false').lower()=='true'
         self.secret=os.getenv('APP_SESSION_SECRET','')
         self.code=os.getenv('DEMO_ACCESS_CODE','')
         self.attempts=defaultdict(deque);self.lock=Lock()
-        if self.enabled and (len(self.secret)<32 or len(self.code)<12):
+        if self.enabled and (len(self.secret)<32 or not self.public and len(self.code)<12):
             raise ValueError('Production requires APP_SESSION_SECRET (32+ characters) and DEMO_ACCESS_CODE (12+ characters).')
     def sign(self,value):
         return value+'.'+hmac.new(self.secret.encode(),value.encode(),hashlib.sha256).hexdigest()
@@ -45,7 +46,7 @@ def register_access(app):
     access=FriendAccess();app.state.access=access
     @app.get('/access',include_in_schema=False)
     def access_page():
-        if not access.enabled:return RedirectResponse('/')
+        if not access.enabled or access.public:return RedirectResponse('/')
         return HTMLResponse('''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>spare · Friend test</title><style>body{margin:0;font:16px system-ui;background:#edf2fc;color:#162344;display:grid;place-items:center;min-height:100dvh}main{background:white;padding:32px;border-radius:20px;width:min(330px,80vw)}h1{font-size:30px}p{line-height:1.6;color:#65779a}input,button{box-sizing:border-box;width:100%;padding:14px;margin-top:12px;border-radius:10px;border:1px solid #dbe3f2;font:inherit}button{background:#2453e8;color:white;cursor:pointer}label{display:block;margin-top:24px}</style><main><h1>spare.</h1><p>A little change, together.<br>Enter your squad invite code or the friend test access code.</p><form method="post" action="/access"><label for="code">Invite or access code</label><input id="code" name="code" type="password" autocomplete="current-password" required maxlength="100"><button>Open the app</button></form></main></html>''')
     @app.post('/access',include_in_schema=False)
     async def enter(request:Request):
@@ -78,7 +79,7 @@ def register_access(app):
         if request.method not in ('GET','HEAD','OPTIONS') and origin and urlsplit(origin).netloc!=request.url.netloc:
             return JSONResponse(status_code=403,content={'detail':'Use this app from its own website.'})
         if path=='/access':return await call_next(request)
-        if access.read(request.cookies.get(ACCESS_COOKIE),'access:')!='friends':
+        if not access.public and access.read(request.cookies.get(ACCESS_COOKIE),'access:')!='friends':
             if request.method=='GET' and 'text/html' in request.headers.get('accept',''):return RedirectResponse('/access',status_code=303)
             return JSONResponse(status_code=401,content={'detail':'Open the app and enter the friend test access code.'})
         if path=='/users' and request.method=='POST':return await call_next(request)

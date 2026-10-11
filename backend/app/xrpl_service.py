@@ -275,15 +275,19 @@ class XRPLService:
             self.squad(session, squad_id, user_id)
             return squad_xrpl_detail(session, squad_id)
 
-    def lock(self, squad_id, user_id):
+    def lock(self, squad_id, user_id, partial=False):
         network = self.ready()
         with self.db(write=True) as session:
             squad = self.squad(session, squad_id, user_id)
             if not 3 <= squad.member_limit <= 6: raise HTTPException(409, 'XRPL atomic collateral settlement requires 3 to 6 squad members; two-member payouts cannot always form a Batch.')
             people = session.scalars(select(SquadMember).where(SquadMember.squad_id == squad_id)).all()
             legs = session.scalars(select(SquadLeg).where(SquadLeg.squad_id == squad_id, SquadLeg.active.is_(True))).all()
-            if len(people) != squad.member_limit or {member.user_id for member in people} != {leg.user_id for leg in legs} or len(legs) != len(people):
+            full=len(people)==squad.member_limit and {member.user_id for member in people}=={leg.user_id for leg in legs} and len(legs)==len(people)
+            if not full and not partial:
                 raise HTTPException(409, 'Every squad member must join and pick one leg before any collateral is locked.')
+            own=next((leg for leg in legs if leg.user_id==user_id),None)
+            if not own:raise HTTPException(409,'Choose your own leg before funding test collateral.')
+            if len({leg.event_ticker for leg in legs})!=len(legs):raise HTTPException(409,'Each squad leg must use a different event before funding.')
             current = session.get(XRPLSettlement, squad_id)
             existing = session.scalar(select(XRPLEscrow).where(XRPLEscrow.squad_id == squad_id, XRPLEscrow.user_id == user_id))
             if existing and existing.status == 'locked': return squad_xrpl_detail(session, squad_id)
@@ -293,6 +297,7 @@ class XRPLService:
             if current and current.status in ['unknown', 'releasing', 'settled', 'refunding', 'refunded']:
                 raise HTTPException(409, 'This squad collateral is already settling, refunded, or uncertain.')
             if squad.status not in ['open', 'locked']: raise HTTPException(409, 'Collateral can only be locked for an open or locked squad.')
+            if squad.status=='open' and datetime.fromisoformat(squad.lock_at)<=datetime.now(timezone.utc):raise HTTPException(409,'The pick deadline passed. No new test collateral can be funded.')
             try:
                 close_times = [datetime.fromisoformat(leg.closes_at.replace('Z','+00:00')) for leg in legs]
                 if any(time.tzinfo is None for time in close_times): raise ValueError()
@@ -300,23 +305,37 @@ class XRPLService:
             except (ValueError, TypeError): raise HTTPException(409, 'All legs need valid expected close times before collateral can be locked.')
             if any(time <= datetime.now(timezone.utc) for time in close_times): raise HTTPException(409, 'A squad leg has already closed. Every member must lock collateral before any leg closes.')
             facts = [(leg.event_ticker,leg.market_id,leg.outcome) for leg in legs]
-            plan = payout_plan(squad.stake_cents, [member.user_id for member in people], [])
-            amount = next(row['collateral_cents'] for row in plan['members'] if row['user_id'] == user_id)
+            if partial:
+                if squad.stake_cents%squad.member_limit:raise HTTPException(409,'Automatic test escrow requires a stake that divides evenly across the squad size.')
+                amount=squad.stake_cents-squad.stake_cents//squad.member_limit
+            else:
+                plan=payout_plan(squad.stake_cents,[member.user_id for member in people],[])
+                amount=next(row['collateral_cents'] for row in plan['members'] if row['user_id']==user_id)
             if amount <= 0: raise HTTPException(409, 'Stake is too small to lock positive collateral for every member.')
             if not current:
                 cancel_after = int((latest + timedelta(days=2)).timestamp()) - RIPPLE_EPOCH
                 current = XRPLSettlement(squad_id=squad_id, network=network, status='gathering', cancel_after=cancel_after)
                 session.add(current)
             elif current.network != network: raise HTTPException(409, 'This squad was created on a different XRPL test network.')
+            if int((latest+timedelta(days=1)).timestamp())-RIPPLE_EPOCH>=current.cancel_after:
+                raise HTTPException(409,'This event closes too late for the squad’s existing escrow deadline. Choose an earlier event or a new squad.')
             # Freezing here makes a mutation hook deterministic before any call.
-            squad.status = 'locked'; squad.locked_at = squad.locked_at or timestamp()
-            for leg in legs: leg.locked = True
+            if partial and not full:
+                own.locked=True
+                if not session.scalar(select(SquadEvent.id).where(SquadEvent.squad_id==squad_id,SquadEvent.type=='funding_open')):
+                    session.add(SquadEvent(squad_id=squad_id,user_id=user_id,type='funding_open',body='SPC escrow starts with each confirmed pick. Funded picks are frozen; remaining friends can still join.'))
+            else:
+                squad.status='locked';squad.locked_at=squad.locked_at or timestamp()
+                for leg in legs:leg.locked=True
         self.wallet(user_id, create=True)
         self._squad_wallet(squad_id, user_id)
         # Faucet provisioning can take a minute. Recheck every public market at
         # the last moment before a member can commit collateral.
         self._check_open_results(facts)
         with self.db(write=True) as session:
+            squad=self.squad(session,squad_id,user_id)
+            if squad.status not in ('open','locked') or squad.status=='open' and datetime.fromisoformat(squad.lock_at)<=datetime.now(timezone.utc):
+                raise HTTPException(409,'The squad deadline passed during wallet preparation. No collateral was submitted.')
             wallet = session.get(XRPLWallet, f'member:{network}:{user_id}')
             issuer = session.get(XRPLWallet, f'issuer:{network}')
             settlement = session.get(XRPLSettlement, squad_id)
@@ -348,6 +367,13 @@ class XRPLService:
             escrow.status = 'creating'
         self._run(f'escrow:{squad_id}:{user_id}', request, [f'member:{network}:{user_id}',f'escrow:{escrow_id}'], done, squad_id=squad_id, user_id=user_id, failed=failed, prepare=prepare)
         return self.detail(squad_id, user_id)
+
+    def fund_pick_in_background(self,squad_id,user_id,leg_id):
+        try:self.lock(squad_id,user_id,partial=True)
+        except Exception as exc:
+            message=str(exc.detail) if isinstance(exc,HTTPException) else 'Test-token funding could not be confirmed. Inspect the transaction journal before retrying.'
+            with self.db(write=True) as session:
+                session.add(SquadEvent(squad_id=squad_id,user_id=user_id,leg_id=leg_id,type='funding_error',body=message,data={'test_tokens_only':True}))
 
     def _check_open_results(self,facts):
         try:
@@ -520,6 +546,9 @@ def register_xrpl(app,engine,feed,executor=None):
 
     @app.post('/squads/{squad_id}/xrpl/lock')
     def lock(squad_id:str,payload:MemberInput): return service.lock(squad_id,payload.user_id)
+
+    @app.post('/squads/{squad_id}/xrpl/fund-pick')
+    def fund_pick(squad_id:str,payload:MemberInput):return service.lock(squad_id,payload.user_id,partial=True)
 
     @app.post('/squads/{squad_id}/xrpl/settle')
     def settle(squad_id:str,payload:MemberInput): return service.settle(squad_id,payload.user_id)

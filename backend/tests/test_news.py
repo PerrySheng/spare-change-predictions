@@ -32,6 +32,30 @@ from sqlalchemy.orm import Session
 from app.database import Position,Purchase,Roundup
 from app.swarm import cache_sources
 
+
+def test_topic_aliases_and_markets_after_the_first_forty_are_available(tmp_path):
+    class BroadFeed(Feed):
+        def markets(self):return [market(f'sports-{i}','sports') for i in range(45)]+[market('election','Political'),market('storm','Climate')]
+    app=create_app('sqlite:///'+str(tmp_path/'broad.db'),feed=BroadFeed())
+    with TestClient(app) as c:
+        u=c.post('/users',json={'name':'Reader','interests':['sports']}).json()['id']
+        data=c.get('/news/markets',params={'user_id':u}).json()
+        assert any(m['id']=='election' and m['topic']=='politics' for m in data['markets'])
+        assert any(m['id']=='storm' and m['topic']=='weather' for m in data['markets'])
+        assert data['topic_counts']['politics']==1 and data['topic_counts']['weather']==1
+
+
+def test_topic_reading_returns_real_context_sources_even_without_related_markets(tmp_path):
+    app=create_app('sqlite:///'+str(tmp_path/'topics.db'),feed=Feed())
+    with TestClient(app) as c:
+        u=c.post('/users',json={'name':'Weather reader','interests':[]}).json()['id']
+        cache_sources(app.state.engine,'topic:weather',[{'url':'https://weather.example/news','title':'Observed weather news','snippet':'Brief source summary'}],'Context.dev')
+        response=c.get('/news/topics/articles',params={'user_id':u,'topic':'weather'})
+        assert response.status_code==200,response.text
+        assert response.json()['sources'][0]['title']=='Observed weather news'
+        assert response.json()['related_markets']==[] and response.json()['cached'] is True
+        assert c.get('/news/topics/articles',params={'user_id':u,'topic':'nonsense'}).status_code==422
+
 class Feed:
     def markets(self):
         rows=[market('game','sports'),market('coin','crypto')]

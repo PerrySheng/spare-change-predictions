@@ -55,3 +55,20 @@ def test_squad_invite_also_opens_the_app_for_a_new_friend(protected):
         v=b.post('/users',json={'name':'Blair','interests':[]}).json()['id']
         joined=b.post('/squads/join',json={'user_id':v,'invite_code':squad['invite_code']})
         assert joined.status_code==200 and len(joined.json()['members'])==2
+
+
+def test_public_demo_opens_without_code_but_uses_protected_separate_profiles(tmp_path,monkeypatch):
+    monkeypatch.setenv('APP_ENV','production');monkeypatch.setenv('APP_PUBLIC_DEMO','true')
+    monkeypatch.setenv('APP_SESSION_SECRET','public-demo-signing-secret-at-least-32-chars')
+    app=create_app('sqlite:///'+str(tmp_path/'public.db'),feed=MarketFeed(),mode='paper')
+    with TestClient(app,base_url='https://public.test') as a,TestClient(app,base_url='https://public.test') as b:
+        assert a.get('/',headers={'Accept':'text/html'},follow_redirects=False).status_code==200
+        assert a.get('/dashboard?user_id=anything').status_code==401
+        ra=a.post('/users',json={'name':'Alex','interests':[]});rb=b.post('/users',json={'name':'Blair','interests':[]})
+        assert ra.status_code==rb.status_code==201
+        assert 'HttpOnly' in ra.headers['set-cookie'] and 'Secure' in ra.headers['set-cookie']
+        one=ra.json()['id'];two=rb.json()['id']
+        assert a.get('/users/'+one).status_code==200
+        assert b.get('/users/'+one).status_code==404
+        assert b.post('/purchases',json={'user_id':one,'amount':'4.63','merchant':'Shop'}).status_code==404
+        assert b.post('/purchases',json={'user_id':two,'amount':'4.63','merchant':'Shop'}).status_code==201

@@ -86,10 +86,12 @@ The Gemini spike attempts a one-contract sandbox order when keys exist; it is an
 
 For a phone demo, serve the built app on port 8000 and follow [SHORTCUT_SETUP.md](SHORTCUT_SETUP.md). Use a trusted temporary tunnel because this local MVP has no login. Keep one browser origin/profile throughout the demonstration. A new origin or cleared browser storage creates a fresh profile; previous data remains in the local database.
 
-## Railway friend test and Swarm
+## Public Railway demo and Swarm
 
-Open https://spare-production.up.railway.app in separate browser profiles or on friends’ devices. A valid open squad invite can open the access gate and prefill Group betting’s join form. Everyone creates their own profile, joins the same squad, and chooses a different market; another member’s market is disabled and server-side races return 409. Chat and votes are shared over persisted SSE events.
+Open https://spare-production.up.railway.app in separate browser profiles or on friends’ devices. The public demo opens without an access code. Use the Group betting join form with a squad invite. Everyone creates their own profile, joins the same squad, and chooses a different market; another member’s market is disabled and server-side races return 409. Chat and votes are shared over persisted SSE events.
 
 Open a real market’s Swarm chip. Google Gemini analyzes Context.dev reading materials, then the agents debate. Free-tier calls are paced, so allow a couple of minutes. Select News Scout to show the actual Context.dev source links and short public evidence notes. After completion, choose Use as my squad leg, select an open squad and your Yes/No side, and confirm. Swarm never becomes a funded member.
 
 For deployment configuration and verification limits, see docs/RAILWAY_DEPLOYMENT.md and docs/VERIFICATION.md.
+
+For the hackathon’s two-minute video, use [DEMO_SCRIPT.md](DEMO_SCRIPT.md). Confirmed SPC funding starts from the pick confirmation panel, not a Gemini money order. Show pending versus validated escrow status accurately.

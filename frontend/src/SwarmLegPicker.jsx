@@ -4,14 +4,15 @@ import {api,post} from './api';
 import SwarmMascot from './SwarmMascot';
 
 export default function SwarmLegPicker({user,run,defaultSquadId}){
- const [open,setOpen]=useState(false),[squads,setSquads]=useState([]),[squadId,setSquadId]=useState(''),[market,setMarket]=useState(null),[side,setSide]=useState(run.outcome||'yes'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[added,setAdded]=useState('');
+ const [open,setOpen]=useState(false),[squads,setSquads]=useState([]),[squadId,setSquadId]=useState(''),[market,setMarket]=useState(null),[side,setSide]=useState(run.outcome||'yes'),[busy,setBusy]=useState(false),[error,setError]=useState(''),[added,setAdded]=useState(''),[fundTokens,setFundTokens]=useState(false);
  const squad=squads.find(s=>s.id===squadId);
  const taken=squad?.legs.find(l=>(l.market_id===run.market_id||(market?.event_ticker&&l.event_ticker===market.event_ticker))&&l.user_id!==user.id);
  async function load(){
   setOpen(true);setBusy(true);setError('');
   try{
-   const [all,catalog]=await Promise.all([api('/squads?user_id='+encodeURIComponent(user.id)),api('/markets/events')]);
-   const available=all.filter(s=>s.status==='open'&&new Date(s.lock_at)>new Date()&&!s.xrpl?.escrows?.length);
+   const [all,catalog,health]=await Promise.all([api('/squads?user_id='+encodeURIComponent(user.id)),api('/markets/events'),api('/health')]);
+   setFundTokens(Boolean(health.xrpl_configured));
+   const available=all.filter(s=>s.status==='open'&&new Date(s.lock_at)>new Date()&&!s.legs.some(l=>l.user_id===user.id&&l.locked)&&!['unknown','releasing','settled','refunding','refunded'].includes(s.xrpl?.status));
    setSquads(available);setSquadId(available.some(s=>s.id===defaultSquadId)?defaultSquadId:available[0]?.id||'');
    setMarket(catalog.events.flatMap(e=>e.outcomes).find(m=>m.id===run.market_id)||null);
   }catch(e){setError(e.message)}finally{setBusy(false)}
@@ -19,7 +20,7 @@ export default function SwarmLegPicker({user,run,defaultSquadId}){
  async function add(event){
   event.preventDefault();setBusy(true);setError('');
   try{
-   await post('/squads/'+encodeURIComponent(squadId)+'/legs',{user_id:user.id,market_id:run.market_id,outcome:side,max_price:market.prices[side],swarm_run_id:run.id});
+   await post('/squads/'+encodeURIComponent(squadId)+'/legs',{user_id:user.id,market_id:run.market_id,outcome:side,max_price:market.prices[side],swarm_run_id:run.id,fund_test_tokens:fundTokens&&squad.member_limit>=3});
    setAdded(squad.name);setOpen(false);
   }catch(e){setError(e.message)}finally{setBusy(false)}
  }
@@ -33,7 +34,7 @@ export default function SwarmLegPicker({user,run,defaultSquadId}){
  <fieldset><legend>Your choice</legend>{['yes','no'].map(value=><button type="button" key={value} aria-pressed={side===value} disabled={busy||!market?.prices?.[value]} onClick={()=>setSide(value)}>{value.toUpperCase()} {market?.prices?.[value]!=null?Math.round(Number(market.prices[value])*100)+'¢':'—'}</button>)}</fieldset>
  {taken&&<p role="status">{taken.user_name} picked this event first. Its opposite sides and other outcomes are reserved.</p>}
  {!market&&!busy&&<p>This market is no longer available with current quotes.</p>}
- <button className="primary" type="submit" disabled={busy||!!taken||!squadId||!market?.prices?.[side]}>{busy?<LoaderCircle size={16} className="spin"/>:<Plus size={16}/>}Add my {side.toUpperCase()} leg</button></>}
+ <p>{fundTokens&&squad?.member_limit>=3?`Confirming starts an escrow for ${((squad.stake_cents-squad.stake_cents/squad.member_limit)/100).toFixed(2)} SPC test tokens from your wallet. Your leg is frozen while funding is pending.`:"This records your proposed leg."}</p><button className="primary" type="submit" disabled={busy||!!taken||!squadId||!market?.prices?.[side]}>{busy?<LoaderCircle size={16} className="spin"/>:<Plus size={16}/>}Add my {side.toUpperCase()} leg</button></>}
  <button type="button" className="secondary" disabled={busy} onClick={()=>setOpen(false)}>Cancel</button>
  </form>}
  </div>;

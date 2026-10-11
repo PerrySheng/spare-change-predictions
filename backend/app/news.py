@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
+from typing import Literal
 from .database import User, Position
 from .squad_models import SquadLeg
 from .scoring import TOPICS, topic_for
@@ -66,11 +67,11 @@ def register_news(app,engine,feed,reading):
     def news_markets(user_id:str,market_id:str|None=None):
         weights=weights_for(user_id)
         ordered=order_markets(feed.markets(),weights)
-        markets=ordered[:40]
+        markets=ordered
         if market_id and not any(m['id']==market_id for m in markets):
             selected=next((m for m in ordered if m['id']==market_id),None)
             if selected: markets.insert(0,selected)
-        return {'markets':markets,'topics':weights,
+        return {'markets':markets,'topics':weights,'topic_counts':{t:sum(m['topic']==t for m in markets) for t in TOPICS},
                 'method':'Interests plus actual category picks and sample-weighted positive edge. Losses never increase the edge boost.'}
     @app.get('/news/articles')
     def news_articles(user_id:str,market_id:str):
@@ -87,3 +88,16 @@ def register_news(app,engine,feed,reading):
             cache_sources(engine,market_id,result['sources'],'Context.dev')
         return {**result,'market':market,'related_markets':related_markets(rows,market),'topics':weights,
                 'matching':'Related markets share this market’s Gemini topic. Source links are reading material, not verified predictions.'}
+
+    @app.get('/news/topics/articles')
+    def topic_articles(user_id:str,topic:Literal['sports','crypto','politics','weather','entertainment','economy']):
+        weights=weights_for(user_id)
+        from .swarm import cached_sources,cache_sources
+        sources=cached_sources(engine,'topic:'+topic)
+        if sources:result={'provider':'Context.dev shared cache','sources':sources[:5],'cached':True,'partial':False}
+        else:
+            result=reading.materials('Latest '+topic+' news and developments')
+            cache_sources(engine,'topic:'+topic,result['sources'],'Context.dev')
+        related=[m for m in unique_markets(feed.markets()) if m['topic']==topic][:4]
+        return {**result,'topic':topic,'related_markets':related,'topics':weights,
+                'matching':'Reading is from Context.dev. Only actual open Gemini markets are offered as related bets.'}

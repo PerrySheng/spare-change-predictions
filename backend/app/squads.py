@@ -8,12 +8,12 @@ import json
 import secrets
 import ipaddress
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 from typing import Literal
 from urllib.parse import urlsplit
 
-from fastapi import HTTPException, Query, Request
+from fastapi import HTTPException, Query, Request, BackgroundTasks
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
 from sqlalchemy import select, text, or_
@@ -23,7 +23,7 @@ from .database import User, timestamp
 from .providers import ProviderError
 from .squad_models import Squad, SquadMember, SquadLeg, SquadVote, SquadEvent
 from .squad_metrics import track_record, payout_plan
-from .xrpl_models import XRPLSettlement
+from .xrpl_models import XRPLSettlement,XRPLEscrow
 
 
 def _date(value):
@@ -77,6 +77,7 @@ class PickLeg(MemberInput):
     outcome: Literal['yes', 'no']
     max_price: Decimal | None = Field(default=None, gt=0, lt=1)
     swarm_run_id: str | None = Field(default=None,min_length=1,max_length=100)
+    fund_test_tokens: bool = False
 
 
 class VoteLeg(MemberInput):
@@ -191,7 +192,9 @@ def register_squads(app, engine, feed):
 
     def require_open(session, squad):
         apply_deadline(session, squad)
-        if session.get(XRPLSettlement, squad.id):
+        settlement=session.get(XRPLSettlement,squad.id)
+        partial=session.scalar(select(SquadEvent.id).where(SquadEvent.squad_id==squad.id,SquadEvent.type=='funding_open'))
+        if settlement and not (partial and settlement.status=='gathering' and squad.status=='open'):
             raise HTTPException(409, 'Escrow setup has frozen this squad. Picks, joins, and reactions cannot change.')
         if squad.status != 'open': raise HTTPException(409, 'This squad is locked. Picks, joins, and reactions are frozen.')
 
@@ -231,6 +234,9 @@ def register_squads(app, engine, feed):
         legs = []
         for leg in picks:
             research=session.scalar(select(SquadEvent).where(SquadEvent.leg_id==leg.id,SquadEvent.type=='swarm_leg').order_by(SquadEvent.id.desc()))
+            escrow=session.scalar(select(XRPLEscrow).where(XRPLEscrow.squad_id==squad.id,XRPLEscrow.user_id==leg.user_id))
+            funding_event=session.scalar(select(SquadEvent).where(SquadEvent.leg_id==leg.id,SquadEvent.type.in_(['funding_requested','funding_error'])).order_by(SquadEvent.id.desc()))
+            funding={'status':escrow.status,'amount_cents':escrow.amount_cents,'hash':escrow.create_hash,'currency':'SPC'} if escrow else {'status':'error' if funding_event.type=='funding_error' else 'queued','message':funding_event.body,'currency':'SPC'} if funding_event else None
             votes = session.scalars(select(SquadVote).where(SquadVote.leg_id == leg.id).order_by(SquadVote.created_at, SquadVote.id)).all()
             reaction_rows = [{'user_id': vote.user_id, 'user_name': get_user(session, vote.user_id).name,
                               'reaction': vote.reaction, 'comment': vote.comment, 'created_at': vote.created_at, 'updated_at': vote.updated_at} for vote in votes]
@@ -239,7 +245,7 @@ def register_squads(app, engine, feed):
                          'category': leg.category, 'outcome': leg.outcome, 'entry_price': leg.entry_price, 'closes_at': leg.closes_at,
                          'status': leg.status, 'locked': leg.locked, 'created_at': leg.created_at, 'resolved_at': leg.resolved_at,
                          'agree_count': sum(v.reaction == 'agree' for v in votes), 'disagree_count': sum(v.reaction == 'disagree' for v in votes), 'votes': reaction_rows,
-                         'swarm_research':research.data if research else None})
+                         'swarm_research':research.data if research else None,'funding':funding})
         events = session.scalars(select(SquadEvent).where(SquadEvent.squad_id == squad.id).order_by(SquadEvent.id.desc()).limit(200)).all()
         events = [event_json(session, row) for row in reversed(events)]
         plan = None
@@ -337,12 +343,17 @@ def register_squads(app, engine, feed):
             return join(session, squad, payload.user_id)
 
     @app.post('/squads/{squad_id}/legs')
-    def choose_leg(squad_id: str, payload: PickLeg):
+    def choose_leg(squad_id: str, payload: PickLeg, background_tasks:BackgroundTasks):
         # Validate membership before contacting providers; recheck under the write lock.
         with db() as session:
             squad = member_squad(session, squad_id, payload.user_id)
             if squad.status != 'open' or _date(squad.lock_at) <= datetime.now(timezone.utc):
                 raise HTTPException(409, 'This squad is locked. Picks are frozen.')
+            if payload.fund_test_tokens:
+                if not getattr(app.state,'xrpl_service',None):raise HTTPException(503,'Test-token escrow is not configured.')
+                app.state.xrpl_service.ready()
+                if not 3<=squad.member_limit<=6 or squad.stake_cents%squad.member_limit:
+                    raise HTTPException(409,'Automatic SPC escrow needs 3–6 members and a stake divisible by the member count.')
             if payload.swarm_run_id:
                 from .swarm_connections import research_for_leg
                 research_for_leg(session,squad_id,payload.user_id,payload.market_id,payload.swarm_run_id)
@@ -359,8 +370,16 @@ def register_squads(app, engine, feed):
             taken=session.scalar(select(SquadLeg).where(SquadLeg.squad_id==squad.id,or_(SquadLeg.market_id==payload.market_id,SquadLeg.event_ticker==market['event_ticker']),SquadLeg.active.is_(True),SquadLeg.user_id!=payload.user_id))
             if taken:raise HTTPException(409,get_user(session,taken.user_id).name+' already picked this event first. Its other outcomes and opposite sides are reserved. Choose a different event.')
             old = session.scalar(select(SquadLeg).where(SquadLeg.squad_id == squad.id, SquadLeg.user_id == payload.user_id, SquadLeg.active.is_(True)))
+            if old and old.locked and (old.market_id!=payload.market_id or old.outcome!=payload.outcome):raise HTTPException(409,'Your funded or pending escrow leg is frozen. It cannot be swapped.')
+            settlement=session.get(XRPLSettlement,squad.id)
+            if settlement and int((closes+timedelta(days=1)).timestamp())-946684800>=settlement.cancel_after:
+                raise HTTPException(409,'This event closes too late for the squad escrow. Choose an earlier event.')
             if old and old.market_id == payload.market_id and old.outcome == payload.outcome:
                 if run:attach_researched_leg(session,squad,old,run)
+                if payload.fund_test_tokens and not old.locked:
+                    old.locked=True
+                    event(session,squad,'funding_requested','SPC test-token escrow requested. Waiting for XRPL confirmation.',payload.user_id,old.id)
+                    background_tasks.add_task(app.state.xrpl_service.fund_pick_in_background,squad.id,payload.user_id,old.id)
                 return detail(session,squad)
             if old: old.active = False
             leg = SquadLeg(squad_id=squad.id, user_id=payload.user_id, market_id=payload.market_id, outcome=payload.outcome,
@@ -370,6 +389,10 @@ def register_squads(app, engine, feed):
             name = get_user(session, payload.user_id).name
             event(session, squad, 'swap' if old else 'pick', f"{name} {'swapped to' if old else 'picked'} {payload.outcome.upper()}: {leg.label or leg.title} at {price}.", payload.user_id, leg.id)
             if run:attach_researched_leg(session,squad,leg,run)
+            if payload.fund_test_tokens:
+                leg.locked=True
+                event(session,squad,'funding_requested','SPC test-token escrow requested. Waiting for XRPL confirmation.',payload.user_id,leg.id)
+                background_tasks.add_task(app.state.xrpl_service.fund_pick_in_background,squad.id,payload.user_id,leg.id)
             return detail(session, squad)
 
     @app.post('/squads/{squad_id}/votes')
@@ -378,6 +401,7 @@ def register_squads(app, engine, feed):
             squad = member_squad(session, squad_id, payload.user_id); require_open(session, squad)
             leg = session.get(SquadLeg, payload.leg_id)
             if not leg or leg.squad_id != squad.id or not leg.active: raise HTTPException(404, 'Active squad leg not found.')
+            if leg.locked:raise HTTPException(409,'Reactions on this funded leg are frozen.')
             vote = session.scalar(select(SquadVote).where(SquadVote.leg_id == leg.id, SquadVote.user_id == payload.user_id))
             comment = payload.comment.strip()
             if vote and vote.reaction == payload.reaction and vote.comment == comment: return detail(session, squad)
@@ -407,6 +431,7 @@ def register_squads(app, engine, feed):
             name = get_user(session, payload.user_id).name
             if payload.reaction:
                 require_open(session, squad)
+                if leg.locked:raise HTTPException(409,'Reactions on this funded leg are frozen.')
                 vote = session.scalar(select(SquadVote).where(SquadVote.leg_id == leg.id, SquadVote.user_id == payload.user_id))
                 if vote:
                     vote.reaction = payload.reaction; vote.comment = payload.summary.strip()[:300]; vote.updated_at = timestamp()

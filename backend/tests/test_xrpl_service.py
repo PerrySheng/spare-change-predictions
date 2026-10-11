@@ -8,6 +8,8 @@ from app.database import User, build_engine
 from app.squad_models import Squad, SquadMember, SquadLeg
 from app.xrpl_models import XRPLWallet, XRPLEscrow, XRPLOperation, XRPLSettlement
 from app.xrpl_service import register_xrpl
+from app.squads import register_squads
+from app import swarm_models
 
 
 class Feed:
@@ -16,6 +18,9 @@ class Feed:
         self.calls.append(ticker)
         resolution = self.results.get(ticker.lower())
         return [{'id': ticker.lower(), 'event_ticker': ticker, 'outcome': side, 'resolution': resolution, 'status': 'resolved' if resolution else 'active'} for side in ['yes', 'no']]
+    def market(self,symbol,outcome):
+        return {**next(row for row in self.event(symbol.upper()) if row['outcome']==outcome),'title':'Event '+symbol,'label':symbol,'category':'sports','price':'.5','closes_at':(datetime.now(timezone.utc)+timedelta(days=1)).isoformat()}
+    def markets(self):return [self.market(m,s) for m in self.results for s in ('yes','no')]
 
 
 class Executor:
@@ -62,7 +67,7 @@ def setup(tmp_path, monkeypatch):
             s.add(SquadMember(squad_id='squad',user_id=user))
             s.add(SquadLeg(id=f'l{index}',squad_id='squad',user_id=user,market_id=f'm{index}',event_ticker=f'M{index}',title='Event',label='Contract',category='sports',outcome='yes',entry_price='.5',closes_at=(datetime.now(timezone.utc)+timedelta(days=1)).isoformat(),locked=True))
         s.commit()
-    executor=Executor(); executor.engine=engine; feed=Feed(); app=FastAPI(); register_xrpl(app,engine,feed,executor=executor)
+    executor=Executor(); executor.engine=engine; feed=Feed(); app=FastAPI(); register_xrpl(app,engine,feed,executor=executor);register_squads(app,engine,feed)
     with TestClient(app) as client: yield client, executor, feed, engine
 
 
@@ -235,3 +240,65 @@ def test_active_but_paused_contract_cannot_receive_collateral(setup):
     feed.event=paused
     assert c.post('/squads/squad/xrpl/lock',json={'user_id':'a'}).status_code==409
     assert not any(call['operation']=='escrow-create' for call in e.calls)
+
+
+def partial_squad(engine):
+    with Session(engine) as s:
+        squad=s.get(Squad,'squad');squad.status='open';squad.locked_at=None
+        s.query(SquadLeg).filter(SquadLeg.user_id!='a').delete()
+        s.query(SquadMember).filter(SquadMember.user_id!='a').delete()
+        s.get(SquadLeg,'l1').locked=False
+        s.commit()
+
+
+def test_pick_funding_locks_only_owners_collateral_and_remaining_friends_can_join(setup):
+    c,e,_,engine=setup;partial_squad(engine)
+    response=c.post('/squads/squad/xrpl/fund-pick',json={'user_id':'a'})
+    assert response.status_code==200,response.text
+    assert response.json()['escrows'][0]['status']=='locked'
+    assert response.json()['escrows'][0]['amount_cents']==1000
+    with Session(engine) as s:
+        assert s.get(Squad,'squad').status=='open' and s.get(SquadLeg,'l1').locked
+    assert c.post('/squads/join',json={'user_id':'b','invite_code':'CODE'}).status_code==200
+    assert c.post('/squads/squad/legs',json={'user_id':'a','market_id':'m2','outcome':'yes'}).status_code==409
+    assert c.post('/squads/squad/legs',json={'user_id':'b','market_id':'m2','outcome':'yes'}).status_code==200
+    count=len([call for call in e.calls if call['operation']=='escrow-create'])
+    assert c.post('/squads/squad/xrpl/fund-pick',json={'user_id':'a'}).status_code==200
+    assert len([call for call in e.calls if call['operation']=='escrow-create'])==count
+
+
+def test_confirming_pick_with_test_tokens_starts_a_journaled_real_escrow(setup):
+    c,e,_,engine=setup;partial_squad(engine)
+    with Session(engine) as s:s.get(SquadLeg,'l1').active=False;s.commit()
+    response=c.post('/squads/squad/legs',json={'user_id':'a','market_id':'m1','outcome':'yes','fund_test_tokens':True})
+    assert response.status_code==200,response.text
+    detail=c.get('/squads/squad',params={'user_id':'a'}).json()
+    assert detail['legs'][0]['funding']['status']=='locked'
+    assert detail['legs'][0]['locked'] is True
+    assert len([call for call in e.calls if call['operation']=='escrow-create'])==1
+    assert len([event for event in detail['events'] if event['type']=='funding_requested'])==1
+
+
+def test_automatic_escrow_unknown_transfer_stays_frozen_without_duplicate_submission(setup):
+    c,e,_,engine=setup;partial_squad(engine)
+    e.fail=('escrow-create','unconfirmed')
+    response=c.post('/squads/squad/legs',json={'user_id':'a','market_id':'m1','outcome':'yes','fund_test_tokens':True})
+    assert response.status_code==200
+    detail=c.get('/squads/squad',params={'user_id':'a'}).json()
+    assert detail['legs'][0]['funding']['status']=='unknown'
+    assert detail['legs'][0]['locked'] is True
+    assert c.post('/squads/squad/xrpl/fund-pick',json={'user_id':'a'}).status_code==409
+    assert len([call for call in e.calls if call['operation']=='escrow-create'])==1
+
+
+def test_late_event_and_reactions_cannot_change_a_funded_partial_slip(setup):
+    c,e,feed,engine=setup;partial_squad(engine)
+    assert c.post('/squads/squad/xrpl/fund-pick',json={'user_id':'a'}).status_code==200
+    assert c.post('/squads/join',json={'user_id':'b','invite_code':'CODE'}).status_code==200
+    assert c.post('/squads/squad/votes',json={'user_id':'b','leg_id':'l1','reaction':'agree'}).status_code==409
+    assert c.post('/squads/squad/articles',json={'user_id':'b','leg_id':'l1','reaction':'agree','title':'News','url':'https://example.org/news'}).status_code==409
+    original=feed.market
+    feed.market=lambda symbol,side:{**original(symbol,side),'closes_at':(datetime.now(timezone.utc)+timedelta(days=90)).isoformat()}
+    before=len(e.calls)
+    r=c.post('/squads/squad/legs',json={'user_id':'b','market_id':'m2','outcome':'yes','fund_test_tokens':True})
+    assert r.status_code==409 and len(e.calls)==before

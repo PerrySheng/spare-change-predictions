@@ -80,6 +80,7 @@ No private provider credentials are supplied. Add only credentials you own to th
 | `ANTHROPIC_MODEL=claude-sonnet-5-5` | Documented model; the worker checks actual account/model capabilities before paid calls. |
 | `XRPL_NETWORK=testnet` | Only `testnet` or `devnet`; mainnet is refused. |
 | `XRPL_WALLET_KEY` | Stable base64 32-byte encryption key for custodial test-wallet seeds and escrow fulfillments. Back it up with the database. |
+| `APP_PUBLIC_DEMO=true` | Opens the production paper/Testnet demo without a shared access code; signed profile protection remains. |
 | `DATABASE_URL=sqlite:///./spare_change.db` | SQLite database, relative to the backend working directory. |
 
 ### Gemini sandbox keys
@@ -126,7 +127,7 @@ Create a squad in **Group betting**, give friends the invite code, and have each
 
 The Gemini combo adapter supports the documented canonical-combo plus single FOK order flow, but combined placement remains gated: authenticated order creation/fill and a reliable decimal contract-ID mapping have not been verified. Read-only sandbox authentication and accepted terms have passed. The UI says **Not placed**. See [Gemini combo verification](docs/GEMINI_COMBOS.md).
 
-For XRPL, follow [XRPL setup and evidence](docs/XRPL.md). Configure a stable encryption key before creating wallets. When configured, onboarding requests a faucet-funded custodial test wallet in the background; an outage leaves onboarding usable and the wallet panel shows its actual state. Existing profiles can use **Create & fund my test wallet**. Each member explicitly locks their own SPC collateral; the first lock freezes the complete squad. Two-member slips can collaborate but cannot use this Batch escrow design. Stake cents must divide evenly by member count.
+For XRPL, follow [XRPL setup and evidence](docs/XRPL.md). Configure a stable encryption key before creating wallets. When configured, onboarding requests a faucet-funded custodial test wallet in the background; an outage leaves onboarding usable and the wallet panel shows its actual state. Existing profiles can use **Create & fund my test wallet**. Confirming a funded pick immediately requests that member’s SPC escrow. Its leg freezes while pending, and only a validated ledger transaction marks collateral locked. Remaining friends can join and pick different events while the partial slip gathers collateral. A later pick must close within the existing escrow window. The complete squad then freezes; failed or uncertain transfers are visible and do not manufacture funds. Two-member slips can collaborate but cannot use this Batch escrow design. Stake cents must divide evenly by member count.
 
 The creator can settle only after every member's collateral is confirmed and every leg has a fresh final Gemini result. The server reveals escrow fulfillments and submits one all-or-nothing payout Batch, verifying inner payments and balances. The app journals each external action before submission and blocks uncertain retries. Refunds require a real **EscrowCancel** after validated ledger time passes the deadline; `CancelAfter` does not automatically refund. This is a test-token experiment, with app-held keys and app-observed Gemini outcomes; multisign approval is not implemented.
 
@@ -150,7 +151,7 @@ The Gemini spike first reads public production markets, then reads sandbox marke
 
 After the production build is served on port 8000, follow [SHORTCUT_SETUP.md](SHORTCUT_SETUP.md) for an HTTPS phone tunnel and Apple Pay automation. [DEMO.md](DEMO.md) gives a short walkthrough that starts without credentials.
 
-For local development, name onboarding stores a profile ID in localStorage. The Railway friend demo additionally requires a private access code or valid open squad invite and signed Secure/HttpOnly cookies tied to one profile; knowing another profile ID cannot impersonate them. This is a private friend test, without recoverable public accounts. Everyone must use the same Railway URL; localhost has a different database. See [Railway deployment](docs/RAILWAY_DEPLOYMENT.md).
+For local development, name onboarding stores a profile ID in localStorage. The public Railway demo opens without a shared code, while signed Secure/HttpOnly cookies tie each browser to one profile; knowing another profile ID cannot impersonate them. Recoverable public accounts are not implemented. Private friend access remains available when APP_PUBLIC_DEMO=false. Everyone must use the same Railway URL; localhost has a different database. See [Railway deployment](docs/RAILWAY_DEPLOYMENT.md).
 
 The PWA manifest and service worker support a home-screen app shell in a secure browser context. The service worker caches the shell/assets, never financial/provider responses; allocations and fresh data still need the backend and network. Device installation, Apple Pay trigger fields, credentialed exchange orders, and the reading UI require separate testing on your device/accounts. The reading API has passed a live Context.dev check.
 
@@ -163,3 +164,9 @@ Google mode requests up to nine calls: four independent estimates, four revision
 The free-tier implementation permits four request starts per 61 seconds, one active run globally, a one-minute cooldown between runs, and two new runs per profile per hour. These controls apply across friends and persist across server restarts through the run records. Google can still return quota or temporary capacity errors. Cached forecasts and shared results do not trigger new model calls. Google Search tools are disabled; Context.dev and Railway costs remain separate. [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
 
 A winning contract pays $1. The fractional earnings preview uses amount / price and is labeled before fees; actual execution buys whole contracts on the venue grid and shows its own fee-aware total. $0.73 at 40¢ previews Win $1.83 (+$1.10), while the executable contract count can be lower. The click response adapts [React Bits ClickSpark](https://reactbits.dev/animations/click-spark), retaining its license and reduced-motion support.
+
+## Try it and present it
+
+[Live demo](https://spare-production.up.railway.app) · [Public source](https://github.com/PerrySheng/spare-change-predictions) · [Two-minute demo script](DEMO_SCRIPT.md).
+
+News now includes the complete open-market list instead of the first 40 contracts, recognizes political/climate category aliases, and offers real Context.dev subject reading when no related market is open. [Two genuine Google + Context.dev forecast runs and event logs](docs/SWARM_GOOGLE_LIVE_CHECK.json) are saved as public verification evidence, not runtime fixtures.

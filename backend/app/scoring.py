@@ -12,6 +12,9 @@ def topic_for(category):
     c=category.lower()
     for topic in TOPICS:
         if topic in c: return topic
+    if any(x in c for x in ('politic','election','government')):return 'politics'
+    if any(x in c for x in ('climate','temperature','meteorolog')):return 'weather'
+    if any(x in c for x in ('culture','celebrity','award')):return 'entertainment'
     if any(x in c for x in ['economic','finance','commodit','energy']): return 'economy'
     return c
 def spending_topics(transactions):

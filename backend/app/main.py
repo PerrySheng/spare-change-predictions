@@ -139,7 +139,7 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
     @app.exception_handler(ProviderError)
     def provider_error(request,exc): return JSONResponse(status_code=503,content={'detail':str(exc)})
     @app.get('/health')
-    def health(): return {'status':'ok','trading_mode':mode,'plaid_configured':bool(os.getenv('PLAID_CLIENT_ID') and os.getenv('PLAID_SECRET')),'gemini_configured':bool(os.getenv('GEMINI_API_KEY') and os.getenv('GEMINI_API_SECRET')),'context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY')),'anthropic_configured':bool(os.getenv('ANTHROPIC_API_KEY')),'swarm_provider':swarm_config()['provider'],'swarm_configured':swarm_config()['configured']}
+    def health(): return {'status':'ok','trading_mode':mode,'plaid_configured':bool(os.getenv('PLAID_CLIENT_ID') and os.getenv('PLAID_SECRET')),'gemini_configured':bool(os.getenv('GEMINI_API_KEY') and os.getenv('GEMINI_API_SECRET')),'context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY')),'anthropic_configured':bool(os.getenv('ANTHROPIC_API_KEY')),'swarm_provider':swarm_config()['provider'],'swarm_configured':swarm_config()['configured'],'xrpl_configured':xrpl_configured()}
     @app.post('/users',status_code=201)
     def create_user(payload:Onboarding,background_tasks:BackgroundTasks,response:Response):
         with db(True) as s:
