@@ -20,6 +20,7 @@ function App(){
  const [marketRevision,setMarketRevision]=useState(0);
  const readSwarmRoute=()=>location.pathname.startsWith('/swarm/')?{runId:location.pathname.split('/')[2],market:null,squadId:new URLSearchParams(location.search).get('squad_id')}:null;
  const [tab,setTab]=useState('spare'),[newsMarket,setNewsMarket]=useState(null),[bet,setBet]=useState(null),[swarm,setSwarm]=useState(readSwarmRoute);
+ const [inviteCode,setInviteCode]=useState('');
  function research(m){setNewsMarket(m);setTab('news')}
  function openBet(market,side,options={}){setBet({market,side,...options,roundupId:active?.roundup_id})}
  function openSwarm(m,options={}){setSwarm({market:m,runId:null,...options});if(options.runId)history.pushState({},'','/swarm/'+options.runId+(options.squadId?'?squad_id='+encodeURIComponent(options.squadId):''))}
@@ -33,7 +34,7 @@ function App(){
  }
  useEffect(()=>{
   mounted.current=true;
-  (async()=>{try{const h=await api('/health');setHealth(h);const id=localStorage.getItem('spare-user');if(id){try{const u=await api('/users/'+id);setUser(u);await refresh(u)}catch(e){if(e.message.startsWith('User not found'))localStorage.removeItem('spare-user');else throw e}}}catch(e){setError(e.message)}finally{setLoading(false)}})();
+  (async()=>{try{const h=await api('/health');setHealth(h);try{const invitation=await api('/access/invite');if(invitation.invite_code){setInviteCode(invitation.invite_code);setTab('group')}}catch{}const id=localStorage.getItem('spare-user');if(id){try{const u=await api('/users/'+id);setUser(u);await refresh(u)}catch(e){if(e.message.startsWith('User not found'))localStorage.removeItem('spare-user');else throw e}}}catch(e){setError(e.message)}finally{setLoading(false)}})();
   return()=>{mounted.current=false};
  },[]);
  useEffect(()=>{if(!toast)return;const timer=setTimeout(()=>setToast(''),5500);return()=>clearTimeout(timer)},[toast]);
@@ -72,7 +73,7 @@ function App(){
    <main>
    {error&&!dialog&&<div className="notice error" role="alert"><Info size={18}/><span>{error}</span><button aria-label="Dismiss error" onClick={()=>setError('')}><X size={16}/></button></div>}
    {loading?<div className="loading"><Spinner/> Connecting to your change…</div>:!user?<Onboarding busy={busy} onSubmit={data=>runAction(async()=>{const u=await post('/users',data);localStorage.setItem('spare-user',u.id);setUser(u);await refresh(u)})}/>:<>
-    {tab==='group'&&<GroupTab user={user} onResearch={research} onSwarm={openSwarm}/>}
+    {tab==='group'&&<GroupTab user={user} onResearch={research} onSwarm={openSwarm} initialInviteCode={inviteCode}/>}
     {tab==='news'&&<NewsTab user={user} selectedMarket={newsMarket} onSwarm={openSwarm} onBet={openBet}/>}
     {tab==='spare'&&<nav className="spare-subnav" role="tablist" aria-label="Spare pages">{[['change','Your change'],['feed','Activity'],['pot','Your pot']].map(([id,label])=><button key={id} role="tab" aria-selected={page===id} onClick={()=>setPage(id)}>{label}</button>)}</nav>}
     {tab==='spare'&&page==='change'&&<>
@@ -100,7 +101,7 @@ function App(){
    <div className="app-disclosure">{mode==='sandbox'?'Sandbox funds. Orders use test money.':'Paper mode. No money moves.'} <span>USD only.</span></div>
   </div></div>
   {toast&&<div className="toast" role="status"><Check size={18}/>{toast}</div>}
-  {user&&swarm&&<div className="swarm-overlay"><Suspense fallback={<div className="loading"><Spinner/>Opening the research workspace…</div>}><SwarmView user={user} market={swarm.market} runId={swarm.runId} squadId={swarm.squadId} shareSquad={swarm.shareSquad} onClose={closeSwarm} onRun={runId=>{setSwarm(old=>({...old,runId}));history.pushState({},'', '/swarm/'+runId)}}/></Suspense></div>}
+  {user&&swarm&&<div className="swarm-overlay"><Suspense fallback={<div className="loading"><Spinner/>Opening the research workspace…</div>}><SwarmView user={user} market={swarm.market} runId={swarm.runId} squadId={swarm.squadId} shareSquad={swarm.shareSquad} defaultSquadId={swarm.defaultSquadId} onClose={closeSwarm} onRun={runId=>{setSwarm(old=>({...old,runId}));history.pushState({},'', '/swarm/'+runId)}}/></Suspense></div>}
   {user&&bet&&(bet.demo?<DemoBetDialog market={bet.market} side={bet.side} onClose={()=>setBet(null)}/>:<MarketBetDialog user={user} market={bet.market} side={bet.side} purchases={feed} initialRoundupId={bet.roundupId} rolloverCents={dashboard?.rollover_cents||0} onClose={()=>setBet(null)} onPurchase={()=>{setBet(null);setTab('spare');setDialog('purchase')}} onDone={async r=>{setBet(null);setToast(r.status==='paper'?'Paper position recorded.':r.message||'Sandbox order submitted.');try{await refresh()}catch(e){setError(e.message)}}}/>)}
   {dialog&&<div className="modal-backdrop" onClick={e=>{if(e.target===e.currentTarget&&!busy)setDialog(null)}}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div className="modal-heading"><h2 id="modal-title">{dialog==='purchase'?'Add a purchase':'Your preferences'}</h2><button className="icon-button" aria-label="Close dialog" disabled={busy} onClick={()=>setDialog(null)}><X size={20}/></button></div>{error&&<div className="notice error" role="alert"><Info size={18}/><span>{error}</span></div>}{dialog==='purchase'?<PurchaseForm busy={busy} onSubmit={data=>runAction(async()=>{const p=await post('/purchases',{...data,user_id:user.id,source_id:crypto.randomUUID()});setDialog(null);setActive(p);setTab('spare');setPage('change');await refresh();if(p.roundup_cents===0)setToast('Already a whole dollar. No round-up needed.')})}/>:<SettingsForm user={user} busy={busy} onSubmit={saveSettings}/>}</section></div>}
  </div>

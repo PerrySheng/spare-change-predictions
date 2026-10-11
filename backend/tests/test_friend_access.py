@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime,timedelta,timezone
 from fastapi.testclient import TestClient
 from app.main import create_app
 from test_api import MarketFeed
@@ -43,3 +44,14 @@ def test_production_does_not_start_without_required_private_access(monkeypatch):
     monkeypatch.setenv('APP_ENV','production');monkeypatch.delenv('APP_SESSION_SECRET',raising=False)
     with pytest.raises(ValueError,match='Production requires'):
         create_app('sqlite:///:memory:',feed=MarketFeed())
+
+def test_squad_invite_also_opens_the_app_for_a_new_friend(protected):
+    with TestClient(protected,base_url='https://friends.test') as a,TestClient(protected,base_url='https://friends.test') as b:
+        u=enter(a,'Alex')
+        squad=a.post('/squads',json={'user_id':u,'name':'Friends','stake_cents':1500,'member_limit':2,'lock_at':(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()}).json()
+        r=b.post('/access',data={'code':squad['invite_code']},follow_redirects=False)
+        assert r.status_code==303
+        assert b.get('/access/invite').json()['invite_code']==squad['invite_code']
+        v=b.post('/users',json={'name':'Blair','interests':[]}).json()['id']
+        joined=b.post('/squads/join',json={'user_id':v,'invite_code':squad['invite_code']})
+        assert joined.status_code==200 and len(joined.json()['members'])==2

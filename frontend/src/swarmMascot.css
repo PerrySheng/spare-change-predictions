@@ -1,0 +1,1 @@
+.swarm-bee{flex-shrink:0;overflow:visible}.swarm-bee.working .swarm-bee-wings{transform-origin:32px 27px;animation:swarm-wing .23s ease-in-out infinite alternate}@keyframes swarm-wing{to{transform:scaleY(.72)}}@media(prefers-reduced-motion:reduce){.swarm-bee.working .swarm-bee-wings{animation:none}}

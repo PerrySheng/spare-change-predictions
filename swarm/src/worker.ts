@@ -1,9 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk";
+import {GoogleGenAI, ApiError} from '@google/genai';
+import {googleModelCall} from './google.js';
+import {requestGate} from './requestGate.js';
 import type {Message, RawMessageStreamEvent, MessageCreateParamsNonStreaming} from "@anthropic-ai/sdk/resources/messages";
 import {readFileSync} from "node:fs";
 import {AGENTS, allowSearch, median, parseFinal, safeUrl, validateEstimate, type Agent, type Estimate, type Packet, type Source} from "./logic.js";
 
-type Input = {market: Record<string, unknown>; outcome: "yes" | "no"; sources: Source[]; model: string};
+type Input = {market: Record<string, unknown>; outcome: "yes" | "no"; sources: (Source & {provider?:string})[]; model: string; provider?:'gemini'|'anthropic'; reading?:{provider:string;query:string;cached:boolean}|null};
 const emit = (packet: Packet) => process.stdout.write(JSON.stringify(packet) + "\n");
 const knownSources = new Map<string, Source>();
 const totalUsage = {input_tokens: 0, output_tokens: 0, cache_creation_input_tokens: 0, cache_read_input_tokens: 0, web_search_requests: 0, model_calls: 0};
@@ -63,8 +66,9 @@ const roleInstruction: Record<Agent, string> = {
   "Skeptic": "Look for ways the YES thesis fails, ambiguous settlement rules, weak sources, and opposing evidence. Do not assume the opposite of consensus is correct.",
 };
 
-async function modelCall(client: Anthropic, input: Input, agent: string, prompt: string, tools: MessageCreateParamsNonStreaming["tools"], disableThinking: boolean): Promise<{json: unknown; text: string}> {
+async function modelCall(client: Anthropic|GoogleGenAI, input: Input, agent: string, prompt: string, tools: MessageCreateParamsNonStreaming["tools"], disableThinking: boolean, revised=false): Promise<{json: unknown; text: string}> {
   if (++totalUsage.model_calls > 9) throw new Error("Swarm model-call limit reached.");
+  if(client instanceof GoogleGenAI) return googleModelCall(client,input.model,agent,prompt,emit,totalUsage,revised);
   const reader = new ProviderEventReader(agent, emit, observeSource);
   let observedUsage: Partial<Message["usage"]> = {};
   const stream = client.messages.stream({model: input.model, max_tokens: 1800,
@@ -96,21 +100,31 @@ async function modelCall(client: Anthropic, input: Input, agent: string, prompt:
 }
 
 async function run(input: Input): Promise<void> {
-  if (!process.env.ANTHROPIC_API_KEY?.trim()) throw new Error("Set ANTHROPIC_API_KEY in the server .env to run the research swarm.");
-  const client = new Anthropic({maxRetries: 0, timeout: 120_000});
-  // Read actual account/model capabilities before any paid Messages call.
-  const model = await client.models.retrieve(input.model);
-  const capabilities = model.capabilities;
-  if (!capabilities?.server_tools.web_search.supported) throw new Error("The configured Anthropic model does not report web-search support. Check ANTHROPIC_MODEL and account access.");
-  const disableThinking = capabilities.thinking.types.disabled.supported;
+  const provider=input.provider??'anthropic';
+  let client:Anthropic|GoogleGenAI;let disableThinking=false;
+  if(provider==='gemini') {
+    if(!process.env.GOOGLE_AI_API_KEY?.trim()) throw new Error('Set GOOGLE_AI_API_KEY on the server to run Swarm.');
+    client=new GoogleGenAI({apiKey:process.env.GOOGLE_AI_API_KEY,httpOptions:{timeout:120000,retryOptions:{attempts:1}}});
+  } else {
+    if (!process.env.ANTHROPIC_API_KEY?.trim()) throw new Error("Set ANTHROPIC_API_KEY in the server .env to run the research swarm.");
+    client=new Anthropic({maxRetries:0,timeout:120000});
+    const model=await client.models.retrieve(input.model);const capabilities=model.capabilities;
+    if(!capabilities?.server_tools.web_search.supported) throw new Error('The configured Anthropic model does not report web-search support.');
+    disableThinking=capabilities.thinking.types.disabled.supported;
+  }
   const publicSources = (input.sources ?? []).filter(s => safeUrl(s.url)).slice(0, 15);
   for (const source of publicSources) knownSources.set(source.url, source);
+  if(input.reading && !input.reading.cached) totalUsage.web_search_requests++;
   const observedUrls = () => new Set([...knownSources.keys(), ...(safeUrl(input.market.terms_url) ? [input.market.terms_url] : [])]);
   const snapshot = JSON.stringify(input.market);
   const outputShape = '{"probability": number from 0 to 1, "confidence": "low"|"medium"|"high", "reasons": [three brief reasons], "sources": [only source URLs actually observed]}';
+  const acquire=provider==='gemini'?requestGate():async()=>{};
   const round1 = await Promise.all(AGENTS.map(async agent => {
+    await acquire();
     emit({type: "agent_started", data: {agent, round: 1}});
     const ownSources = agent === "Market Reader" ? [] : publicSources;
+    if(agent==='News Scout' && input.reading?.query && !input.reading.cached) emit({type:'search_query',data:{agent,query:input.reading.query.slice(0,500),provider:'Context.dev'}});
+    for(const source of ownSources) emit({type:'source_found',data:{agent,...source,provider:source.provider??input.reading?.provider??'Shared research cache',cached:true}});
     const tools = allowSearch(agent, 1, ownSources) ? [{type: "web_search_20250305" as const, name: "web_search" as const, max_uses: 2}] : [];
     const allowed = agent === "Market Reader" ? new Set<string>(safeUrl(input.market.terms_url) ? [input.market.terms_url] : []) : undefined;
     const answer = await modelCall(client, input, agent, `${roleInstruction[agent]}\nIndependent round: you must not see or infer other agents' forecasts.\nGemini snapshot: ${snapshot}\nExisting public reading evidence: ${JSON.stringify(ownSources)}\nReturn ${outputShape}`, tools, disableThinking);
@@ -120,8 +134,9 @@ async function run(input: Input): Promise<void> {
   }));
   emit({type: "round_changed", data: {round: 2}});
   const round2 = await Promise.all(AGENTS.map(async agent => {
+    await acquire();
     emit({type: "agent_started", data: {agent, round: 2}});
-    const answer = await modelCall(client, input, agent, `${roleInstruction[agent]}\nDebate round. Review the independent forecasts below. Explain whether new evidence warrants revising your estimate. No further search is permitted. Do not agree merely to reduce disagreement.\nGemini snapshot: ${snapshot}\nRound 1 estimates: ${JSON.stringify(round1)}\nVerified source metadata: ${JSON.stringify([...knownSources.values()])}\nReturn ${outputShape} plus a nonempty "revision_reason" string.`, [], disableThinking);
+    const answer = await modelCall(client, input, agent, `${roleInstruction[agent]}\nDebate round. Review the independent forecasts below. Explain whether new evidence warrants revising your estimate. No further search is permitted. Do not agree merely to reduce disagreement.\nGemini snapshot: ${snapshot}\nRound 1 estimates: ${JSON.stringify(round1)}\nVerified source metadata: ${JSON.stringify([...knownSources.values()])}\nReturn ${outputShape} plus a nonempty "revision_reason" string.`, [], disableThinking, true);
     const estimate = validateEstimate(answer.json, observedUrls(), true);
     emit({type: "estimate_revised", data: {agent, round: 2, ...estimate}});
     return {agent, ...estimate};
@@ -131,6 +146,7 @@ async function run(input: Input): Promise<void> {
   const price = Number(input.market.price);
   if (!Number.isFinite(price) || price <= 0 || price >= 1) throw new Error("The recorded Gemini side price is unavailable.");
   emit({type: "round_changed", data: {round: 3}});
+  await acquire();
   emit({type: "agent_started", data: {agent: "Synthesizer", round: 3}});
   const answer = await modelCall(client, input, "Synthesizer", `Explain this fixed, code-computed YES probability ${probability}. You cannot change it. Give a plain-language summary, three short reasons, and a concise disagreement description from the four revised estimates.\nMarket: ${snapshot}\nRevised estimates: ${JSON.stringify(round2)}\nReturn only {"summary": "...", "reasons": [three short strings], "disagreements": "..."}.`, [], disableThinking);
   const summary = answer.json as {summary?: unknown; reasons?: unknown; disagreements?: unknown};
@@ -143,7 +159,7 @@ if (process.argv[1]?.endsWith("worker.js")) {
   try { await run(JSON.parse(readFileSync(0, "utf8"))); }
   catch (error) {
     // Never log provider error bodies, environment secrets, or hidden thinking.
-    const message = error instanceof Anthropic.AuthenticationError ? "Anthropic rejected the API key. Check ANTHROPIC_API_KEY." : error instanceof Anthropic.APIError ? `Anthropic request failed (HTTP ${error.status ?? "unavailable"}). Check model access, quota and server logs.` : error instanceof Error ? error.message : "Research worker failed.";
+    const message = error instanceof ApiError ? `Google AI request failed (HTTP ${error.status}). Check GOOGLE_AI_API_KEY, model access and free-tier quota.` : error instanceof Anthropic.AuthenticationError ? "Anthropic rejected the API key. Check ANTHROPIC_API_KEY." : error instanceof Anthropic.APIError ? `Anthropic request failed (HTTP ${error.status ?? "unavailable"}). Check model access, quota and server logs.` : error instanceof Error ? error.message : "Research worker failed.";
     emit({type: "error", data: {message}}); process.exitCode = 1;
   }
 }

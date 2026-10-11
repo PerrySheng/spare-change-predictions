@@ -296,3 +296,65 @@ def test_sources_from_shared_cache_are_passed_to_worker_without_new_context_call
     result = wait(service,service.start(RunInput(user_id='alice',market_id='market-a'))['id'])
     assert result['status'] == 'completed'
     assert observed[0]['url'] == 'https://cached.example/a'
+
+
+def test_google_provider_uses_separate_key_model_and_context_evidence(setup, monkeypatch):
+    app, service, engine=setup
+    monkeypatch.setenv('SWARM_PROVIDER','gemini')
+    monkeypatch.setenv('GOOGLE_AI_API_KEY','controlled-google-key')
+    monkeypatch.setenv('GOOGLE_AI_MODEL','configured-google-model')
+    monkeypatch.setenv('CONTEXT_DEV_API_KEY','controlled-context-key')
+    class Reading:
+        def materials(self,title,label):
+            return {'query':title+' '+label,'provider':'Context.dev','cached':False,'sources':[{'url':'https://context.example/news','title':'Public news','snippet':'Short public summary'}]}
+    service.reading=Reading()
+    captured=[]
+    def worker(payload):
+        captured.append(payload)
+        yield from completed_worker(payload)
+    service.worker=worker
+    response=TestClient(app).get('/swarm/config')
+    assert response.status_code==200 and response.json()['configured'] is True
+    assert 'controlled-google-key' not in response.text
+    result=wait(service,service.start(RunInput(user_id='alice',market_id='market-a'))['id'])
+    assert result['status']=='completed'
+    assert captured[0]['provider']=='gemini' and captured[0]['model']=='configured-google-model'
+    assert captured[0]['reading']['provider']=='Context.dev'
+    assert captured[0]['sources'][0]['url']=='https://context.example/news'
+
+
+def test_anthropic_or_exchange_key_cannot_substitute_for_google_key(setup, monkeypatch):
+    app,_,engine=setup
+    monkeypatch.setenv('SWARM_PROVIDER','gemini')
+    monkeypatch.setenv('GEMINI_API_KEY','controlled-exchange-key')
+    response=TestClient(app).post('/swarm/run',json={'user_id':'alice','market_id':'market-a'})
+    assert response.status_code==503 and 'GOOGLE_AI_API_KEY' in response.json()['detail']
+    with Session(engine) as session:
+        assert session.scalar(select(func.count()).select_from(SwarmRun))==0
+
+
+def test_google_cannot_invent_current_research_when_context_fails(setup, monkeypatch):
+    _,service,_=setup
+    monkeypatch.setenv('SWARM_PROVIDER','gemini')
+    monkeypatch.setenv('GOOGLE_AI_API_KEY','controlled-google-key')
+    monkeypatch.setenv('CONTEXT_DEV_API_KEY','controlled-context-key')
+    from app.providers import ProviderError
+    class Reading:
+        def materials(self,*args):raise ProviderError('Context unavailable')
+    service.reading=Reading()
+    def worker(payload):pytest.fail('No model call without current public evidence')
+    service.worker=worker
+    result=wait(service,service.start(RunInput(user_id='alice',market_id='market-a'))['id'])
+    assert result['status']=='failed' and 'Context.dev' in result['error']
+    assert not result['estimates']
+
+
+def test_google_budget_is_shared_across_friends_and_run_restarts(setup,monkeypatch):
+    app,service,engine=setup
+    monkeypatch.setenv('SWARM_PROVIDER','gemini');monkeypatch.setenv('GOOGLE_AI_API_KEY','controlled-key')
+    cache_sources(engine,'market-a',[{'url':'https://context.example/news','title':'Observed news'}],'Context.dev')
+    result=wait(service,service.start(RunInput(user_id='alice',market_id='market-a'))['id'])
+    assert result['status']=='completed'
+    response=TestClient(app).post('/swarm/run',json={'user_id':'bob','market_id':'market-b'})
+    assert response.status_code==429 and 'one minute' in response.json()['detail']
+    with Session(engine) as s:assert s.scalar(select(func.count()).select_from(SwarmRun))==1

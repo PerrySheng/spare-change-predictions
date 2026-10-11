@@ -30,6 +30,15 @@ CACHE_MINUTES = 30
 WORKER_FILE = Path(__file__).resolve().parents[2] / 'swarm' / 'dist' / 'worker.js'
 
 
+def swarm_config():
+    provider=(os.getenv('SWARM_PROVIDER') or 'anthropic').strip().lower()
+    if provider not in ('gemini','anthropic'):
+        return {'provider':provider,'model':None,'configured':False,'missing_variable':'SWARM_PROVIDER','context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY'))}
+    key='GOOGLE_AI_API_KEY' if provider=='gemini' else 'ANTHROPIC_API_KEY'
+    model=os.getenv('GOOGLE_AI_MODEL','gemini-3.5-flash-lite') if provider=='gemini' else os.getenv('ANTHROPIC_MODEL','claude-sonnet-5-5')
+    return {'provider':provider,'model':model,'configured':bool((os.getenv(key) or '').strip()),'missing_variable':key if not (os.getenv(key) or '').strip() else None,'context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY'))}
+
+
 @contextmanager
 def transaction(engine):
     with Session(engine) as session:
@@ -202,8 +211,9 @@ class SwarmService:
 
     def start(self, request):
         # Missing credentials or unavailable worker must not create progress.
-        if not (os.getenv('ANTHROPIC_API_KEY') or '').strip():
-            raise HTTPException(503, 'Set ANTHROPIC_API_KEY in the server .env and restart the backend to run the research swarm.')
+        config=swarm_config()
+        if not config['configured']:
+            raise HTTPException(503, 'Set '+config['missing_variable']+' in the server environment and restart to run Swarm.')
         if self.worker is node_worker and (not WORKER_FILE.is_file() or not (os.getenv('SWARM_NODE_BIN') or shutil.which('node'))):
             raise HTTPException(503, 'Build the research worker with npm ci && npm run build in swarm/, then restart the backend.')
         with Session(self.engine) as session:
@@ -234,6 +244,7 @@ class SwarmService:
         except ProviderError:
             market[other + '_price'] = None
         market['observed_at'] = timestamp()
+        market['research_provider']=config['provider']
         now = datetime.now(timezone.utc)
         with transaction(self.engine) as session:
             _user(session, request.user_id)
@@ -248,9 +259,14 @@ class SwarmService:
             if recent_count >= 2:
                 raise HTTPException(429, 'Research is limited to two new runs per user per hour. Open a cached result or try later.')
             active_count = session.scalar(select(func.count()).select_from(SwarmRun).where(SwarmRun.status.in_(ACTIVE)))
-            if active_count >= 2:
-                raise HTTPException(429, 'Two research runs are already active. Try again after one finishes.')
-            run = SwarmRun(id=uid(), user_id=request.user_id, market_id=request.market_id, outcome=request.outcome, model=os.getenv('ANTHROPIC_MODEL', 'claude-sonnet-5-5'), status='queued', market=market, usage={})
+            maximum=1 if config['provider']=='gemini' else 2
+            if active_count >= maximum:
+                raise HTTPException(429, 'Research capacity is busy. Google free-tier runs are processed one at a time; try again after the current run finishes.' if maximum==1 else 'Two research runs are already active. Try again after one finishes.')
+            if config['provider']=='gemini':
+                latest_end=session.scalar(select(func.max(SwarmRun.completed_at)))
+                if latest_end and datetime.fromisoformat(latest_end)>now-timedelta(seconds=61):
+                    raise HTTPException(429,'Google free-tier capacity is cooling down. Wait one minute before starting the next forecast.')
+            run = SwarmRun(id=uid(), user_id=request.user_id, market_id=request.market_id, outcome=request.outcome, model=config['model'], status='queued', market=market, usage={})
             session.add(run)
             session.flush()
             session.add(MarketSnapshot(market_id=request.market_id, run_id=run.id, data=market))
@@ -282,16 +298,19 @@ class SwarmService:
                 if run.status not in ACTIVE:
                     return
                 run.status = 'running'
-                payload = {'market': run.market, 'outcome': run.outcome, 'model': run.model, 'sources': []}
+                payload = {'market': run.market, 'outcome': run.outcome, 'model': run.model, 'provider':run.market.get('research_provider','anthropic'), 'sources': [],'reading':None}
                 market_id = run.market_id
             sources = cached_sources(self.engine, market_id)
             if not sources and os.getenv('CONTEXT_DEV_API_KEY') and self.reading:
                 try:
                     materials = self.reading.materials(payload['market']['title'], payload['market'].get('label', ''))
                     sources = cache_sources(self.engine, market_id, materials.get('sources', []), 'Context.dev')
+                    payload['reading']={'provider':'Context.dev','query':materials.get('query',''),'cached':bool(materials.get('cached'))}
                 except ProviderError:
                     sources = []
             payload['sources'] = sources
+            if payload['provider']=='gemini' and not sources:
+                raise RuntimeError('Context.dev returned no current reading evidence. Check CONTEXT_DEV_API_KEY or try another market; no forecast was manufactured.')
             iterator = iter(node_worker(payload, self._stop) if self.worker is node_worker else self.worker(payload))
             try:
                 for packet in iterator:
@@ -344,8 +363,10 @@ class SwarmService:
                 raise ValueError('Worker source is not a safe public URL.')
             with Session(self.engine) as session:
                 market_id = session.get(SwarmRun, run_id).market_id
-            cache_sources(self.engine, market_id, [source], 'Anthropic web search')
-            data = {'agent': data.get('agent'), **source}
+            provider=str(data.get('provider') or 'Anthropic web search')[:80]
+            if not data.get('cached'):
+                cache_sources(self.engine, market_id, [source], provider)
+            data = {'agent': data.get('agent'), **source,'provider':provider,'cached':bool(data.get('cached'))}
         if kind in ('evidence_note', 'search_query'):
             if data.get('agent') not in (*AGENTS, 'Synthesizer'):
                 raise ValueError('Unknown public evidence agent.')
@@ -478,6 +499,9 @@ def swarm_metrics(engine, user_id):
 def register_swarm(app, engine, feed, reading, worker=node_worker):
     service = SwarmService(engine, feed, reading, worker)
     app.state.swarm = service
+
+    @app.get('/swarm/config')
+    def configuration():return swarm_config()
     service.recover_interrupted()
     previous_lifespan = app.router.lifespan_context
     @asynccontextmanager

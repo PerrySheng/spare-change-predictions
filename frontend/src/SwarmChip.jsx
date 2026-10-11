@@ -3,6 +3,7 @@ import {Network,ArrowUpRight} from 'lucide-react';
 import {api} from './api';
 import {matchingForecast} from './swarmState';
 import './swarmChip.css';
+import SwarmMascot from './SwarmMascot';
 const pct=n=>(n*100).toFixed(0)+'%';
 
 // Cache reads only. Model calls start exclusively from an explicit run/ask.
@@ -17,6 +18,6 @@ export default function SwarmChip({user,market,onSwarm}){
  },[user.id,market.id,side]);
  const saved=matchingForecast(run,user.id,market.id,side);
  return <button className={'swarm-chip '+(saved?'has-forecast':'')} onClick={()=>onSwarm(market,saved?{runId:saved.id}:{})} title={saved?`Saved ${new Date(saved.completed_at).toLocaleString()}. Quote at forecast time.`:unavailable?'Saved research could not be loaded. Open the research workspace.':'Open the research workspace'}>
-  <Network size={14}/>{saved?<span><strong>Swarm {pct(saved.result.selected_probability)}</strong><small>vs Gemini {pct(saved.result.market_price)} · {side.toUpperCase()} at forecast time</small></span>:<span>Swarm research</span>}<ArrowUpRight size={13}/>
+  <SwarmMascot size={20}/>{saved?<span><strong>Swarm {pct(saved.result.selected_probability)}</strong><small>vs Gemini {pct(saved.result.market_price)} · {side.toUpperCase()} at forecast time</small></span>:<span>Swarm research</span>}<ArrowUpRight size={13}/>
  </button>;
 }

@@ -1,4 +1,4 @@
-"""Public market reading links from Context.dev; never prediction or ranking input.
+"""Public market reading links from Context.dev, shared with Swarm research.
 
 API contract: https://docs.context.dev/api-reference/web-scraping/search
 Only Gemini's public title and label belong in ``materials``. User information,

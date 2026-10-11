@@ -1,0 +1,2163 @@
+{
+  "checked_at": "2026-10-11T23:05:04.189400+00:00",
+  "provider": "Google Gemini",
+  "search_provider": "Context.dev",
+  "real_calls": true,
+  "trading_mode": "paper",
+  "runs": [
+    {
+      "id": "5e70a685-3199-420d-aa47-8e78009942b7",
+      "market_id": "GEMI-GMEEBAY-YES",
+      "model": "gemini-3.5-flash-lite",
+      "status": "completed",
+      "market": {
+        "id": "GEMI-GMEEBAY-YES",
+        "event_ticker": "GMEEBAY",
+        "title": "Will GameStop acquire eBay?",
+        "label": "Yes",
+        "category": "Business",
+        "topic": "business",
+        "outcome": "yes",
+        "price": "0.1",
+        "sell_price": "0.09",
+        "closes_at": "2027-01-01T04:59:59.000Z",
+        "volume": "8823",
+        "quantity_minimum": "1",
+        "quantity_increment": "1",
+        "price_minimum": "0.01",
+        "price_increment": "0.01",
+        "status": "active",
+        "market_state": "open",
+        "resolution": null,
+        "terms_url": "https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa6ac2410e7c046b2a8c531cd085613a8?alt=media&token=76600c01-717d-46f4-a86f-d7c7cd42405e&apiKey=1b77ce3a269a43e985e77f3d65f715ba",
+        "yes_price": "0.1",
+        "no_price": "0.91",
+        "observed_at": "2026-10-11T23:01:47.855295+00:00",
+        "research_provider": "gemini"
+      },
+      "result": {
+        "probability": 0.1,
+        "outcome": "yes",
+        "selected_probability": 0.1,
+        "market_price": 0.1,
+        "gap": 0.0,
+        "summary": "The market currently prices the probability of GameStop acquiring eBay at 10%. Although GameStop made an unsolicited $55.5 billion bid, eBay's board has formally rejected it, and severe financing obstacles make completion highly unlikely.",
+        "reasons": [
+          "eBay's board has officially rejected GameStop's unsolicited acquisition proposal.",
+          "The massive $55.5 billion valuation presents severe financing and execution hurdles for GameStop.",
+          "Prediction market sentiment and pricing heavily reflect skepticism regarding the deal's success."
+        ],
+        "disagreements": "There is no significant disagreement among the revised estimates; all four agents maintain a high confidence 10% probability due to eBay's formal rejection and the extreme financing gap.",
+        "range": [
+          0.1,
+          0.1
+        ],
+        "sources": [
+          {
+            "url": "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "title": "GameStop Proposes to Acquire eBay at $125.00 Per Share",
+            "snippet": "GameStop Corp. (NYSE: GME) today submitted a non-binding proposal to acquire 100% of eBay Inc. (NASDAQ: EBAY) at $125.00 per share in cash ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T22:55:38.267133+00:00"
+          },
+          {
+            "url": "https://www.perplexity.ai/finance/predictions/447964",
+            "title": "Will GameStop acquire eBay? - Prediction Markets",
+            "snippet": "With eBay's board formally rejecting GameStop's $56B bid as \"neither credible nor attractive,\" the market's 15.5% YES probability reflects the slim but ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T22:55:38.266814+00:00"
+          },
+          {
+            "url": "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "title": "GameStop Makes $55.5 Billion Offer to Buy eBay",
+            "snippet": "GameStop has announced it has made a $55.5 billion offer to buy eBay at $125.00 per share in cash and stock.",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T22:55:38.266415+00:00"
+          },
+          {
+            "url": "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "title": "GameStop makes $55.5bn takeover offer for eBay",
+            "snippet": "GameStop's boss Ryan Cohen says he sees potential to make eBay a much bigger rival to Amazon.",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T22:55:38.265894+00:00"
+          },
+          {
+            "url": "https://mashable.com/article/gamestop-ebay-acquisition-explained",
+            "title": "GameStop (yes, that GameStop) wants to buy eBay for $56 ...",
+            "snippet": "The company announced its intention to purchase the e-commerce giant at $125 per stock, a 46 percent premium to eBay's closing stock price on Feb. 4, 2026. The ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T22:55:38.264569+00:00"
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 15751,
+        "output_tokens": 3107,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "web_search_requests": 0,
+        "model_calls": 9
+      },
+      "error": null,
+      "events": [
+        {
+          "id": 113,
+          "type": "agent_started",
+          "data": {
+            "agent": "News Scout",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:01:48.643675+00:00"
+        },
+        {
+          "id": 114,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "title": "GameStop Proposes to Acquire eBay at $125.00 Per Share",
+            "snippet": "GameStop Corp. (NYSE: GME) today submitted a non-binding proposal to acquire 100% of eBay Inc. (NASDAQ: EBAY) at $125.00 per share in cash ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.645310+00:00"
+        },
+        {
+          "id": 115,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://www.perplexity.ai/finance/predictions/447964",
+            "title": "Will GameStop acquire eBay? - Prediction Markets",
+            "snippet": "With eBay's board formally rejecting GameStop's $56B bid as \"neither credible nor attractive,\" the market's 15.5% YES probability reflects the slim but ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.646170+00:00"
+        },
+        {
+          "id": 116,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "title": "GameStop Makes $55.5 Billion Offer to Buy eBay",
+            "snippet": "GameStop has announced it has made a $55.5 billion offer to buy eBay at $125.00 per share in cash and stock.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.646790+00:00"
+        },
+        {
+          "id": 117,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "title": "GameStop makes $55.5bn takeover offer for eBay",
+            "snippet": "GameStop's boss Ryan Cohen says he sees potential to make eBay a much bigger rival to Amazon.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.647265+00:00"
+        },
+        {
+          "id": 118,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://mashable.com/article/gamestop-ebay-acquisition-explained",
+            "title": "GameStop (yes, that GameStop) wants to buy eBay for $56 ...",
+            "snippet": "The company announced its intention to purchase the e-commerce giant at $125 per stock, a 46 percent premium to eBay's closing stock price on Feb. 4, 2026. The ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.647837+00:00"
+        },
+        {
+          "id": 119,
+          "type": "agent_started",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:01:48.660350+00:00"
+        },
+        {
+          "id": 120,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "title": "GameStop Proposes to Acquire eBay at $125.00 Per Share",
+            "snippet": "GameStop Corp. (NYSE: GME) today submitted a non-binding proposal to acquire 100% of eBay Inc. (NASDAQ: EBAY) at $125.00 per share in cash ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.661334+00:00"
+        },
+        {
+          "id": 121,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://www.perplexity.ai/finance/predictions/447964",
+            "title": "Will GameStop acquire eBay? - Prediction Markets",
+            "snippet": "With eBay's board formally rejecting GameStop's $56B bid as \"neither credible nor attractive,\" the market's 15.5% YES probability reflects the slim but ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.663220+00:00"
+        },
+        {
+          "id": 122,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "title": "GameStop Makes $55.5 Billion Offer to Buy eBay",
+            "snippet": "GameStop has announced it has made a $55.5 billion offer to buy eBay at $125.00 per share in cash and stock.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.664077+00:00"
+        },
+        {
+          "id": 123,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "title": "GameStop makes $55.5bn takeover offer for eBay",
+            "snippet": "GameStop's boss Ryan Cohen says he sees potential to make eBay a much bigger rival to Amazon.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.668922+00:00"
+        },
+        {
+          "id": 124,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://mashable.com/article/gamestop-ebay-acquisition-explained",
+            "title": "GameStop (yes, that GameStop) wants to buy eBay for $56 ...",
+            "snippet": "The company announced its intention to purchase the e-commerce giant at $125 per stock, a 46 percent premium to eBay's closing stock price on Feb. 4, 2026. The ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.669665+00:00"
+        },
+        {
+          "id": 125,
+          "type": "agent_started",
+          "data": {
+            "agent": "Market Reader",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:01:48.685016+00:00"
+        },
+        {
+          "id": 126,
+          "type": "agent_started",
+          "data": {
+            "agent": "Skeptic",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:01:48.685745+00:00"
+        },
+        {
+          "id": 127,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "title": "GameStop Proposes to Acquire eBay at $125.00 Per Share",
+            "snippet": "GameStop Corp. (NYSE: GME) today submitted a non-binding proposal to acquire 100% of eBay Inc. (NASDAQ: EBAY) at $125.00 per share in cash ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.686551+00:00"
+        },
+        {
+          "id": 128,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://www.perplexity.ai/finance/predictions/447964",
+            "title": "Will GameStop acquire eBay? - Prediction Markets",
+            "snippet": "With eBay's board formally rejecting GameStop's $56B bid as \"neither credible nor attractive,\" the market's 15.5% YES probability reflects the slim but ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.687139+00:00"
+        },
+        {
+          "id": 129,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "title": "GameStop Makes $55.5 Billion Offer to Buy eBay",
+            "snippet": "GameStop has announced it has made a $55.5 billion offer to buy eBay at $125.00 per share in cash and stock.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.687645+00:00"
+        },
+        {
+          "id": 130,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "title": "GameStop makes $55.5bn takeover offer for eBay",
+            "snippet": "GameStop's boss Ryan Cohen says he sees potential to make eBay a much bigger rival to Amazon.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.688081+00:00"
+        },
+        {
+          "id": 131,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://mashable.com/article/gamestop-ebay-acquisition-explained",
+            "title": "GameStop (yes, that GameStop) wants to buy eBay for $56 ...",
+            "snippet": "The company announced its intention to purchase the e-commerce giant at $125 per stock, a 46 percent premium to eBay's closing stock price on Feb. 4, 2026. The ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:01:48.688497+00:00"
+        },
+        {
+          "id": 132,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued around $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.433731+00:00"
+        },
+        {
+          "id": 133,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125.00 per share, valued around $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.434935+00:00"
+        },
+        {
+          "id": 134,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "GameStop (GME) trading at a low probability of 0.1 to acquire eBay by January 1, 2027.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.435425+00:00"
+        },
+        {
+          "id": 135,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "Price history is unavailable from the provided snapshot.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.494225+00:00"
+        },
+        {
+          "id": 136,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.526919+00:00"
+        },
+        {
+          "id": 137,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "eBay's board formally rejected the proposal, describing it as neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.592261+00:00"
+        },
+        {
+          "id": 138,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "Market volume stands at 8,823 units with an active market state.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.593385+00:00"
+        },
+        {
+          "id": 139,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125 per share in a deal valued around $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.843196+00:00"
+        },
+        {
+          "id": 140,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "eBay's board formally rejected the proposal, describing it as neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.844702+00:00"
+        },
+        {
+          "id": 141,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "Market pricing currently indicates a low probability around 10% for the acquisition to successfully close by the 2027 deadline.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.845791+00:00"
+        },
+        {
+          "id": 142,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "Market pricing reflects a low probability of completion given the rejection and financing hurdles.\n"
+          },
+          "created_at": "2026-10-11T23:01:49.922945+00:00"
+        },
+        {
+          "id": 143,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "Prediction markets currently price the probability of the acquisition succeeding at around 10% to 15.5%.\n"
+          },
+          "created_at": "2026-10-11T23:01:50.004824+00:00"
+        },
+        {
+          "id": 144,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "Market Reader",
+            "round": 1,
+            "public_notes": [
+              "GameStop (GME) trading at a low probability of 0.1 to acquire eBay by January 1, 2027.",
+              "Price history is unavailable from the provided snapshot.",
+              "Market volume stands at 8,823 units with an active market state."
+            ],
+            "probability": 0.1,
+            "confidence": "low",
+            "reasons": [
+              "The current market price of 0.1 implies a 10% implied probability of acquisition.",
+              "GameStop and eBay have vastly different market capitalizations and core business models, making such an acquisition highly unlikely.",
+              "Price history is unavailable to analyze past momentum or sentiment shifts."
+            ],
+            "sources": [
+              "https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa6ac2410e7c046b2a8c531cd085613a8?alt=media&token=76600c01-717d-46f4-a86f-d7c7cd42405e&apiKey=1b77ce3a269a43e985e77f3d65f715ba"
+            ]
+          },
+          "created_at": "2026-10-11T23:01:50.023065+00:00"
+        },
+        {
+          "id": 145,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "Skeptic",
+            "round": 1,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125 per share in a deal valued around $55.5 billion.",
+              "eBay's board formally rejected the proposal, describing it as neither credible nor attractive.",
+              "Market pricing currently indicates a low probability around 10% for the acquisition to successfully close by the 2027 deadline."
+            ],
+            "probability": 0.1,
+            "confidence": "high",
+            "reasons": [
+              "eBay's board has already formally rejected GameStop's takeover bid.",
+              "GameStop's offer is non-binding and faces significant financing and scale hurdles relative to its own market capitalization.",
+              "Current market pricing reflects severe skepticism that the hostile or unsolicited proposal will materialize into a completed acquisition."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+              "https://bbc.co.uk/news/articles/cn0p8yled1do",
+              "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+            ]
+          },
+          "created_at": "2026-10-11T23:01:50.051934+00:00"
+        },
+        {
+          "id": 146,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "News Scout",
+            "round": 1,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125.00 per share, valued around $55.5 billion.",
+              "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.",
+              "Market pricing reflects a low probability of completion given the rejection and financing hurdles."
+            ],
+            "probability": 0.1,
+            "confidence": "medium",
+            "reasons": [
+              "eBay's board has already rejected GameStop's acquisition proposal.",
+              "The massive scale of the $55.5 billion transaction creates severe financing and execution obstacles for GameStop.",
+              "Current prediction market pricing indicates only a 10% implied probability of the deal closing successfully."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+              "https://bbc.co.uk/news/articles/cn0p8yled1do",
+              "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+            ]
+          },
+          "created_at": "2026-10-11T23:01:50.216110+00:00"
+        },
+        {
+          "id": 147,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 1,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued around $55.5 billion.",
+              "eBay's board formally rejected the proposal, describing it as neither credible nor attractive.",
+              "Prediction markets currently price the probability of the acquisition succeeding at around 10% to 15.5%."
+            ],
+            "probability": 0.12,
+            "confidence": "medium",
+            "reasons": [
+              "eBay's board has already formally rejected GameStop's takeover bid.",
+              "The massive scale of a $55.5 billion acquisition relative to GameStop's market capitalization creates significant financing and execution hurdles.",
+              "Current market pricing reflects scepticism about the deal successfully closing despite the initial proposal."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+              "https://bbc.co.uk/news/articles/cn0p8yled1do",
+              "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+            ]
+          },
+          "created_at": "2026-10-11T23:01:50.351100+00:00"
+        },
+        {
+          "id": 148,
+          "type": "round_changed",
+          "data": {
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:01:50.352183+00:00"
+        },
+        {
+          "id": 149,
+          "type": "agent_started",
+          "data": {
+            "agent": "News Scout",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:02:49.646176+00:00"
+        },
+        {
+          "id": 150,
+          "type": "agent_started",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:02:49.648879+00:00"
+        },
+        {
+          "id": 151,
+          "type": "agent_started",
+          "data": {
+            "agent": "Market Reader",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:02:49.671246+00:00"
+        },
+        {
+          "id": 152,
+          "type": "agent_started",
+          "data": {
+            "agent": "Skeptic",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:02:49.685879+00:00"
+        },
+        {
+          "id": 153,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125.00 per share, valued around $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.310439+00:00"
+        },
+        {
+          "id": 154,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued at approximately $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.342701+00:00"
+        },
+        {
+          "id": 155,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125.00 per share, valued around $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.365860+00:00"
+        },
+        {
+          "id": 156,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.373053+00:00"
+        },
+        {
+          "id": 157,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "eBay's board formally rejected GameStop's takeover bid, calling it neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.472136+00:00"
+        },
+        {
+          "id": 158,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "Market pricing reflects a low probability of completion given the rejection and massive financing hurdles.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.484097+00:00"
+        },
+        {
+          "id": 159,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.525717+00:00"
+        },
+        {
+          "id": 160,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued at approximately $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.656337+00:00"
+        },
+        {
+          "id": 161,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "eBay's board formally rejected GameStop's takeover proposal, calling it neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.657963+00:00"
+        },
+        {
+          "id": 162,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "Market pricing reflects a low probability of completion given the rejection and massive financing hurdles.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.659392+00:00"
+        },
+        {
+          "id": 163,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "Prediction markets currently price the probability of the acquisition successfully closing between 10% and 15.5%.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.660290+00:00"
+        },
+        {
+          "id": 164,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "Current prediction market pricing reflects a low probability of around 10% to 15.5% for the deal's completion.\n"
+          },
+          "created_at": "2026-10-11T23:02:50.696279+00:00"
+        },
+        {
+          "id": 165,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "News Scout",
+            "round": 2,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125.00 per share, valued around $55.5 billion.",
+              "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.",
+              "Market pricing reflects a low probability of completion given the rejection and massive financing hurdles."
+            ],
+            "probability": 0.1,
+            "confidence": "high",
+            "reasons": [
+              "eBay's board has formally rejected GameStop's unsolicited acquisition proposal.",
+              "The massive $55.5 billion scale of the transaction creates severe financing obstacles relative to GameStop's size.",
+              "Current prediction market pricing and sentiment indicate strong skepticism regarding the deal's completion."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+              "https://bbc.co.uk/news/articles/cn0p8yled1do",
+              "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+            ],
+            "revision_reason": "Maintaining the 10% probability estimate as the board rejection and extreme financing gap continue to heavily weigh against a successful acquisition."
+          },
+          "created_at": "2026-10-11T23:02:51.186701+00:00"
+        },
+        {
+          "id": 166,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "Market Reader",
+            "round": 2,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued at approximately $55.5 billion.",
+              "eBay's board formally rejected GameStop's takeover proposal, calling it neither credible nor attractive.",
+              "Current prediction market pricing reflects a low probability of around 10% to 15.5% for the deal's completion."
+            ],
+            "probability": 0.1,
+            "confidence": "high",
+            "reasons": [
+              "eBay's board has formally rejected the acquisition proposal.",
+              "The massive $55.5 billion scale presents immense financing and execution obstacles for GameStop.",
+              "Market pricing consistently reflects deep skepticism regarding the deal's success."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay"
+            ],
+            "revision_reason": "The peer forecasts uniformly align around a 10% to 12% probability given eBay's formal rejection and the severe financing hurdles of a $55.5 billion transaction. No new evidence warrants shifting away from this consensus."
+          },
+          "created_at": "2026-10-11T23:02:51.189648+00:00"
+        },
+        {
+          "id": 167,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 2,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued at approximately $55.5 billion.",
+              "eBay's board formally rejected GameStop's takeover bid, calling it neither credible nor attractive.",
+              "Prediction markets currently price the probability of the acquisition successfully closing between 10% and 15.5%."
+            ],
+            "probability": 0.1,
+            "confidence": "high",
+            "reasons": [
+              "eBay's board has officially rejected GameStop's unsolicited, non-binding acquisition offer.",
+              "The massive $55.5 billion valuation relative to GameStop's size creates immense financing hurdles.",
+              "Current prediction market pricing around 10%-15% reflects substantial skepticism that the deal will proceed."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay"
+            ],
+            "revision_reason": "No new evidence has emerged to alter the consensus that the rejected, highly leveraged bid faces severe execution and financing barriers, keeping the implied probability near 10%."
+          },
+          "created_at": "2026-10-11T23:02:51.191687+00:00"
+        },
+        {
+          "id": 168,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "Skeptic",
+            "round": 2,
+            "public_notes": [
+              "GameStop submitted a non-binding proposal to acquire eBay for $125.00 per share, valued around $55.5 billion.",
+              "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.",
+              "Market pricing reflects a low probability of completion given the rejection and massive financing hurdles."
+            ],
+            "probability": 0.1,
+            "confidence": "high",
+            "reasons": [
+              "eBay's board has formally rejected GameStop's unsolicited acquisition proposal.",
+              "The vast scale of the $55.5 billion transaction creates severe financing and execution hurdles for GameStop.",
+              "Current prediction market pricing reflects strong skepticism and implies only a 10% chance of deal completion."
+            ],
+            "sources": [
+              "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+              "https://www.perplexity.ai/finance/predictions/447964",
+              "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+              "https://bbc.co.uk/news/articles/cn0p8yled1do",
+              "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+            ],
+            "revision_reason": "No new evidence has emerged to counter eBay's formal rejection of the non-binding bid and the immense financing gap, keeping the probability anchored near 10%."
+          },
+          "created_at": "2026-10-11T23:02:51.337780+00:00"
+        },
+        {
+          "id": 169,
+          "type": "round_changed",
+          "data": {
+            "round": 3
+          },
+          "created_at": "2026-10-11T23:02:51.339563+00:00"
+        },
+        {
+          "id": 170,
+          "type": "agent_started",
+          "data": {
+            "agent": "Synthesizer",
+            "round": 3
+          },
+          "created_at": "2026-10-11T23:03:50.650334+00:00"
+        },
+        {
+          "id": 171,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Synthesizer",
+            "text": "GameStop submitted a non-binding proposal to acquire eBay for $125 per share, valued at approximately $55.5 billion.\n"
+          },
+          "created_at": "2026-10-11T23:03:51.351817+00:00"
+        },
+        {
+          "id": 172,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Synthesizer",
+            "text": "eBay's board formally rejected GameStop's takeover bid, describing it as neither credible nor attractive.\n"
+          },
+          "created_at": "2026-10-11T23:03:51.397638+00:00"
+        },
+        {
+          "id": 173,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Synthesizer",
+            "text": "Market pricing reflects a low probability of completion given the rejection and massive financing hurdles.\n"
+          },
+          "created_at": "2026-10-11T23:03:51.529878+00:00"
+        },
+        {
+          "id": 174,
+          "type": "final_result",
+          "data": {
+            "probability": 0.1,
+            "outcome": "yes",
+            "selected_probability": 0.1,
+            "market_price": 0.1,
+            "gap": 0.0,
+            "summary": "The market currently prices the probability of GameStop acquiring eBay at 10%. Although GameStop made an unsolicited $55.5 billion bid, eBay's board has formally rejected it, and severe financing obstacles make completion highly unlikely.",
+            "reasons": [
+              "eBay's board has officially rejected GameStop's unsolicited acquisition proposal.",
+              "The massive $55.5 billion valuation presents severe financing and execution hurdles for GameStop.",
+              "Prediction market sentiment and pricing heavily reflect skepticism regarding the deal's success."
+            ],
+            "disagreements": "There is no significant disagreement among the revised estimates; all four agents maintain a high confidence 10% probability due to eBay's formal rejection and the extreme financing gap.",
+            "range": [
+              0.1,
+              0.1
+            ],
+            "sources": [
+              {
+                "url": "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+                "title": "GameStop Proposes to Acquire eBay at $125.00 Per Share",
+                "snippet": "GameStop Corp. (NYSE: GME) today submitted a non-binding proposal to acquire 100% of eBay Inc. (NASDAQ: EBAY) at $125.00 per share in cash ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T22:55:38.267133+00:00"
+              },
+              {
+                "url": "https://www.perplexity.ai/finance/predictions/447964",
+                "title": "Will GameStop acquire eBay? - Prediction Markets",
+                "snippet": "With eBay's board formally rejecting GameStop's $56B bid as \"neither credible nor attractive,\" the market's 15.5% YES probability reflects the slim but ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T22:55:38.266814+00:00"
+              },
+              {
+                "url": "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+                "title": "GameStop Makes $55.5 Billion Offer to Buy eBay",
+                "snippet": "GameStop has announced it has made a $55.5 billion offer to buy eBay at $125.00 per share in cash and stock.",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T22:55:38.266415+00:00"
+              },
+              {
+                "url": "https://bbc.co.uk/news/articles/cn0p8yled1do",
+                "title": "GameStop makes $55.5bn takeover offer for eBay",
+                "snippet": "GameStop's boss Ryan Cohen says he sees potential to make eBay a much bigger rival to Amazon.",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T22:55:38.265894+00:00"
+              },
+              {
+                "url": "https://mashable.com/article/gamestop-ebay-acquisition-explained",
+                "title": "GameStop (yes, that GameStop) wants to buy eBay for $56 ...",
+                "snippet": "The company announced its intention to purchase the e-commerce giant at $125 per stock, a 46 percent premium to eBay's closing stock price on Feb. 4, 2026. The ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T22:55:38.264569+00:00"
+              }
+            ]
+          },
+          "created_at": "2026-10-11T23:03:51.894343+00:00"
+        }
+      ],
+      "estimates": [
+        {
+          "agent": "Market Reader",
+          "round": 1,
+          "probability": 0.1,
+          "confidence": "low",
+          "reasons": [
+            "The current market price of 0.1 implies a 10% implied probability of acquisition.",
+            "GameStop and eBay have vastly different market capitalizations and core business models, making such an acquisition highly unlikely.",
+            "Price history is unavailable to analyze past momentum or sentiment shifts."
+          ],
+          "sources": [
+            "https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa6ac2410e7c046b2a8c531cd085613a8?alt=media&token=76600c01-717d-46f4-a86f-d7c7cd42405e&apiKey=1b77ce3a269a43e985e77f3d65f715ba"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:01:50.022477+00:00"
+        },
+        {
+          "agent": "Skeptic",
+          "round": 1,
+          "probability": 0.1,
+          "confidence": "high",
+          "reasons": [
+            "eBay's board has already formally rejected GameStop's takeover bid.",
+            "GameStop's offer is non-binding and faces significant financing and scale hurdles relative to its own market capitalization.",
+            "Current market pricing reflects severe skepticism that the hostile or unsolicited proposal will materialize into a completed acquisition."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:01:50.051830+00:00"
+        },
+        {
+          "agent": "News Scout",
+          "round": 1,
+          "probability": 0.1,
+          "confidence": "medium",
+          "reasons": [
+            "eBay's board has already rejected GameStop's acquisition proposal.",
+            "The massive scale of the $55.5 billion transaction creates severe financing and execution obstacles for GameStop.",
+            "Current prediction market pricing indicates only a 10% implied probability of the deal closing successfully."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:01:50.215953+00:00"
+        },
+        {
+          "agent": "Base Rate Analyst",
+          "round": 1,
+          "probability": 0.12,
+          "confidence": "medium",
+          "reasons": [
+            "eBay's board has already formally rejected GameStop's takeover bid.",
+            "The massive scale of a $55.5 billion acquisition relative to GameStop's market capitalization creates significant financing and execution hurdles.",
+            "Current market pricing reflects scepticism about the deal successfully closing despite the initial proposal."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:01:50.350910+00:00"
+        },
+        {
+          "agent": "News Scout",
+          "round": 2,
+          "probability": 0.1,
+          "confidence": "high",
+          "reasons": [
+            "eBay's board has formally rejected GameStop's unsolicited acquisition proposal.",
+            "The massive $55.5 billion scale of the transaction creates severe financing obstacles relative to GameStop's size.",
+            "Current prediction market pricing and sentiment indicate strong skepticism regarding the deal's completion."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+          ],
+          "revision_reason": "Maintaining the 10% probability estimate as the board rejection and extreme financing gap continue to heavily weigh against a successful acquisition.",
+          "created_at": "2026-10-11T23:02:51.185666+00:00"
+        },
+        {
+          "agent": "Market Reader",
+          "round": 2,
+          "probability": 0.1,
+          "confidence": "high",
+          "reasons": [
+            "eBay's board has formally rejected the acquisition proposal.",
+            "The massive $55.5 billion scale presents immense financing and execution obstacles for GameStop.",
+            "Market pricing consistently reflects deep skepticism regarding the deal's success."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay"
+          ],
+          "revision_reason": "The peer forecasts uniformly align around a 10% to 12% probability given eBay's formal rejection and the severe financing hurdles of a $55.5 billion transaction. No new evidence warrants shifting away from this consensus.",
+          "created_at": "2026-10-11T23:02:51.189516+00:00"
+        },
+        {
+          "agent": "Base Rate Analyst",
+          "round": 2,
+          "probability": 0.1,
+          "confidence": "high",
+          "reasons": [
+            "eBay's board has officially rejected GameStop's unsolicited, non-binding acquisition offer.",
+            "The massive $55.5 billion valuation relative to GameStop's size creates immense financing hurdles.",
+            "Current prediction market pricing around 10%-15% reflects substantial skepticism that the deal will proceed."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay"
+          ],
+          "revision_reason": "No new evidence has emerged to alter the consensus that the rejected, highly leveraged bid faces severe execution and financing barriers, keeping the implied probability near 10%.",
+          "created_at": "2026-10-11T23:02:51.191597+00:00"
+        },
+        {
+          "agent": "Skeptic",
+          "round": 2,
+          "probability": 0.1,
+          "confidence": "high",
+          "reasons": [
+            "eBay's board has formally rejected GameStop's unsolicited acquisition proposal.",
+            "The vast scale of the $55.5 billion transaction creates severe financing and execution hurdles for GameStop.",
+            "Current prediction market pricing reflects strong skepticism and implies only a 10% chance of deal completion."
+          ],
+          "sources": [
+            "https://investor.gamestop.com/news-releases/news-details/2026/GameStop-Proposes-to-Acquire-eBay-at-125-00-Per-Share/",
+            "https://www.perplexity.ai/finance/predictions/447964",
+            "https://www.ign.com/articles/gamestop-makes-555-billion-offer-to-buy-ebay",
+            "https://bbc.co.uk/news/articles/cn0p8yled1do",
+            "https://mashable.com/article/gamestop-ebay-acquisition-explained"
+          ],
+          "revision_reason": "No new evidence has emerged to counter eBay's formal rejection of the non-binding bid and the immense financing gap, keeping the probability anchored near 10%.",
+          "created_at": "2026-10-11T23:02:51.337494+00:00"
+        }
+      ]
+    },
+    {
+      "id": "72b96f74-2c49-44a4-b638-ca9403161389",
+      "market_id": "GEMI-PROFB2027-SANFRANCISCO",
+      "model": "gemini-3.5-flash-lite",
+      "status": "completed",
+      "market": {
+        "id": "GEMI-PROFB2027-SANFRANCISCO",
+        "event_ticker": "PROFB2027",
+        "title": "2027 Pro Football Champion",
+        "label": "San Francisco",
+        "category": "Sports",
+        "topic": "sports",
+        "outcome": "yes",
+        "price": "0.14",
+        "sell_price": "0.11",
+        "closes_at": "2027-02-15T23:59:59.000Z",
+        "volume": "233235",
+        "quantity_minimum": "1",
+        "quantity_increment": "1",
+        "price_minimum": "0.01",
+        "price_increment": "0.01",
+        "status": "active",
+        "market_state": "open",
+        "resolution": null,
+        "terms_url": "",
+        "yes_price": "0.14",
+        "no_price": "0.89",
+        "observed_at": "2026-10-11T23:05:21.813908+00:00",
+        "research_provider": "gemini"
+      },
+      "result": {
+        "probability": 0.14,
+        "outcome": "yes",
+        "selected_probability": 0.14,
+        "market_price": 0.14,
+        "gap": 0.0,
+        "summary": "The fixed 14 percent probability reflects the current Gemini market consensus for San Francisco winning the 2027 pro football championship, supported by stable independent estimates and high long-horizon uncertainty.",
+        "reasons": [
+          "The current Gemini market price for San Francisco is 0.14.",
+          "Independent forecasts and prediction markets show broad convergence around this valuation.",
+          "Long-horizon forecasting introduces high variance and roster uncertainty, discouraging major deviations."
+        ],
+        "disagreements": "While all agents settled on the 14% market price, the Skeptic noted that some external quantitative models suggest the true underlying probability might be slightly lower than current market pricing.",
+        "range": [
+          0.14,
+          0.14
+        ],
+        "sources": [
+          {
+            "url": "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html",
+            "title": "San Francisco passes Super Bowl baton to Los Angeles ...",
+            "snippet": "San Francisco passes Super Bowl baton to Los Angeles for 2027 ... SAN FRANCISCO \u2014 With football in hand Monday morning, Zaileen Janmohamed reared ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T23:05:23.109052+00:00"
+          },
+          {
+            "url": "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "title": "Super Bowl LXI",
+            "snippet": "Super Bowl LXI is the upcoming American football championship game. The game will be played on February 14, 2027, at SoFi Stadium in Inglewood, California. ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T23:05:23.108675+00:00"
+          },
+          {
+            "url": "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "title": "2027 Pro Football Champion: San Francisco - Adjacent Markets",
+            "snippet": "\u201c2027 Pro Football Champion: San Francisco\u201d is a binary event contract listed on Gemini \u2026 time volume is 17.4K contracts. Trading closes Feb 15 ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T23:05:23.108097+00:00"
+          },
+          {
+            "url": "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "title": "Pro Football: 2027 NFC Champion Predictions & Odds",
+            "snippet": "2027 NFC Champion $6,452,824. San Francisco 49ers $31,083 Vol. 18% The next closest outcome is \"San Francisco 49ers\" at 19%.",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T23:05:23.107406+00:00"
+          },
+          {
+            "url": "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "title": "Will San Francisco win the 2027 Pro Football Championship?",
+            "snippet": "My estimated probability for San Francisco winning the 2027 Super Bowl is 3.8%, compared to the Kalshi market price of 4.5% and traditional ...",
+            "provider": "Context.dev",
+            "fetched_at": "2026-10-11T23:05:23.106554+00:00"
+          }
+        ]
+      },
+      "usage": {
+        "input_tokens": 13354,
+        "output_tokens": 3257,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "web_search_requests": 1,
+        "model_calls": 9
+      },
+      "error": null,
+      "events": [
+        {
+          "id": 175,
+          "type": "agent_started",
+          "data": {
+            "agent": "News Scout",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:05:23.422168+00:00"
+        },
+        {
+          "id": 176,
+          "type": "search_query",
+          "data": {
+            "agent": "News Scout",
+            "query": "2027 Pro Football Champion San Francisco",
+            "provider": "Context.dev"
+          },
+          "created_at": "2026-10-11T23:05:23.424359+00:00"
+        },
+        {
+          "id": 177,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "title": "Will San Francisco win the 2027 Pro Football Championship?",
+            "snippet": "My estimated probability for San Francisco winning the 2027 Super Bowl is 3.8%, compared to the Kalshi market price of 4.5% and traditional ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.425038+00:00"
+        },
+        {
+          "id": 178,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "title": "Pro Football: 2027 NFC Champion Predictions & Odds",
+            "snippet": "2027 NFC Champion $6,452,824. San Francisco 49ers $31,083 Vol. 18% The next closest outcome is \"San Francisco 49ers\" at 19%.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.425542+00:00"
+        },
+        {
+          "id": 179,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "title": "2027 Pro Football Champion: San Francisco - Adjacent Markets",
+            "snippet": "\u201c2027 Pro Football Champion: San Francisco\u201d is a binary event contract listed on Gemini \u2026 time volume is 17.4K contracts. Trading closes Feb 15 ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.426019+00:00"
+        },
+        {
+          "id": 180,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "title": "Super Bowl LXI",
+            "snippet": "Super Bowl LXI is the upcoming American football championship game. The game will be played on February 14, 2027, at SoFi Stadium in Inglewood, California. ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.426489+00:00"
+        },
+        {
+          "id": 181,
+          "type": "source_found",
+          "data": {
+            "agent": "News Scout",
+            "url": "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html",
+            "title": "San Francisco passes Super Bowl baton to Los Angeles ...",
+            "snippet": "San Francisco passes Super Bowl baton to Los Angeles for 2027 ... SAN FRANCISCO \u2014 With football in hand Monday morning, Zaileen Janmohamed reared ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.426905+00:00"
+        },
+        {
+          "id": 182,
+          "type": "agent_started",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:05:23.433932+00:00"
+        },
+        {
+          "id": 183,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "title": "Will San Francisco win the 2027 Pro Football Championship?",
+            "snippet": "My estimated probability for San Francisco winning the 2027 Super Bowl is 3.8%, compared to the Kalshi market price of 4.5% and traditional ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.434660+00:00"
+        },
+        {
+          "id": 184,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "title": "Pro Football: 2027 NFC Champion Predictions & Odds",
+            "snippet": "2027 NFC Champion $6,452,824. San Francisco 49ers $31,083 Vol. 18% The next closest outcome is \"San Francisco 49ers\" at 19%.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.435143+00:00"
+        },
+        {
+          "id": 185,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "title": "2027 Pro Football Champion: San Francisco - Adjacent Markets",
+            "snippet": "\u201c2027 Pro Football Champion: San Francisco\u201d is a binary event contract listed on Gemini \u2026 time volume is 17.4K contracts. Trading closes Feb 15 ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.435839+00:00"
+        },
+        {
+          "id": 186,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "title": "Super Bowl LXI",
+            "snippet": "Super Bowl LXI is the upcoming American football championship game. The game will be played on February 14, 2027, at SoFi Stadium in Inglewood, California. ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.436855+00:00"
+        },
+        {
+          "id": 187,
+          "type": "source_found",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "url": "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html",
+            "title": "San Francisco passes Super Bowl baton to Los Angeles ...",
+            "snippet": "San Francisco passes Super Bowl baton to Los Angeles for 2027 ... SAN FRANCISCO \u2014 With football in hand Monday morning, Zaileen Janmohamed reared ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.437457+00:00"
+        },
+        {
+          "id": 188,
+          "type": "agent_started",
+          "data": {
+            "agent": "Market Reader",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:05:23.450941+00:00"
+        },
+        {
+          "id": 189,
+          "type": "agent_started",
+          "data": {
+            "agent": "Skeptic",
+            "round": 1
+          },
+          "created_at": "2026-10-11T23:05:23.451548+00:00"
+        },
+        {
+          "id": 190,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "title": "Will San Francisco win the 2027 Pro Football Championship?",
+            "snippet": "My estimated probability for San Francisco winning the 2027 Super Bowl is 3.8%, compared to the Kalshi market price of 4.5% and traditional ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.452143+00:00"
+        },
+        {
+          "id": 191,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "title": "Pro Football: 2027 NFC Champion Predictions & Odds",
+            "snippet": "2027 NFC Champion $6,452,824. San Francisco 49ers $31,083 Vol. 18% The next closest outcome is \"San Francisco 49ers\" at 19%.",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.452645+00:00"
+        },
+        {
+          "id": 192,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "title": "2027 Pro Football Champion: San Francisco - Adjacent Markets",
+            "snippet": "\u201c2027 Pro Football Champion: San Francisco\u201d is a binary event contract listed on Gemini \u2026 time volume is 17.4K contracts. Trading closes Feb 15 ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.453089+00:00"
+        },
+        {
+          "id": 193,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "title": "Super Bowl LXI",
+            "snippet": "Super Bowl LXI is the upcoming American football championship game. The game will be played on February 14, 2027, at SoFi Stadium in Inglewood, California. ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.453512+00:00"
+        },
+        {
+          "id": 194,
+          "type": "source_found",
+          "data": {
+            "agent": "Skeptic",
+            "url": "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html",
+            "title": "San Francisco passes Super Bowl baton to Los Angeles ...",
+            "snippet": "San Francisco passes Super Bowl baton to Los Angeles for 2027 ... SAN FRANCISCO \u2014 With football in hand Monday morning, Zaileen Janmohamed reared ...",
+            "provider": "Context.dev",
+            "cached": true
+          },
+          "created_at": "2026-10-11T23:05:23.453919+00:00"
+        },
+        {
+          "id": 195,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "Super Bowl LXI is scheduled to be played on February 14, 2027, at SoFi Stadium in Inglewood, California.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.252893+00:00"
+        },
+        {
+          "id": 196,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "The 2027 Pro Football Championship (Super Bowl LXI) is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.358712+00:00"
+        },
+        {
+          "id": 197,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "Market pricing for San Francisco winning the 2027 Pro Football Championship sits around 14% on Gemini.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.360079+00:00"
+        },
+        {
+          "id": 198,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "External analysis and prediction markets reflect varying expectations for the team's championship prospects.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.360953+00:00"
+        },
+        {
+          "id": 199,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "The San Francisco team is priced at 0.14 in the 2027 Pro Football Champion market.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.361823+00:00"
+        },
+        {
+          "id": 200,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "No external source metadata or additional evidence was provided for this market.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.362565+00:00"
+        },
+        {
+          "id": 201,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "Market data indicates San Francisco is priced at a 14% probability to win the 2027 Pro Football Championship.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.363167+00:00"
+        },
+        {
+          "id": 202,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "Market pricing on Gemini indicates San Francisco's implied probability is around 14%.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.373926+00:00"
+        },
+        {
+          "id": 203,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "Super Bowl LXI is scheduled to take place on February 14, 2027, at SoFi Stadium in Inglewood, California.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.391232+00:00"
+        },
+        {
+          "id": 204,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "Price history is unavailable in the provided snapshot.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.434378+00:00"
+        },
+        {
+          "id": 205,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "External analysis and prediction markets place San Francisco's chances at varying levels, with some estimates significantly lower.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.436416+00:00"
+        },
+        {
+          "id": 206,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "External analysis and prediction markets place varied estimates on the team's chances relative to the broader field.\n"
+          },
+          "created_at": "2026-10-11T23:05:24.511137+00:00"
+        },
+        {
+          "id": 207,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "Market Reader",
+            "round": 1,
+            "public_notes": [
+              "The San Francisco team is priced at 0.14 in the 2027 Pro Football Champion market.",
+              "No external source metadata or additional evidence was provided for this market.",
+              "Price history is unavailable in the provided snapshot."
+            ],
+            "probability": 0.14,
+            "confidence": "low",
+            "reasons": [
+              "The market price is currently 0.14, indicating a roughly 14 percent implied probability based on the quote.",
+              "There is no external research or evidence provided to contradict or support the current market pricing.",
+              "Forecasting far in advance for the 2027 champion carries high uncertainty and lack of detailed team performance data."
+            ],
+            "sources": []
+          },
+          "created_at": "2026-10-11T23:05:24.678408+00:00"
+        },
+        {
+          "id": 208,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "News Scout",
+            "round": 1,
+            "public_notes": [
+              "Super Bowl LXI is scheduled to be played on February 14, 2027, at SoFi Stadium in Inglewood, California.",
+              "Market pricing for San Francisco winning the 2027 Pro Football Championship sits around 14% on Gemini.",
+              "External analysis and prediction markets reflect varying expectations for the team's championship prospects."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "The current market price on Gemini for San Francisco winning the 2027 championship is 0.14.",
+              "Super Bowl LXI takes place in February 2027, leaving significant time and uncertainty for team performance and roster changes.",
+              "External prediction markets and analyses estimate competitive odds for the team reaching or winning the championship game."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ]
+          },
+          "created_at": "2026-10-11T23:05:24.920162+00:00"
+        },
+        {
+          "id": 209,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "Skeptic",
+            "round": 1,
+            "public_notes": [
+              "The 2027 Pro Football Championship (Super Bowl LXI) is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.",
+              "Market pricing on Gemini indicates San Francisco's implied probability is around 14%.",
+              "External analysis and prediction markets place San Francisco's chances at varying levels, with some estimates significantly lower."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "Market price on Gemini currently reflects a 14% implied probability for the San Francisco franchise to win the 2027 championship.",
+              "External quantitative estimates suggest the true probability may be lower than current market pricing.",
+              "High variance and competitive parity in the NFL create substantial uncertainty for long-horizon futures markets."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ]
+          },
+          "created_at": "2026-10-11T23:05:25.018582+00:00"
+        },
+        {
+          "id": 210,
+          "type": "estimate_submitted",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 1,
+            "public_notes": [
+              "Market data indicates San Francisco is priced at a 14% probability to win the 2027 Pro Football Championship.",
+              "Super Bowl LXI is scheduled to take place on February 14, 2027, at SoFi Stadium in Inglewood, California.",
+              "External analysis and prediction markets place varied estimates on the team's chances relative to the broader field."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "The current market price on Gemini for San Francisco winning the 2027 championship is 0.14.",
+              "The team remains a competitive franchise in the NFC with consistent playoff appearances.",
+              "Uncertainty over injuries, roster changes, and strong competition across the league support a moderate probability below 20%."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ]
+          },
+          "created_at": "2026-10-11T23:05:25.089429+00:00"
+        },
+        {
+          "id": 211,
+          "type": "round_changed",
+          "data": {
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:05:25.090683+00:00"
+        },
+        {
+          "id": 212,
+          "type": "agent_started",
+          "data": {
+            "agent": "News Scout",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:06:24.442633+00:00"
+        },
+        {
+          "id": 213,
+          "type": "agent_started",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:06:24.457386+00:00"
+        },
+        {
+          "id": 214,
+          "type": "agent_started",
+          "data": {
+            "agent": "Market Reader",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:06:24.482253+00:00"
+        },
+        {
+          "id": 215,
+          "type": "agent_started",
+          "data": {
+            "agent": "Skeptic",
+            "round": 2
+          },
+          "created_at": "2026-10-11T23:06:24.483320+00:00"
+        },
+        {
+          "id": 216,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "Gemini market prices San Francisco at 14% to win the 2027 Pro Football Championship.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.371323+00:00"
+        },
+        {
+          "id": 217,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "External quantitative estimates suggest the true probability may be lower than current market pricing.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.375389+00:00"
+        },
+        {
+          "id": 218,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.397137+00:00"
+        },
+        {
+          "id": 219,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Skeptic",
+            "text": "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.411588+00:00"
+        },
+        {
+          "id": 220,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.464688+00:00"
+        },
+        {
+          "id": 221,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.534072+00:00"
+        },
+        {
+          "id": 222,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "Gemini market pricing indicates a 14% implied probability for San Francisco.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.535803+00:00"
+        },
+        {
+          "id": 223,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "Gemini market pricing for San Francisco winning the 2027 championship is 14%.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.537142+00:00"
+        },
+        {
+          "id": 224,
+          "type": "evidence_note",
+          "data": {
+            "agent": "News Scout",
+            "text": "External quantitative models estimate varying probabilities, indicating long-horizon uncertainty.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.538323+00:00"
+        },
+        {
+          "id": 225,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "text": "External prediction markets and independent estimates show varied expectations for the team's championship prospects.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.600545+00:00"
+        },
+        {
+          "id": 226,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "The Gemini market price for San Francisco winning the 2027 championship is 0.14.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.712165+00:00"
+        },
+        {
+          "id": 227,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Market Reader",
+            "text": "External quantitative models and prediction markets suggest varying probability estimates for the franchise.\n"
+          },
+          "created_at": "2026-10-11T23:06:25.713580+00:00"
+        },
+        {
+          "id": 228,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "Skeptic",
+            "round": 2,
+            "public_notes": [
+              "Gemini market prices San Francisco at 14% to win the 2027 Pro Football Championship.",
+              "External quantitative estimates suggest the true probability may be lower than current market pricing.",
+              "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "The current market price on Gemini reflects a 14% implied probability.",
+              "External quantitative analyses suggest lower model-based valuations for the team's championship prospects.",
+              "High variance and long-horizon uncertainty in the NFL justify maintaining the current market price level without major revision."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ],
+            "revision_reason": "All independent forecasts converged on 14% matching the current market price, and external estimates indicating slightly lower probabilities do not warrant a strong divergence given long-horizon uncertainty."
+          },
+          "created_at": "2026-10-11T23:06:26.062747+00:00"
+        },
+        {
+          "id": 229,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "News Scout",
+            "round": 2,
+            "public_notes": [
+              "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.",
+              "Gemini market pricing for San Francisco winning the 2027 championship is 14%.",
+              "External quantitative models estimate varying probabilities, indicating long-horizon uncertainty."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "The current market price on Gemini for San Francisco winning the 2027 championship stands at 0.14.",
+              "External analysis and prediction markets reflect competitive positioning but high long-term variance.",
+              "No new information emerges from the review that warrants a significant departure from the consensus market price."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ],
+            "revision_reason": "Maintaining the previous probability estimate at 0.14 as independent forecasts and market data show stable alignment with no decisive new catalyst."
+          },
+          "created_at": "2026-10-11T23:06:26.245291+00:00"
+        },
+        {
+          "id": 230,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "Base Rate Analyst",
+            "round": 2,
+            "public_notes": [
+              "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium.",
+              "Gemini market pricing indicates a 14% implied probability for San Francisco.",
+              "External prediction markets and independent estimates show varied expectations for the team's championship prospects."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "The current Gemini market price for San Francisco winning the 2027 championship is 0.14.",
+              "Round 1 agent forecasts consistently align around the 14% implied probability.",
+              "Long-horizon forecasting introduces high variance, and existing market and external estimates support maintaining the current price level."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ],
+            "revision_reason": "No new evidence has emerged that warrants moving away from the consensus 14 percent market price, as all round 1 agents and external sources continue to support this valuation."
+          },
+          "created_at": "2026-10-11T23:06:26.250771+00:00"
+        },
+        {
+          "id": 231,
+          "type": "estimate_revised",
+          "data": {
+            "agent": "Market Reader",
+            "round": 2,
+            "public_notes": [
+              "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.",
+              "The Gemini market price for San Francisco winning the 2027 championship is 0.14.",
+              "External quantitative models and prediction markets suggest varying probability estimates for the franchise."
+            ],
+            "probability": 0.14,
+            "confidence": "medium",
+            "reasons": [
+              "The current Gemini market quote for San Francisco is 0.14, which aligns with previous agent estimates.",
+              "Reviewing independent forecasts reveals a general consensus around the current market pricing with no compelling reason to adjust away from it.",
+              "Long-horizon forecasting introduces high variance and uncertainty regarding future team rosters and injuries."
+            ],
+            "sources": [
+              "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+              "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+              "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+              "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+              "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+            ],
+            "revision_reason": "No new evidence has emerged in the debate round to warrant shifting the probability away from the current 0.14 market price."
+          },
+          "created_at": "2026-10-11T23:06:26.340198+00:00"
+        },
+        {
+          "id": 232,
+          "type": "round_changed",
+          "data": {
+            "round": 3
+          },
+          "created_at": "2026-10-11T23:06:26.342041+00:00"
+        },
+        {
+          "id": 233,
+          "type": "agent_started",
+          "data": {
+            "agent": "Synthesizer",
+            "round": 3
+          },
+          "created_at": "2026-10-11T23:07:25.448906+00:00"
+        },
+        {
+          "id": 234,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Synthesizer",
+            "text": "Super Bowl LXI is scheduled for February 14, 2027, at SoFi Stadium in Inglewood, California.\n"
+          },
+          "created_at": "2026-10-11T23:07:26.240935+00:00"
+        },
+        {
+          "id": 235,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Synthesizer",
+            "text": "Gemini market pricing for San Francisco winning the 2027 championship is 14%.\n"
+          },
+          "created_at": "2026-10-11T23:07:26.289280+00:00"
+        },
+        {
+          "id": 236,
+          "type": "evidence_note",
+          "data": {
+            "agent": "Synthesizer",
+            "text": "External quantitative models and prediction markets reflect long-horizon uncertainty.\n"
+          },
+          "created_at": "2026-10-11T23:07:26.290847+00:00"
+        },
+        {
+          "id": 237,
+          "type": "final_result",
+          "data": {
+            "probability": 0.14,
+            "outcome": "yes",
+            "selected_probability": 0.14,
+            "market_price": 0.14,
+            "gap": 0.0,
+            "summary": "The fixed 14 percent probability reflects the current Gemini market consensus for San Francisco winning the 2027 pro football championship, supported by stable independent estimates and high long-horizon uncertainty.",
+            "reasons": [
+              "The current Gemini market price for San Francisco is 0.14.",
+              "Independent forecasts and prediction markets show broad convergence around this valuation.",
+              "Long-horizon forecasting introduces high variance and roster uncertainty, discouraging major deviations."
+            ],
+            "disagreements": "While all agents settled on the 14% market price, the Skeptic noted that some external quantitative models suggest the true underlying probability might be slightly lower than current market pricing.",
+            "range": [
+              0.14,
+              0.14
+            ],
+            "sources": [
+              {
+                "url": "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html",
+                "title": "San Francisco passes Super Bowl baton to Los Angeles ...",
+                "snippet": "San Francisco passes Super Bowl baton to Los Angeles for 2027 ... SAN FRANCISCO \u2014 With football in hand Monday morning, Zaileen Janmohamed reared ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T23:05:23.109052+00:00"
+              },
+              {
+                "url": "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+                "title": "Super Bowl LXI",
+                "snippet": "Super Bowl LXI is the upcoming American football championship game. The game will be played on February 14, 2027, at SoFi Stadium in Inglewood, California. ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T23:05:23.108675+00:00"
+              },
+              {
+                "url": "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+                "title": "2027 Pro Football Champion: San Francisco - Adjacent Markets",
+                "snippet": "\u201c2027 Pro Football Champion: San Francisco\u201d is a binary event contract listed on Gemini \u2026 time volume is 17.4K contracts. Trading closes Feb 15 ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T23:05:23.108097+00:00"
+              },
+              {
+                "url": "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+                "title": "Pro Football: 2027 NFC Champion Predictions & Odds",
+                "snippet": "2027 NFC Champion $6,452,824. San Francisco 49ers $31,083 Vol. 18% The next closest outcome is \"San Francisco 49ers\" at 19%.",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T23:05:23.107406+00:00"
+              },
+              {
+                "url": "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+                "title": "Will San Francisco win the 2027 Pro Football Championship?",
+                "snippet": "My estimated probability for San Francisco winning the 2027 Super Bowl is 3.8%, compared to the Kalshi market price of 4.5% and traditional ...",
+                "provider": "Context.dev",
+                "fetched_at": "2026-10-11T23:05:23.106554+00:00"
+              }
+            ]
+          },
+          "created_at": "2026-10-11T23:07:26.733633+00:00"
+        }
+      ],
+      "estimates": [
+        {
+          "agent": "Market Reader",
+          "round": 1,
+          "probability": 0.14,
+          "confidence": "low",
+          "reasons": [
+            "The market price is currently 0.14, indicating a roughly 14 percent implied probability based on the quote.",
+            "There is no external research or evidence provided to contradict or support the current market pricing.",
+            "Forecasting far in advance for the 2027 champion carries high uncertainty and lack of detailed team performance data."
+          ],
+          "sources": [],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:05:24.677864+00:00"
+        },
+        {
+          "agent": "News Scout",
+          "round": 1,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "The current market price on Gemini for San Francisco winning the 2027 championship is 0.14.",
+            "Super Bowl LXI takes place in February 2027, leaving significant time and uncertainty for team performance and roster changes.",
+            "External prediction markets and analyses estimate competitive odds for the team reaching or winning the championship game."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:05:24.919829+00:00"
+        },
+        {
+          "agent": "Skeptic",
+          "round": 1,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "Market price on Gemini currently reflects a 14% implied probability for the San Francisco franchise to win the 2027 championship.",
+            "External quantitative estimates suggest the true probability may be lower than current market pricing.",
+            "High variance and competitive parity in the NFL create substantial uncertainty for long-horizon futures markets."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:05:25.018338+00:00"
+        },
+        {
+          "agent": "Base Rate Analyst",
+          "round": 1,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "The current market price on Gemini for San Francisco winning the 2027 championship is 0.14.",
+            "The team remains a competitive franchise in the NFC with consistent playoff appearances.",
+            "Uncertainty over injuries, roster changes, and strong competition across the league support a moderate probability below 20%."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": null,
+          "created_at": "2026-10-11T23:05:25.089241+00:00"
+        },
+        {
+          "agent": "Skeptic",
+          "round": 2,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "The current market price on Gemini reflects a 14% implied probability.",
+            "External quantitative analyses suggest lower model-based valuations for the team's championship prospects.",
+            "High variance and long-horizon uncertainty in the NFL justify maintaining the current market price level without major revision."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": "All independent forecasts converged on 14% matching the current market price, and external estimates indicating slightly lower probabilities do not warrant a strong divergence given long-horizon uncertainty.",
+          "created_at": "2026-10-11T23:06:26.062533+00:00"
+        },
+        {
+          "agent": "News Scout",
+          "round": 2,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "The current market price on Gemini for San Francisco winning the 2027 championship stands at 0.14.",
+            "External analysis and prediction markets reflect competitive positioning but high long-term variance.",
+            "No new information emerges from the review that warrants a significant departure from the consensus market price."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": "Maintaining the previous probability estimate at 0.14 as independent forecasts and market data show stable alignment with no decisive new catalyst.",
+          "created_at": "2026-10-11T23:06:26.245029+00:00"
+        },
+        {
+          "agent": "Base Rate Analyst",
+          "round": 2,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "The current Gemini market price for San Francisco winning the 2027 championship is 0.14.",
+            "Round 1 agent forecasts consistently align around the 14% implied probability.",
+            "Long-horizon forecasting introduces high variance, and existing market and external estimates support maintaining the current price level."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": "No new evidence has emerged that warrants moving away from the consensus 14 percent market price, as all round 1 agents and external sources continue to support this valuation.",
+          "created_at": "2026-10-11T23:06:26.250604+00:00"
+        },
+        {
+          "agent": "Market Reader",
+          "round": 2,
+          "probability": 0.14,
+          "confidence": "medium",
+          "reasons": [
+            "The current Gemini market quote for San Francisco is 0.14, which aligns with previous agent estimates.",
+            "Reviewing independent forecasts reveals a general consensus around the current market pricing with no compelling reason to adjust away from it.",
+            "Long-horizon forecasting introduces high variance and uncertainty regarding future team rosters and injuries."
+          ],
+          "sources": [
+            "https://rekko.ai/analysis/nfl-kalshi-kxsb-27-2026-06-18",
+            "https://polymarket.com/event/pro-football-2027-nfc-champion/will-san-francisco-49ers-win-the-2027-nfl-nfc-championship-832?ref=adjacent.markets",
+            "https://adjacent.markets/market/gemini%3AGEMI-PROFB2027-SANFRANCISCO",
+            "https://en.wikipedia.org/wiki/Super_Bowl_LXI",
+            "https://sports.yahoo.com/articles/san-francisco-passes-super-bowl-230323798.html"
+          ],
+          "revision_reason": "No new evidence has emerged in the debate round to warrant shifting the probability away from the current 0.14 market price.",
+          "created_at": "2026-10-11T23:06:26.339937+00:00"
+        }
+      ]
+    }
+  ],
+  "earlier_failed_attempts": [
+    {
+      "market_id": "GEMI-PROFB2027-KANSASCITY",
+      "error": "Agent probability is outside 0\u20131."
+    }
+  ],
+  "status": "passed",
+  "outputs_differ": true
+}

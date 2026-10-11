@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 from fastapi import HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field, field_validator, model_validator
-from sqlalchemy import select, text
+from sqlalchemy import select, text, or_
 from sqlalchemy.orm import Session
 
 from .database import User, timestamp
@@ -76,6 +76,7 @@ class PickLeg(MemberInput):
     market_id: str = Field(min_length=1, max_length=200)
     outcome: Literal['yes', 'no']
     max_price: Decimal | None = Field(default=None, gt=0, lt=1)
+    swarm_run_id: str | None = Field(default=None,min_length=1,max_length=100)
 
 
 class VoteLeg(MemberInput):
@@ -171,7 +172,8 @@ def register_squads(app, engine, feed):
     def complete(session, squad):
         people = members(session, squad.id)
         picks = active_legs(session, squad.id)
-        return len(people) == squad.member_limit and {person.user_id for person in people} == {leg.user_id for leg in picks}
+        full=len(people) == squad.member_limit and {person.user_id for person in people} == {leg.user_id for leg in picks}
+        return full and (squad.status!='open' or len({leg.event_ticker for leg in picks})==len(picks))
 
     def lock(session, squad):
         if squad.status != 'open': return
@@ -182,7 +184,7 @@ def register_squads(app, engine, feed):
             event(session, squad, 'lock', 'Picks and reactions are locked. No combined order or escrow has been placed.')
         else:
             squad.status = 'incomplete'
-            event(session, squad, 'incomplete', 'The deadline passed before every member joined and picked a leg. This slip cannot be settled.')
+            event(session, squad, 'incomplete', 'The deadline passed before every member joined and picked a different market. This slip cannot be settled.')
 
     def apply_deadline(session, squad):
         if squad.status == 'open' and _date(squad.lock_at) <= datetime.now(timezone.utc): lock(session, squad)
@@ -228,6 +230,7 @@ def register_squads(app, engine, feed):
         picks = active_legs(session, squad.id)
         legs = []
         for leg in picks:
+            research=session.scalar(select(SquadEvent).where(SquadEvent.leg_id==leg.id,SquadEvent.type=='swarm_leg').order_by(SquadEvent.id.desc()))
             votes = session.scalars(select(SquadVote).where(SquadVote.leg_id == leg.id).order_by(SquadVote.created_at, SquadVote.id)).all()
             reaction_rows = [{'user_id': vote.user_id, 'user_name': get_user(session, vote.user_id).name,
                               'reaction': vote.reaction, 'comment': vote.comment, 'created_at': vote.created_at, 'updated_at': vote.updated_at} for vote in votes]
@@ -235,7 +238,8 @@ def register_squads(app, engine, feed):
                          'market_id': leg.market_id, 'event_ticker': leg.event_ticker, 'title': leg.title, 'label': leg.label,
                          'category': leg.category, 'outcome': leg.outcome, 'entry_price': leg.entry_price, 'closes_at': leg.closes_at,
                          'status': leg.status, 'locked': leg.locked, 'created_at': leg.created_at, 'resolved_at': leg.resolved_at,
-                         'agree_count': sum(v.reaction == 'agree' for v in votes), 'disagree_count': sum(v.reaction == 'disagree' for v in votes), 'votes': reaction_rows})
+                         'agree_count': sum(v.reaction == 'agree' for v in votes), 'disagree_count': sum(v.reaction == 'disagree' for v in votes), 'votes': reaction_rows,
+                         'swarm_research':research.data if research else None})
         events = session.scalars(select(SquadEvent).where(SquadEvent.squad_id == squad.id).order_by(SquadEvent.id.desc()).limit(200)).all()
         events = [event_json(session, row) for row in reversed(events)]
         plan = None
@@ -339,14 +343,25 @@ def register_squads(app, engine, feed):
             squad = member_squad(session, squad_id, payload.user_id)
             if squad.status != 'open' or _date(squad.lock_at) <= datetime.now(timezone.utc):
                 raise HTTPException(409, 'This squad is locked. Picks are frozen.')
+            if payload.swarm_run_id:
+                from .swarm_connections import research_for_leg
+                research_for_leg(session,squad_id,payload.user_id,payload.market_id,payload.swarm_run_id)
         market = provider(feed.market, payload.market_id, payload.outcome)
         price, closes = validate_market(market, payload.market_id, payload.outcome)
         if payload.max_price is not None and price > payload.max_price:
             raise HTTPException(409, 'The Gemini buy price increased. Review the latest quote before choosing.')
         with db(write=True) as session:
             squad = member_squad(session, squad_id, payload.user_id); require_open(session, squad)
+            run=None
+            if payload.swarm_run_id:
+                from .swarm_connections import research_for_leg,attach_researched_leg
+                run=research_for_leg(session,squad_id,payload.user_id,payload.market_id,payload.swarm_run_id)
+            taken=session.scalar(select(SquadLeg).where(SquadLeg.squad_id==squad.id,or_(SquadLeg.market_id==payload.market_id,SquadLeg.event_ticker==market['event_ticker']),SquadLeg.active.is_(True),SquadLeg.user_id!=payload.user_id))
+            if taken:raise HTTPException(409,get_user(session,taken.user_id).name+' already picked this event first. Its other outcomes and opposite sides are reserved. Choose a different event.')
             old = session.scalar(select(SquadLeg).where(SquadLeg.squad_id == squad.id, SquadLeg.user_id == payload.user_id, SquadLeg.active.is_(True)))
-            if old and old.market_id == payload.market_id and old.outcome == payload.outcome: return detail(session, squad)
+            if old and old.market_id == payload.market_id and old.outcome == payload.outcome:
+                if run:attach_researched_leg(session,squad,old,run)
+                return detail(session,squad)
             if old: old.active = False
             leg = SquadLeg(squad_id=squad.id, user_id=payload.user_id, market_id=payload.market_id, outcome=payload.outcome,
                            event_ticker=market['event_ticker'], title=market.get('title', ''), label=market.get('label', ''),
@@ -354,6 +369,7 @@ def register_squads(app, engine, feed):
             session.add(leg); session.flush()
             name = get_user(session, payload.user_id).name
             event(session, squad, 'swap' if old else 'pick', f"{name} {'swapped to' if old else 'picked'} {payload.outcome.upper()}: {leg.label or leg.title} at {price}.", payload.user_id, leg.id)
+            if run:attach_researched_leg(session,squad,leg,run)
             return detail(session, squad)
 
     @app.post('/squads/{squad_id}/votes')

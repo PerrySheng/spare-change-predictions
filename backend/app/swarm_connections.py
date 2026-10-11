@@ -34,6 +34,36 @@ def _scope(session, squad_id, user_id, leg_id=None):
     return squad, leg
 
 
+def research_for_leg(session, squad_id, user_id, market_id, run_id):
+    run=session.get(SwarmRun,run_id)
+    shared=session.scalar(select(SwarmShare).where(SwarmShare.squad_id==squad_id,SwarmShare.run_id==run_id,SwarmShare.status=='posted'))
+    if not run or (run.user_id!=user_id and not shared):raise HTTPException(404,'Research run not found for this member.')
+    if run.status!='completed':raise HTTPException(409,'Wait for Swarm to finish before adding this research.')
+    if run.market_id!=market_id:raise HTTPException(409,'Swarm research must match the exact market for this leg.')
+    p=(run.result or {}).get('probability')
+    if isinstance(p,bool) or not isinstance(p,(int,float)) or not math.isfinite(p) or not 0<=p<=1 or not (run.result or {}).get('summary'):
+        raise HTTPException(409,'This run has no valid completed research.')
+    return run
+
+
+def attach_researched_leg(session,squad,leg,run):
+    existing=session.scalar(select(SquadEvent).where(SquadEvent.squad_id==squad.id,SquadEvent.leg_id==leg.id,SquadEvent.type=='swarm_leg').order_by(SquadEvent.id.desc()))
+    if existing and existing.data.get('run_id')==run.id:return
+    share=session.scalar(select(SwarmShare).where(SwarmShare.squad_id==squad.id,SwarmShare.leg_id==leg.id,SwarmShare.run_id==run.id))
+    if not share:session.add(SwarmShare(squad_id=squad.id,leg_id=leg.id,run_id=run.id,user_id=leg.user_id,status='posted'))
+    else:share.status='posted'
+    p=run.result['probability'];selected=p if leg.outcome=='yes' else 1-p
+    quote=run.market.get(leg.outcome+'_price')
+    if quote is None and run.outcome==leg.outcome:quote=run.market.get('price')
+    try:quote=float(quote);quote=quote if math.isfinite(quote) and 0<quote<1 else None
+    except (ValueError,TypeError):quote=None
+    session.add(SquadEvent(squad_id=squad.id,user_id=leg.user_id,leg_id=leg.id,type='swarm_leg',body=run.result['summary'],
+        data={'run_id':run.id,'market_id':run.market_id,'title':leg.title,'outcome':leg.outcome,'probability':p,'selected_probability':selected,
+              'market_price':quote,'gap':selected-quote if quote is not None else None,'sources':run.result.get('sources',[]),
+              'research_only':True,'member_funded':True,'note':'Your choice and your stake. Swarm provides research and contributes no money.'}))
+    session.flush()
+
+
 def _canonical(session, legs, owners):
     """One earliest completed forecast per instrument before the first pick lock.
 

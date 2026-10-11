@@ -174,3 +174,40 @@ def test_no_key_creates_no_chat_or_fake_forecast(setup, monkeypatch):
     with Session(engine) as s:
         assert s.scalar(select(func.count()).select_from(SwarmRun))==0
         assert s.scalar(select(func.count()).select_from(SquadEvent))==0
+
+
+def open_squad(engine):
+    with Session(engine) as s:
+        squad=s.get(Squad,'s');squad.status='open';squad.lock_at=(datetime.now(timezone.utc)+timedelta(hours=2)).isoformat();squad.locked_at=None
+        leg=s.get(SquadLeg,'leg');leg.active=False;leg.locked=False
+        s.commit()
+
+
+def test_completed_research_can_be_my_leg_on_either_side_without_a_swarm_member(setup):
+    c,engine,_=setup;open_squad(engine);forecast(engine)
+    payload={'user_id':'a','market_id':'market-a','outcome':'no','swarm_run_id':'r'}
+    for _ in range(2):
+        response=c.post('/squads/s/legs',json=payload)
+        assert response.status_code==200,response.text
+    detail=response.json();leg=detail['legs'][0]
+    assert leg['outcome']=='no' and leg['swarm_research']['probability']==.4
+    assert leg['swarm_research']['selected_probability']==pytest.approx(.6)
+    assert len(detail['members'])==2 and {m['user_id'] for m in detail['members']}=={'a','b'}
+    messages=[e for e in detail['events'] if e['type']=='swarm_leg']
+    assert len(messages)==1 and messages[0]['data']['member_funded'] is True
+    assert 'no money' in messages[0]['data']['note']
+    assert c.get('/squads/s/swarm/runs/r',params={'user_id':'b'}).status_code==200
+
+
+@pytest.mark.parametrize('changes,status', [({'status':'running'},409),({'market_id':'different'},409),({'user_id':'outsider'},404)])
+def test_researched_leg_rejects_unfinished_mismatched_or_private_runs(setup,changes,status):
+    c,engine,_=setup;open_squad(engine);forecast(engine,**changes)
+    r=c.post('/squads/s/legs',json={'user_id':'a','market_id':'market-a','outcome':'yes','swarm_run_id':'r'})
+    assert r.status_code==status
+    assert c.get('/squads/s',params={'user_id':'a'}).json()['legs']==[]
+
+
+def test_shared_research_still_cannot_duplicate_another_members_market(setup):
+    c,engine,_=setup;open_squad(engine);forecast(engine)
+    assert c.post('/squads/s/legs',json={'user_id':'a','market_id':'market-a','outcome':'yes','swarm_run_id':'r'}).status_code==200
+    assert c.post('/squads/s/legs',json={'user_id':'b','market_id':'market-a','outcome':'no','swarm_run_id':'r'}).status_code==409

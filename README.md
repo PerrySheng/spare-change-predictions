@@ -6,7 +6,7 @@ The frontend uses React, Vite, Tailwind CSS, and Lucide icons. The backend uses 
 
 ## Run locally
 
-Use Python 3.11+ and Node.js 22.12+ for the frontend, Claude worker, and XRPL executor. Run these commands from the project root:
+Use Python 3.11+ and Node.js 22.12+ for the frontend, AI worker, and XRPL executor. Run these commands from the project root:
 
 ```sh
 python3 -m venv .venv
@@ -39,18 +39,18 @@ Vite proxies `/api` to the backend on port 8000. Use the backend on port 8000 fo
 
 ## What the app does
 
-- Onboard with a name, interests, and a weekly market cap. A $0 cap allows savings only; preferences can pause market picks. The cap includes contract cost and estimated fees and resets Monday at midnight in `America/Los_Angeles`.
+- Onboard with a name and interests. Change from every purchase accumulates in your available balance, without a weekly cap. Settings can pause market picks.
 - Add a USD purchase manually, through a `/roundup` Shortcut link, or through Plaid Sandbox. `$4.63` becomes `37¢`; a whole-dollar purchase creates no round-up. Amounts are stored as integer cents. Bank amounts with fractional cents are rounded to the nearest cent (half cents round up) before calculating change; manual USD input remains limited to two decimal places.
-- Choose savings or hold the round-up for a future market pick, or explore up to three contracts from distinct live events. Each market card lets you choose **Yes or No** using Gemini's actual buy quote for that side, with its own contract count and fee. A side that exceeds the available budget or has no executable quote is visible but unavailable to select. Savings is selected first, and each allocation requires a user choice.
+- Browse tailored events or search the full current catalog by title, category, and outcome. Binary events have Yes/No buttons; multi-outcome events show four rows sorted by chance and a Show more toggle. Both sides use observed venue prices. Live earnings previews follow the selected side and amount. Clearly labeled demo examples include binary and multi-outcome inputs and cannot place orders or start research.
 - See the calculation, scoring factors, and market rules under **How it works**. Deterministic ranking combines interests, spending, prior topic picks, affordability, time to close, and reported event volume. Wins and losses do not affect ranking.
 - Track saved change, rollover available for future picks, pending round-ups, positions, wins/losses, and a comparison with saving every allocated round-up.
 - Switch between **Group betting**, **Spare**, and **News**. Spare keeps Your change, Activity, and Your pot as secondary pages.
-- Build a squad slip with 2–6 friends, invite codes, one Yes/No leg each, pre-lock swaps, agree/disagree votes, comments, live chat, and real resolved track records. Picks are proposed until a provider transaction is separately confirmed.
+- Build a squad slip with 2–6 friends, invite codes, one distinct market and Yes/No leg each, pre-lock swaps, agree/disagree votes, comments, live chat, and real resolved track records. Picks are proposed until a provider transaction is separately confirmed.
 - Use **News / The Digger** for Context.dev source links and short summaries. Its topic order reflects interests and actual paper/squad picks, with a sample-weighted positive category edge boost. Read an original article, choose a related live market, add your own squad leg, or explicitly share an article into squad chat.
-- Open **Swarm research** for four independent Claude forecasts, one debate round, a computed median, and a mobile React Flow workspace. Agent states, public notes, queries, sources, and estimate revisions are driven by persisted provider events. Credentialed Claude calls remain unverified.
+- Open **Swarm**, the research bee, for four independent AI forecasts, one debate round, a code-computed median, and a mobile React Flow workspace. Google Gemini uses Context.dev reading evidence; Claude remains an optional provider. Only actual calls and persisted events drive activity. Completed research can become your own squad leg on either side: you choose and fund it; Swarm contributes no money.
 - With XRPL configured, use encrypted custodial Testnet/Devnet wallets and custom SPC token escrows for squads of 3–6 members. A confirmed settlement pays every recipient in one atomic Batch. SPC has no real monetary value; round-ups and savings stay separate.
 
-Market discovery is cached for 15 seconds. Before allocating a position, the backend fetches the event again, rejects closed markets, rejects a price increase above the displayed price, and never exceeds the displayed contract count or total cost. It buys whole contracts that fit the available round-up plus rollover, the weekly cap, and the contract's quantity grid. Unspent change stays in rollover; saved change is separate.
+Market discovery is cached for 15 seconds. Before allocating a position, the backend fetches the event again, rejects closed markets, rejects a price increase above the displayed price, and never exceeds the displayed contract count or total cost. It buys whole contracts that fit the accumulated purchase change plus rollover and the contract's quantity grid. Unspent change stays in rollover; saved change is separate.
 
 The fee estimate is `ceil(0.07 × contracts × price × (1 − price) × 100)` cents. This implements the published taker formula and rounding; it remains an estimate and can be overridden with `GEMINI_TAKER_RATE`. Check the current [Gemini Predictions fee schedule](https://www.gemini.com/fees/predictions) before changing the estimate.
 
@@ -72,7 +72,10 @@ No private provider credentials are supplied. Add only credentials you own to th
 | `PLAID_CLIENT_ID`, `PLAID_SECRET` | Optional client ID and **sandbox** secret for test purchases. |
 | `PLAID_ENV=sandbox` | The only supported Plaid environment. |
 | `PLAID_WEBHOOK_URL` | Optional public HTTPS URL ending in `/webhooks/plaid`, configured before the first demo connection. |
-| `CONTEXT_DEV_API_KEY` | Optional server-side key for News reading materials. |
+| `CONTEXT_DEV_API_KEY` | Server-side key for News and Swarm reading materials and the shared source cache. |
+| `SWARM_PROVIDER=gemini` | Google AI with Context.dev evidence; `anthropic` enables the existing Claude worker. |
+| `GOOGLE_AI_API_KEY` | Google AI Studio key, separate from the Gemini exchange key. |
+| `GOOGLE_AI_MODEL=gemini-3.5-flash-lite` | Free-tier-capable model verified against the supplied key; model access and quota depend on your account. |
 | `ANTHROPIC_API_KEY` | Server-side key for real research swarm calls. |
 | `ANTHROPIC_MODEL=claude-sonnet-5-5` | Documented model; the worker checks actual account/model capabilities before paid calls. |
 | `XRPL_NETWORK=testnet` | Only `testnet` or `devnet`; mainnet is refused. |
@@ -139,7 +142,7 @@ cd ..
 .venv/bin/python spikes/plaid_spike.py
 ```
 
-Backend tests cover money parsing, round-ups, fee-aware quantity sizing, scoring, duplicate IDs, isolation by user ID, single allocation, caps/pausing, price changes, provider failures, and settlement credited once. Tests use controlled provider fixtures; passing them does not verify a credentialed provider integration.
+Backend tests cover money parsing, round-ups, fee-aware quantity sizing, scoring, duplicate IDs, signed production sessions, isolation by user ID, single allocation, pooled purchase change/pausing, price changes, provider failures, and settlement credited once. Tests use controlled provider fixtures; passing them does not verify a credentialed provider integration.
 
 The Gemini spike first reads public production markets, then reads sandbox markets and attempts **one sandbox contract order** if keys are present. Run it only when you intend that test. It prints `sandbox_order: not_verified` and an actionable reason if the private path fails; submission alone is not proof of a fill. The Plaid spike creates one sandbox test purchase and polls for its actual transaction. Missing keys yield a clear error; a delayed transaction is reported as processing rather than substituted. Gemini order creation/fill remains unverified. Supplied Plaid sandbox credentials passed authentication and an isolated app import of 174 actual sandbox purchases with computed round-ups; the three named custom purchases were not separately matched during the bounded check, and webhook delivery is untested. [Plaid check](docs/PLAID_LIVE_CHECK.json). Read-only Gemini sandbox authentication, Context.dev search, and shared-cache retrieval have also been verified.
 
@@ -147,8 +150,16 @@ The Gemini spike first reads public production markets, then reads sandbox marke
 
 After the production build is served on port 8000, follow [SHORTCUT_SETUP.md](SHORTCUT_SETUP.md) for an HTTPS phone tunnel and Apple Pay automation. [DEMO.md](DEMO.md) gives a short walkthrough that starts without credentials.
 
-This is a local hackathon MVP without login. A browser stores its profile ID in `localStorage`; that ID is not authentication. Use a tunnel only with trusted demo participants, and stop it afterward. Changing tunnel domains creates a different browser origin/profile. Keep provider keys server-side and use test data. Plaid Item tokens are stored in the local SQLite database.
+For local development, name onboarding stores a profile ID in localStorage. The Railway friend demo additionally requires a private access code or valid open squad invite and signed Secure/HttpOnly cookies tied to one profile; knowing another profile ID cannot impersonate them. This is a private friend test, without recoverable public accounts. Everyone must use the same Railway URL; localhost has a different database. See [Railway deployment](docs/RAILWAY_DEPLOYMENT.md).
 
 The PWA manifest and service worker support a home-screen app shell in a secure browser context. The service worker caches the shell/assets, never financial/provider responses; allocations and fresh data still need the backend and network. Device installation, Apple Pay trigger fields, credentialed exchange orders, and the reading UI require separate testing on your device/accounts. The reading API has passed a live Context.dev check.
 
-Project layout: `swarm/` holds the official Claude TypeScript worker; `xrpl/` holds the test-network executor and public ledger evidence; `frontend/` holds the React PWA; `backend/app/` holds API, accounting, scoring, and provider adapters; `backend/tests/` holds deterministic tests; `spikes/` holds standalone provider probes.
+Project layout: `swarm/` holds the official Google GenAI and Claude TypeScript workers; `xrpl/` holds the test-network executor and public ledger evidence; `frontend/` holds the React PWA; `backend/app/` holds API, accounting, scoring, and provider adapters; `backend/tests/` holds deterministic tests; `spikes/` holds standalone provider probes.
+
+## Swarm costs and evidence
+
+Google mode requests up to nine calls: four independent estimates, four revisions after debate, and one public summary. The final YES probability is the median of the four revisions, computed in code. Context.dev provides short search descriptions and source links, shared with News through a 30-minute persisted cache; no full articles are displayed. Market Reader only sees the Gemini snapshot. It cannot invent missing history or volume. Public notes are explicitly generated explanations; private thoughts and signatures are discarded.
+
+The free-tier implementation permits four request starts per 61 seconds, one active run globally, a one-minute cooldown between runs, and two new runs per profile per hour. These controls apply across friends and persist across server restarts through the run records. Google can still return quota or temporary capacity errors. Cached forecasts and shared results do not trigger new model calls. Google Search tools are disabled; Context.dev and Railway costs remain separate. [Google pricing](https://ai.google.dev/gemini-api/docs/pricing).
+
+A winning contract pays $1. The fractional earnings preview uses amount / price and is labeled before fees; actual execution buys whole contracts on the venue grid and shows its own fee-aware total. $0.73 at 40¢ previews Win $1.83 (+$1.10), while the executable contract count can be lower. The click response adapts [React Bits ClickSpark](https://reactbits.dev/animations/click-spark), retaining its license and reduced-motion support.

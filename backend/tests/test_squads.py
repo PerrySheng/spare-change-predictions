@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from concurrent.futures import ThreadPoolExecutor
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -7,6 +8,7 @@ from app.database import User, build_engine
 from app.squads import register_squads
 from app.squad_models import Squad, SquadLeg
 from app.xrpl_models import XRPLSettlement
+from app import swarm_models
 
 
 class Feed:
@@ -37,6 +39,38 @@ def add_leg(c, squad, user='a', market='m1', outcome='yes'):
     response = c.post(f'/squads/{squad}/legs', json={'user_id': user, 'market_id': market, 'outcome': outcome, 'max_price': '.75'})
     assert response.status_code == 200, response.text
     return response.json()
+
+def test_duplicate_market_is_rejected_even_for_the_opposite_side(setup):
+    c,_,_=setup;s=create(c)['id']
+    c.post('/squads/'+s+'/join',json={'user_id':'b'})
+    add_leg(c,s,'a','m1')
+    for side in ['yes','no']:
+        r=c.post('/squads/'+s+'/legs',json={'user_id':'b','market_id':'m1','outcome':side})
+        assert r.status_code==409 and 'already' in r.json()['detail']
+    assert len(c.get('/squads/'+s,params={'user_id':'a'}).json()['legs'])==1
+    add_leg(c,s,'b','m2')
+
+def test_two_friends_cannot_claim_one_market_at_the_same_time(setup):
+    c,_,_=setup;s=create(c)['id']
+    c.post('/squads/'+s+'/join',json={'user_id':'b'})
+    def choose(user_id):return c.post('/squads/'+s+'/legs',json={'user_id':user_id,'market_id':'m1','outcome':'yes'}).status_code
+    with ThreadPoolExecutor(max_workers=2) as executor:codes=list(executor.map(choose,['a','b']))
+    assert sorted(codes)==[200,409]
+    assert len(c.get('/squads/'+s,params={'user_id':'a'}).json()['legs'])==1
+
+
+def test_opposing_contracts_in_one_matchup_belong_to_the_first_picker(setup):
+    c,feed,_=setup;s=create(c)['id']
+    c.post('/squads/'+s+'/join',json={'user_id':'b'})
+    original=feed.market
+    def same_game(symbol,outcome):return {**original(symbol,outcome),'event_ticker':'RAMS-BEARS'}
+    feed.market=same_game
+    add_leg(c,s,'a','rams','yes')
+    for symbol,side in [('rams','no'),('bears','yes'),('bears','no')]:
+        r=c.post('/squads/'+s+'/legs',json={'user_id':'b','market_id':symbol,'outcome':side})
+        assert r.status_code==409 and 'first' in r.json()['detail']
+    data=c.get('/squads/'+s,params={'user_id':'b'}).json()
+    assert data['legs'][0]['user_id']=='a' and len(data['legs'])==1
 
 
 def test_creation_join_capacity_and_isolation(setup):
