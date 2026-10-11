@@ -204,6 +204,7 @@ def register_squads(app, engine, feed):
                 'created_at': leg.created_at, 'resolved_at': leg.resolved_at}
 
     def leaderboard(session, squad):
+        from .swarm_connections import squad_swarm_record, comparison
         rows = []
         for member in members(session, squad.id):
             user = get_user(session, member.user_id)
@@ -214,7 +215,10 @@ def register_squads(app, engine, feed):
             for vote in votes:
                 leg = session.get(SquadLeg, vote.leg_id)
                 if leg: vote_facts.append({'reaction': vote.reaction, 'leg': leg_fact(leg)})
-            rows.append({'user_id': user.id, 'name': user.name, 'record': track_record([leg_fact(leg) for leg in history], vote_facts)})
+            record = track_record([leg_fact(leg) for leg in history], vote_facts)
+            record['swarm_comparison'] = comparison(session, squad, user.id)
+            rows.append({'user_id': user.id, 'name': user.name, 'record': record})
+        rows.append({'user_id': 'the-swarm', 'name': 'The Swarm', 'kind': 'swarm', 'record': squad_swarm_record(session, squad)})
         return rows
 
     def detail(session, squad):
@@ -245,7 +249,7 @@ def register_squads(app, engine, feed):
                 'legs': legs, 'messages': events, 'events': events, 'leaderboard': leaderboard(session, squad),
                 'escrow': xrpl, 'xrpl': xrpl,
                 'combo': {'status': 'not_placed', 'message': 'This is a proposed squad slip. No combined Gemini order has been placed.'},
-                'payout_plan': plan, 'swarm': {'status': 'unavailable', 'message': 'Swarm forecasts have not been connected to squad records yet.'}}
+                'payout_plan': plan, 'swarm': {'status': 'connected', 'message': 'Research forecasts use the same edge formula as friends. Only forecasts completed before picks locked qualify.'}}
 
     def provider(method, *args):
         try: return method(*args)
@@ -418,6 +422,8 @@ def register_squads(app, engine, feed):
         results = {}
         for ticker in dict.fromkeys(ticker for _, ticker, _ in identifiers):
             results[ticker] = provider(feed.event, ticker)
+        from .swarm import refresh_swarm_forecasts
+        refresh_swarm_forecasts(engine, feed)
         with db(write=True) as session:
             squad = member_squad(session, squad_id, payload.user_id)
             for leg in active_legs(session, squad.id):

@@ -22,6 +22,7 @@ from . import squad_models,swarm_models,xrpl_models
 from .squads import register_squads
 from .news import register_news
 from .swarm import register_swarm
+from .swarm_connections import register_swarm_connections
 from .xrpl_service import register_xrpl,xrpl_configured
 
 class Onboarding(BaseModel):
@@ -376,6 +377,7 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
         return sync(UserInput(user_id=user_id))
     register_squads(app,engine,feed)
     register_swarm(app,engine,feed,reading)
+    register_swarm_connections(app,engine)
     register_news(app,engine,feed,reading)
     register_xrpl(app,engine,feed)
     static=Path(__file__).resolve().parents[2]/'frontend'/'dist'

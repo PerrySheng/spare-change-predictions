@@ -26,7 +26,7 @@ def track_record(legs, votes=None):
 
     Swapped and unlocked picks are excluded. Vote dictionaries contain a `leg`
     dictionary so disagree accuracy uses the actual final outcome of that pick.
-    No swarm exists in this app; its comparison remains unavailable.
+    The integration layer adds comparisons using saved prospective forecasts.
     """
     legs = [leg for leg in legs if _final(leg)]
     record = _summary(legs)

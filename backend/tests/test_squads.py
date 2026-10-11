@@ -149,7 +149,7 @@ def test_invalid_contracts_are_void_not_losses(setup):
     feed.invalid = {'m1', 'm2'}
     result = c.post(f'/squads/{squad}/refresh', json={'user_id': 'a'}).json()
     assert result['status'] == 'resolved'
-    assert [row['record']['void'] for row in result['leaderboard']] == [1, 1]
+    assert [row['record']['void'] for row in result['leaderboard'] if row.get('kind') != 'swarm'] == [1, 1]
     assert all(row['record']['hit_rate'] is None for row in result['leaderboard'])
     assert [row['payout_cents'] for row in result['payout_plan']['members']] == [750, 750]
 

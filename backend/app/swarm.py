@@ -310,8 +310,12 @@ class SwarmService:
             message = str(exc) if isinstance(exc, (ValueError, RuntimeError)) else 'Research failed. Check provider access and worker configuration.'
             self._fail(run_id, message)
         finally:
-            with self._thread_lock:
-                self._threads.discard(threading.current_thread())
+            from .swarm_connections import post_ready_shares
+            try:
+                post_ready_shares(self.engine, run_id)
+            finally:
+                with self._thread_lock:
+                    self._threads.discard(threading.current_thread())
 
     def _packet(self, run_id, packet):
         if not isinstance(packet, dict) or not isinstance(packet.get('data'), dict):
@@ -523,6 +527,8 @@ def register_swarm(app, engine, feed, reading, worker=node_worker):
 
     @app.get('/swarm/metrics')
     def metrics(user_id: str):
+        with Session(engine) as session:
+            _user(session, user_id)
         refresh_swarm_forecasts(engine, feed)
         return swarm_metrics(engine, user_id)
 

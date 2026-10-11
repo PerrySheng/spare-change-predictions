@@ -2,6 +2,7 @@
 from sqlalchemy import ForeignKey, Integer, JSON, String, Float, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 from .database import Base, uid, timestamp
+from . import squad_models  # Register the foreign-key targets for share intents.
 
 
 class SwarmRun(Base):
@@ -67,3 +68,16 @@ class ResearchSource(Base):
     snippet: Mapped[str] = mapped_column(String, default='')
     provider: Mapped[str] = mapped_column(String)
     fetched_at: Mapped[str] = mapped_column(String, default=timestamp)
+
+
+class SwarmShare(Base):
+    """A durable, explicit request to post a run into one squad leg's chat."""
+    __tablename__ = 'swarm_shares'
+    __table_args__ = (UniqueConstraint('squad_id', 'leg_id', 'run_id'),)
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=uid)
+    squad_id: Mapped[str] = mapped_column(ForeignKey('squads.id'), index=True)
+    leg_id: Mapped[str] = mapped_column(ForeignKey('squad_legs.id'))
+    run_id: Mapped[str] = mapped_column(ForeignKey('swarm_runs.id'), index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey('users.id'))
+    status: Mapped[str] = mapped_column(String, default='waiting')
+    created_at: Mapped[str] = mapped_column(String, default=timestamp)
