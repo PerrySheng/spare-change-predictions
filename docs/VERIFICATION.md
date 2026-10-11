@@ -4,17 +4,18 @@ Checked on October 11, 2026. This is a local hackathon MVP, with paper mode enab
 
 | Check | Result |
 | --- | --- |
-| Backend suite | 60 tests passed. One dependency deprecation warning from Starlette's TestClient/httpx integration. |
+| Backend suite | 80 tests passed. One dependency deprecation warning from Starlette's TestClient/httpx integration. |
 | Frontend production build | Passed with Vite 7.3.7. |
 | Python dependency consistency | `pip check` passed. |
 | Launch script syntax | `bash -n run.sh` passed. |
 | Local server | `/health`, `/`, both built assets, manifest, and service worker returned HTTP 200. |
 | Public Gemini data | Retrieved real production and sandbox prediction-market quotes. |
 | Paper flow with public data | Two isolated profiles produced sports and crypto suggestions, fee-aware paper allocations, and dashboard valuations using Gemini responses. Test databases were temporary. |
+| Yes/No choices with public data | Both sides matched Gemini's actual buy quotes for the same contract. Selecting No recorded a No paper position at that side's price, contract count and estimated fee in an isolated temporary database. |
 | Context.dev without credentials | Returned an actionable HTTP 503 mentioning `CONTEXT_DEV_API_KEY`; no substitute reading materials. |
 | Review | Backend accounting/provider review and frontend integration review completed; reported correctness issues were fixed. |
 
-The backend tests cover currency parsing, roundup arithmetic, fees and whole-contract grids, deterministic ranking, user separation, purchase idempotency, single allocation, caps and pausing, price changes, displayed quantity/cost limits, rollover pooling, settlement credited once, Plaid modifications/removals, sandbox reservations/rejections, and Context.dev response validation and failure handling. Provider fixtures verify local behavior without proving authenticated access.
+The backend tests cover currency parsing, roundup arithmetic, fees and whole-contract grids, deterministic ranking, Yes/No quotes grouped by exact instrument, unavailable/unaffordable sides, consistent duplicate quote snapshots, No allocation, user separation, purchase idempotency, single allocation, caps and pausing, price changes, displayed quantity/cost limits, rollover pooling, settlement credited once, Plaid modifications/removals, sandbox reservations/rejections, and Context.dev response validation and failure handling. Provider fixtures verify local behavior without proving authenticated access.
 
 No private provider credentials were supplied. Actual Context.dev retrieval, Plaid Sandbox ingestion/webhook delivery, and Gemini sandbox order execution remain unverified. These paths need the corresponding keys in the root `.env` and a backend restart. Production money trading is disabled.
 
