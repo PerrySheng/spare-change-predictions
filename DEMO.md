@@ -60,7 +60,11 @@ Configure `ANTHROPIC_API_KEY`, build `swarm/`, and restart first. The credential
 4. Show the final research estimate versus the actual recorded Gemini side quote. Explain that the median is computed in code and a price gap does not guarantee a profitable trade.
 5. Use **Replay saved run** and **Next event** to step through persisted events. Open the same `/swarm/{runId}` route in a second window of the same profile to verify both receive the same event IDs.
 
-“The Swarm” leaderboard and profile comparisons are a subsequent integration phase, not part of this demo yet. No automated bot trades are enabled.
+6. Return to Spare or News and show the cached probability chip. Its quote is labeled **at forecast time**. Open it to replay the saved research without another model call.
+7. On a squad leg, press **Ask the Swarm · share to chat**, then show the completed summary in **Chat**. Open it from another member’s profile; only squad members can access the shared result.
+8. After Gemini genuinely resolves a researched, locked pick, press **Check Gemini results**. Show **The Swarm** under **Track records**, then your **You vs the Swarm** card. An unresolved or unmatched market shows unavailable scores; never invent a settlement to finish the demo.
+
+No automated bot trades are enabled. Phase D’s credentialed flow and browser interaction checks remain pending.
 
 ## Verify before presenting
 

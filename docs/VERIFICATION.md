@@ -4,9 +4,9 @@ Checked on October 11, 2026. Paper mode is enabled by default. Controlled provid
 
 | Check | Result |
 | --- | --- |
-| Python backend suite | **179 passed**. One existing Starlette TestClient/httpx deprecation warning. |
-| Frontend production build | Passed with Vite 7.3.7. Swarm loads in a separate chunk; initial JS 312 kB before gzip. |
-| Frontend event reducer | **2 Node tests passed**: real-event state transitions, revision history, replay order/deduplication, safe source links. |
+| Python backend suite | **191 passed**. One existing Starlette TestClient/httpx deprecation warning. |
+| Frontend production build | Passed with Vite 7.3.7. Swarm loads in a separate chunk; initial JS 316 kB before gzip. |
+| Frontend event reducer | **4 Node tests passed**: real-event state transitions, revision/replay order, safe sources, changed-profile/market/side cache guards, and the News related-market component rendering without undefined props. Component rendering is a Node check, not a browser layout check. |
 | Claude TypeScript worker | Build and **5 tests passed**: median, search-tool permissions, JSON/source validation, actual stream query parsing, public text versus hidden thinking. |
 | XRPL TypeScript executor | TypeScript checks and **8 tests passed**: networks, crypto-condition, payout conservation, issued-token cents, atomic Batch flags, encryption. |
 | Python dependencies / launch | `pip check`, `bash -n run.sh`, and Git whitespace checks passed. |
@@ -26,7 +26,7 @@ No Anthropic, Context.dev, Plaid, or private Gemini credentials were supplied. T
 
 The actual XRPL transaction checks use only Testnet/Devnet custom SPC tokens. Persistent app wallets need a stable `XRPL_WALLET_KEY`. The full app path from a real finalized Gemini squad through its UI to an XRPL payout has not yet been exercised; the reusable executor's four payout cases and wallet API are verified independently. Recovery after an unknown submission or a partial escrow release near its deadline requires manual reconciliation. Mainnet, RLUSD, multisign, automatic refunds, automated trading, and an authenticated combined Gemini order are not claimed.
 
-The next swarm integration phase (cached suggestion chips, The Swarm leaderboard/player comparison, and posting a forecast into squad chat) remains pending the user's phase checkpoint. The separate Digger reading/share/related-market request is implemented.
+Phase D was approved and is implemented: cached forecast chips, The Swarm leaderboard, profiles on shared resolved markets, and durable leg-chat sharing. Twelve additional controlled tests pass, including the real worker completion hook, concurrent retries, cached sharing without credentials, and access isolation. [Run instructions and self-check](SWARM_CONNECTIONS.md). Credentialed Phase D data and browser checks remain pending; no fixture content is served by the app. The separate Digger reading/share/related-market request is implemented.
 
 Reproduce checks from the project root:
 
@@ -35,7 +35,7 @@ Reproduce checks from the project root:
 .venv/bin/python -m pip check
 bash -n run.sh
 npm --prefix frontend run build
-node --test frontend/src/swarmState.test.js
+node --test frontend/src/swarmState.test.js frontend/src/swarmConnections.test.js
 npm --prefix swarm run build
 npm --prefix swarm test
 npm --prefix xrpl run check

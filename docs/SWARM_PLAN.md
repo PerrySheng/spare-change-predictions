@@ -1,6 +1,6 @@
 # Claude research swarm — proposed phases
 
-Status: Phase A research delivered and Phase B explicitly approved. Phase B backend is implemented and tested with controlled interfaces. The user then requested a nice swarm UI, so the Phase C workspace is implemented alongside the tabs. Real Claude two-market and two-window checks remain blocked by the missing API key and earlier denied browser permission. Digger Phase I connections are implemented under the separate user request. Later leaderboard/profile/chat swarm integrations and the optional trading bot remain pending the phase checkpoint.
+Status: Phase A research delivered and Phase B explicitly approved. Phase B backend is implemented and tested with controlled interfaces. The user then requested a nice swarm UI, so the Phase C workspace is implemented alongside the tabs. Real Claude two-market and two-window checks remain blocked by the missing API key and earlier denied browser permission. Digger Phase I connections are implemented under the separate user request. Phase D was explicitly approved and its cache-chip, leaderboard/profile, and durable squad-chat integrations are implemented with controlled integration tests. Its real-data check remains pending a Claude API key; the optional trading bot remains outside the approved phase.
 
 ## Outcome
 
@@ -30,7 +30,7 @@ The timeline uses SSE event IDs to reconnect without duplicates. Replay walks th
 
 ## Phase D and Digger Phase I: Connections
 
-Spare cards link to research and show a probability chip only when an actual completed cached run exists. Squad legs gain Ask the Swarm; a completed result is posted into that squad's chat once per request. Friend profiles and the leaderboard compare the swarm only on genuinely shared resolved markets and show unavailable states for no overlap.
+Spare cards link to research and show a probability chip only when an actual completed cached run exists. Squad legs gain Ask the Swarm; a completed result is posted into that squad's chat once per request. Friend profiles compare genuinely shared resolved markets and show unavailable states for no overlap. The leaderboard reuses friends’ existing across-squad records and ranks one earliest eligible swarm forecast per instrument on their final-pick universe, with sample counts. See [implementation and self-check](SWARM_CONNECTIONS.md).
 
 Digger articles show live related markets with actions to open a Spare choice, add a squad leg, or run the swarm. Sharing posts a short summary and original link into an explicitly chosen squad, with an optional leg vote before lock. Topic weights use real pick frequency plus sample-aware category edge, alongside onboarding interests. Never use losses to increase stakes or pursue recovery.
 

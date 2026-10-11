@@ -29,7 +29,7 @@ The worker uses pinned `@anthropic-ai/sdk` version `0.133.0`, verified against t
 | `GET /swarm/markets/{market_id}?user_id=...&outcome=...` | Returns `{run: ...}` for that user's completed, fresh cached run, or `{run: null}`. Outcome filtering is optional. |
 | `GET /swarm/metrics?user_id=...` | Refreshes actual Gemini resolutions and returns prospective forecast counts, Brier score, side edge, and void/sample counts. |
 
-Run reads, cache reads, and SSE are restricted to the supplied user. This MVP's existing user-ID mechanism is not a production authentication system.
+Run reads, cache reads, and SSE are restricted to the supplied user. An explicitly shared completed run also has a separate squad-member route; see [Phase D connections](SWARM_CONNECTIONS.md). This MVP's existing user-ID mechanism is not a production authentication system.
 
 Every SSE message uses its persisted integer as `id`, its event type as the SSE `event` name, and JSON `{id, type, data, created_at}` as `data`. Supported public events are `agent_started`, `search_query`, `source_found`, `evidence_note`, `estimate_submitted`, `estimate_revised`, `round_changed`, `final_result`, and `error`. The complete event list is also returned by the run GET, so replay never requires a new paid call.
 
