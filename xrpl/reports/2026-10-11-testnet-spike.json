@@ -1,0 +1,803 @@
+{
+  "started_at": "2026-10-11T20:34:41.943Z",
+  "network": "testnet",
+  "token": {
+    "currency": "SPC",
+    "label": "Custom test token, NOT RLUSD or redeemable USD"
+  },
+  "transactions": [
+    {
+      "label": "Enable issuer rippling",
+      "type": "AccountSet",
+      "hash": "40157B399F61A326F41121A2DA35E2C67206583DEF2C92D215FC4045864BB015",
+      "explorer_url": "https://testnet.xrpl.org/transactions/40157B399F61A326F41121A2DA35E2C67206583DEF2C92D215FC4045864BB015",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462586
+    },
+    {
+      "label": "Enable issuer token escrow",
+      "type": "AccountSet",
+      "hash": "DC7C5D8E4DE456D959D9F8477FE53526A858BEABE801EAD0E24C35DF9A67B0AE",
+      "explorer_url": "https://testnet.xrpl.org/transactions/DC7C5D8E4DE456D959D9F8477FE53526A858BEABE801EAD0E24C35DF9A67B0AE",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462588
+    },
+    {
+      "label": "Create SPC trust line",
+      "type": "TrustSet",
+      "hash": "5F74581EDE74B5B152E4AA5F8C1680A6BCF9B77D5ACFC8779914DF4BE5A3EB2A",
+      "explorer_url": "https://testnet.xrpl.org/transactions/5F74581EDE74B5B152E4AA5F8C1680A6BCF9B77D5ACFC8779914DF4BE5A3EB2A",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462590
+    },
+    {
+      "label": "Create SPC trust line",
+      "type": "TrustSet",
+      "hash": "CEF418034D92F364774191285443314070342E2916A7C9E12533A99300044B24",
+      "explorer_url": "https://testnet.xrpl.org/transactions/CEF418034D92F364774191285443314070342E2916A7C9E12533A99300044B24",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462594
+    },
+    {
+      "label": "Fund member with 100 SPC test tokens",
+      "type": "Payment",
+      "hash": "71B3FCED7EA99C0F2AEC6EDE3C0D7D1B03005EB033217860956BBEC5D08E3FDC",
+      "explorer_url": "https://testnet.xrpl.org/transactions/71B3FCED7EA99C0F2AEC6EDE3C0D7D1B03005EB033217860956BBEC5D08E3FDC",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462595
+    },
+    {
+      "label": "Create SPC trust line",
+      "type": "TrustSet",
+      "hash": "E16540994E4B19717BB2EC6F20375A06CF567AD62042D5AF9AA29718625417BD",
+      "explorer_url": "https://testnet.xrpl.org/transactions/E16540994E4B19717BB2EC6F20375A06CF567AD62042D5AF9AA29718625417BD",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462598
+    },
+    {
+      "label": "Fund member with 100 SPC test tokens",
+      "type": "Payment",
+      "hash": "D407999C0BAACCDEE6765964A4F5EA0953C8C60D7BB0D9DA33E92B562DD71CAB",
+      "explorer_url": "https://testnet.xrpl.org/transactions/D407999C0BAACCDEE6765964A4F5EA0953C8C60D7BB0D9DA33E92B562DD71CAB",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462599
+    },
+    {
+      "label": "Create SPC trust line",
+      "type": "TrustSet",
+      "hash": "A83780AD4A417489D82033F4EF144490556D5BEBB4142D9160F58612B8CB6F1A",
+      "explorer_url": "https://testnet.xrpl.org/transactions/A83780AD4A417489D82033F4EF144490556D5BEBB4142D9160F58612B8CB6F1A",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462603
+    },
+    {
+      "label": "Fund member with 100 SPC test tokens",
+      "type": "Payment",
+      "hash": "F076E8FF19EF96F0A8A55173693968D3737B95EB1A4D3B92A20D44B0EE324415",
+      "explorer_url": "https://testnet.xrpl.org/transactions/F076E8FF19EF96F0A8A55173693968D3737B95EB1A4D3B92A20D44B0EE324415",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462605
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "9029439EFDAC76100DA830D66898ECE2157B9C886A2EF00BBBDB9155FBA0EB9A",
+      "explorer_url": "https://testnet.xrpl.org/transactions/9029439EFDAC76100DA830D66898ECE2157B9C886A2EF00BBBDB9155FBA0EB9A",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462607
+    },
+    {
+      "label": "Refund expired member collateral",
+      "type": "EscrowCancel",
+      "hash": "D7104C4E5B09DBDFDF3738EFFC2B715899FCFE28A7202AEA7B917C8A0B34F766",
+      "explorer_url": "https://testnet.xrpl.org/transactions/D7104C4E5B09DBDFDF3738EFFC2B715899FCFE28A7202AEA7B917C8A0B34F766",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462617
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "E67854D49D934E4C8051A869DFFBD881066AAA2352968DCD7DB0D8711AC46693",
+      "explorer_url": "https://testnet.xrpl.org/transactions/E67854D49D934E4C8051A869DFFBD881066AAA2352968DCD7DB0D8711AC46693",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462619
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "C68FAC34FEC02C4F3FA918064D5793D6668A11B5B9C72AEF99B703315FAF7168",
+      "explorer_url": "https://testnet.xrpl.org/transactions/C68FAC34FEC02C4F3FA918064D5793D6668A11B5B9C72AEF99B703315FAF7168",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462621
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "3042A3F441AE8688C1E50D25FEC467387C4C331CAA10006109506924F52D961E",
+      "explorer_url": "https://testnet.xrpl.org/transactions/3042A3F441AE8688C1E50D25FEC467387C4C331CAA10006109506924F52D961E",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462623
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "640A6EB237056B2705ED5652C36D9C664793DDF78B906A6994A01E0430DC4A3D",
+      "explorer_url": "https://testnet.xrpl.org/transactions/640A6EB237056B2705ED5652C36D9C664793DDF78B906A6994A01E0430DC4A3D",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462625
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "ADCA009215FB8C4154E58181717BA6B6E3E5F58F3C590D42128C1C75FC642D37",
+      "explorer_url": "https://testnet.xrpl.org/transactions/ADCA009215FB8C4154E58181717BA6B6E3E5F58F3C590D42128C1C75FC642D37",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462627
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "969BF3B4189519836191C22B588AC077E32DDE3DA78E00AA8170D4D350A4CEB5",
+      "explorer_url": "https://testnet.xrpl.org/transactions/969BF3B4189519836191C22B588AC077E32DDE3DA78E00AA8170D4D350A4CEB5",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462629
+    },
+    {
+      "label": "Atomic squad payout",
+      "type": "Batch",
+      "hash": "604DE14719A9E534184BDAE9B037E76396D47BB7C0581CE7EAF94019B7B43714",
+      "explorer_url": "https://testnet.xrpl.org/transactions/604DE14719A9E534184BDAE9B037E76396D47BB7C0581CE7EAF94019B7B43714",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462631
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "083160B74A7EEF579915B1675FF58C0BE83A964791AAD307121C2509CFD91B8D",
+      "explorer_url": "https://testnet.xrpl.org/transactions/083160B74A7EEF579915B1675FF58C0BE83A964791AAD307121C2509CFD91B8D",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462631
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "2DA99B6AC2CF67D5B239F8E1DD28591FA7EB6D1358308771F772944D69E386D3",
+      "explorer_url": "https://testnet.xrpl.org/transactions/2DA99B6AC2CF67D5B239F8E1DD28591FA7EB6D1358308771F772944D69E386D3",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462631
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "0CA6636ACFA9053486FB545D9864A5F1E0F05524F54DEE08391CF1975E5320A2",
+      "explorer_url": "https://testnet.xrpl.org/transactions/0CA6636ACFA9053486FB545D9864A5F1E0F05524F54DEE08391CF1975E5320A2",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462633
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "F0CC91D00996C9A7C19B0825B4D05BE7F5CCAA65356F766CC17557124A7CC4D8",
+      "explorer_url": "https://testnet.xrpl.org/transactions/F0CC91D00996C9A7C19B0825B4D05BE7F5CCAA65356F766CC17557124A7CC4D8",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462634
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "73492AFBDEC7CA897D5B4154708CAABE7929E1B8E3577D45FC4B205EB15D6418",
+      "explorer_url": "https://testnet.xrpl.org/transactions/73492AFBDEC7CA897D5B4154708CAABE7929E1B8E3577D45FC4B205EB15D6418",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462636
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "F6CC31E379DB48DC697EA88C2C1D0094903F22C8A6DD3207EFDF0A96FC78E19D",
+      "explorer_url": "https://testnet.xrpl.org/transactions/F6CC31E379DB48DC697EA88C2C1D0094903F22C8A6DD3207EFDF0A96FC78E19D",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462638
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "1099A9ED2CCD487BD182C234E6FAA6AA685F89321007EEE82B7AC66A6811B875",
+      "explorer_url": "https://testnet.xrpl.org/transactions/1099A9ED2CCD487BD182C234E6FAA6AA685F89321007EEE82B7AC66A6811B875",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462640
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "01966B9B296AD6F3042568E287A55C59EFEAF47CCAFDF036A822D713EF09AAC8",
+      "explorer_url": "https://testnet.xrpl.org/transactions/01966B9B296AD6F3042568E287A55C59EFEAF47CCAFDF036A822D713EF09AAC8",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462641
+    },
+    {
+      "label": "Atomic squad payout",
+      "type": "Batch",
+      "hash": "3E6DFF688B7A731FC150387E8100EEF4F3AFA28A394FE72753C98E769A4A915D",
+      "explorer_url": "https://testnet.xrpl.org/transactions/3E6DFF688B7A731FC150387E8100EEF4F3AFA28A394FE72753C98E769A4A915D",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462643
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "CAA466B3E267D02BE7FFD170FF96459D9C0BF43D8B34B47AE37F76DB35C1D8B1",
+      "explorer_url": "https://testnet.xrpl.org/transactions/CAA466B3E267D02BE7FFD170FF96459D9C0BF43D8B34B47AE37F76DB35C1D8B1",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462643
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "F68B7740156F0F28BD6D90766EA590374E8B360C93FBA7CFEFD64B140600BBF1",
+      "explorer_url": "https://testnet.xrpl.org/transactions/F68B7740156F0F28BD6D90766EA590374E8B360C93FBA7CFEFD64B140600BBF1",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462643
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "2ECA193E90A3F36F43B4F0E393363498823454E7205AC84F131FF40561FD8A22",
+      "explorer_url": "https://testnet.xrpl.org/transactions/2ECA193E90A3F36F43B4F0E393363498823454E7205AC84F131FF40561FD8A22",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462643
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "5B16763314331C1E7AC2D2530EEDB44E64F432D3C884CD5E4A08E8A6147F33B4",
+      "explorer_url": "https://testnet.xrpl.org/transactions/5B16763314331C1E7AC2D2530EEDB44E64F432D3C884CD5E4A08E8A6147F33B4",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462645
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "32698036853554FF28A59A77B2633221A588D37F20A296D5177DBA452F3A8811",
+      "explorer_url": "https://testnet.xrpl.org/transactions/32698036853554FF28A59A77B2633221A588D37F20A296D5177DBA452F3A8811",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462647
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "BA1099A2115308D8FBF7B7A688E3A452F0C3CF7EA10B92FCF34B2161DB3C3C0C",
+      "explorer_url": "https://testnet.xrpl.org/transactions/BA1099A2115308D8FBF7B7A688E3A452F0C3CF7EA10B92FCF34B2161DB3C3C0C",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462649
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "0A658EEE305E959125B3421CCD158D28916E70069B6F368786901F28B017A20D",
+      "explorer_url": "https://testnet.xrpl.org/transactions/0A658EEE305E959125B3421CCD158D28916E70069B6F368786901F28B017A20D",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462651
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "CF6CF6C73B2B64C36AC5BB4207564BEDC8B769D763B29E94E1035F5AE5E6F689",
+      "explorer_url": "https://testnet.xrpl.org/transactions/CF6CF6C73B2B64C36AC5BB4207564BEDC8B769D763B29E94E1035F5AE5E6F689",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462653
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "EB08F11D0EBF0A847026A79302B8229EC5A73844A1D6E2E56633B1BFB4C90E57",
+      "explorer_url": "https://testnet.xrpl.org/transactions/EB08F11D0EBF0A847026A79302B8229EC5A73844A1D6E2E56633B1BFB4C90E57",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462655
+    },
+    {
+      "label": "Atomic squad payout",
+      "type": "Batch",
+      "hash": "71DB5C507D46757F0A4E1CE157F7A5664190E501147A623971A5E23A36770711",
+      "explorer_url": "https://testnet.xrpl.org/transactions/71DB5C507D46757F0A4E1CE157F7A5664190E501147A623971A5E23A36770711",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462657
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "B7B9D63284E13EFEB3628870767EBDA7362C6EF6D51B82F97DEEF6A2FFD7B769",
+      "explorer_url": "https://testnet.xrpl.org/transactions/B7B9D63284E13EFEB3628870767EBDA7362C6EF6D51B82F97DEEF6A2FFD7B769",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462657
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "C12F4F9B9EFFA4A01C4FE1CAE4AC53A3D364BD22DA75528E35C218B7C646504D",
+      "explorer_url": "https://testnet.xrpl.org/transactions/C12F4F9B9EFFA4A01C4FE1CAE4AC53A3D364BD22DA75528E35C218B7C646504D",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462657
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "29D9819C70CFE49B9EA02666EBB74AEA1D4B0107CD3A856A7E5D5BC5BD579856",
+      "explorer_url": "https://testnet.xrpl.org/transactions/29D9819C70CFE49B9EA02666EBB74AEA1D4B0107CD3A856A7E5D5BC5BD579856",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462657
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "92208F2D121CD847E5A9AB4945FAD47683E1FCB84F6487D39FAB09EFC9FA7C19",
+      "explorer_url": "https://testnet.xrpl.org/transactions/92208F2D121CD847E5A9AB4945FAD47683E1FCB84F6487D39FAB09EFC9FA7C19",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462659
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "29F2761E11E894B37FA440E75661E9143D882543D5245C4F7450D67AD334158F",
+      "explorer_url": "https://testnet.xrpl.org/transactions/29F2761E11E894B37FA440E75661E9143D882543D5245C4F7450D67AD334158F",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462661
+    },
+    {
+      "label": "Lock member collateral",
+      "type": "EscrowCreate",
+      "hash": "7598C4633106872DDF528718CD287AD3D2BDB45582D7F511B5A18B677577F969",
+      "explorer_url": "https://testnet.xrpl.org/transactions/7598C4633106872DDF528718CD287AD3D2BDB45582D7F511B5A18B677577F969",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462663
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "F5F97F1C467746E25B329C1ED004F8EDE6748739689E0CC43C671EAF9B1D84C3",
+      "explorer_url": "https://testnet.xrpl.org/transactions/F5F97F1C467746E25B329C1ED004F8EDE6748739689E0CC43C671EAF9B1D84C3",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462665
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "D57A15A950B01AD58FF385490ABF1A6BB0C2ED18513494EE49D231C5C2E325AC",
+      "explorer_url": "https://testnet.xrpl.org/transactions/D57A15A950B01AD58FF385490ABF1A6BB0C2ED18513494EE49D231C5C2E325AC",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462667
+    },
+    {
+      "label": "Release member collateral",
+      "type": "EscrowFinish",
+      "hash": "8D6856CC3E0A7DDBD640E67BD7FEA1652B9F97DB45CC2C2B5060E2B3053F1988",
+      "explorer_url": "https://testnet.xrpl.org/transactions/8D6856CC3E0A7DDBD640E67BD7FEA1652B9F97DB45CC2C2B5060E2B3053F1988",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462669
+    },
+    {
+      "label": "Atomic squad payout",
+      "type": "Batch",
+      "hash": "A63E2735537C4B44A7E9830DC937B2ED39FA8074EB4136A38B2543A91588F1EF",
+      "explorer_url": "https://testnet.xrpl.org/transactions/A63E2735537C4B44A7E9830DC937B2ED39FA8074EB4136A38B2543A91588F1EF",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462671
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "87FF73CDF62A5D46795BD60F497E9657A42F91EE57FE5E91496B1F36D2B48036",
+      "explorer_url": "https://testnet.xrpl.org/transactions/87FF73CDF62A5D46795BD60F497E9657A42F91EE57FE5E91496B1F36D2B48036",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462671
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "C6CB5E90FD4C5CE2FA6DD3D814BA638DBFCE7B90A4AE2D32B356F306FB0B8F83",
+      "explorer_url": "https://testnet.xrpl.org/transactions/C6CB5E90FD4C5CE2FA6DD3D814BA638DBFCE7B90A4AE2D32B356F306FB0B8F83",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462671
+    },
+    {
+      "label": "Verified inner payout",
+      "type": "Payment",
+      "hash": "70336F6E330D17AC84149AE18CCFD22D2A33A38F02482515F16B053091E888A3",
+      "explorer_url": "https://testnet.xrpl.org/transactions/70336F6E330D17AC84149AE18CCFD22D2A33A38F02482515F16B053091E888A3",
+      "result": "tesSUCCESS",
+      "ledger_index": 21462671
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "one-loser",
+      "total_stake_cents": 1500,
+      "losses": [
+        true,
+        false,
+        false
+      ],
+      "collateral_per_member_cents": 1000,
+      "payouts": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "collateralCents": 1000,
+          "deltaCents": -1000,
+          "payoutCents": 0
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "collateralCents": 1000,
+          "deltaCents": 500,
+          "payoutCents": 1500
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "collateralCents": 1000,
+          "deltaCents": 500,
+          "payoutCents": 1500
+        }
+      ],
+      "escrow_hashes": [
+        "E67854D49D934E4C8051A869DFFBD881066AAA2352968DCD7DB0D8711AC46693",
+        "C68FAC34FEC02C4F3FA918064D5793D6668A11B5B9C72AEF99B703315FAF7168",
+        "3042A3F441AE8688C1E50D25FEC467387C4C331CAA10006109506924F52D961E"
+      ],
+      "finish_hashes": [
+        "640A6EB237056B2705ED5652C36D9C664793DDF78B906A6994A01E0430DC4A3D",
+        "ADCA009215FB8C4154E58181717BA6B6E3E5F58F3C590D42128C1C75FC642D37",
+        "969BF3B4189519836191C22B588AC077E32DDE3DA78E00AA8170D4D350A4CEB5"
+      ],
+      "batch_hash": "604DE14719A9E534184BDAE9B037E76396D47BB7C0581CE7EAF94019B7B43714",
+      "batch_explorer_url": "https://testnet.xrpl.org/transactions/604DE14719A9E534184BDAE9B037E76396D47BB7C0581CE7EAF94019B7B43714",
+      "inner_transactions": [
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "083160B74A7EEF579915B1675FF58C0BE83A964791AAD307121C2509CFD91B8D",
+          "explorer_url": "https://testnet.xrpl.org/transactions/083160B74A7EEF579915B1675FF58C0BE83A964791AAD307121C2509CFD91B8D",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462631
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "2DA99B6AC2CF67D5B239F8E1DD28591FA7EB6D1358308771F772944D69E386D3",
+          "explorer_url": "https://testnet.xrpl.org/transactions/2DA99B6AC2CF67D5B239F8E1DD28591FA7EB6D1358308771F772944D69E386D3",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462631
+        }
+      ],
+      "balances": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "before": "90",
+          "after": "90",
+          "payout_cents": 0
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "before": "90",
+          "after": "105",
+          "payout_cents": 1500
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "before": "90",
+          "after": "105",
+          "payout_cents": 1500
+        }
+      ]
+    },
+    {
+      "name": "two-losers",
+      "total_stake_cents": 1500,
+      "losses": [
+        true,
+        true,
+        false
+      ],
+      "collateral_per_member_cents": 1000,
+      "payouts": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "collateralCents": 1000,
+          "deltaCents": -250,
+          "payoutCents": 750
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "collateralCents": 1000,
+          "deltaCents": -250,
+          "payoutCents": 750
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "collateralCents": 1000,
+          "deltaCents": 500,
+          "payoutCents": 1500
+        }
+      ],
+      "escrow_hashes": [
+        "0CA6636ACFA9053486FB545D9864A5F1E0F05524F54DEE08391CF1975E5320A2",
+        "F0CC91D00996C9A7C19B0825B4D05BE7F5CCAA65356F766CC17557124A7CC4D8",
+        "73492AFBDEC7CA897D5B4154708CAABE7929E1B8E3577D45FC4B205EB15D6418"
+      ],
+      "finish_hashes": [
+        "F6CC31E379DB48DC697EA88C2C1D0094903F22C8A6DD3207EFDF0A96FC78E19D",
+        "1099A9ED2CCD487BD182C234E6FAA6AA685F89321007EEE82B7AC66A6811B875",
+        "01966B9B296AD6F3042568E287A55C59EFEAF47CCAFDF036A822D713EF09AAC8"
+      ],
+      "batch_hash": "3E6DFF688B7A731FC150387E8100EEF4F3AFA28A394FE72753C98E769A4A915D",
+      "batch_explorer_url": "https://testnet.xrpl.org/transactions/3E6DFF688B7A731FC150387E8100EEF4F3AFA28A394FE72753C98E769A4A915D",
+      "inner_transactions": [
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "CAA466B3E267D02BE7FFD170FF96459D9C0BF43D8B34B47AE37F76DB35C1D8B1",
+          "explorer_url": "https://testnet.xrpl.org/transactions/CAA466B3E267D02BE7FFD170FF96459D9C0BF43D8B34B47AE37F76DB35C1D8B1",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462643
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "F68B7740156F0F28BD6D90766EA590374E8B360C93FBA7CFEFD64B140600BBF1",
+          "explorer_url": "https://testnet.xrpl.org/transactions/F68B7740156F0F28BD6D90766EA590374E8B360C93FBA7CFEFD64B140600BBF1",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462643
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "2ECA193E90A3F36F43B4F0E393363498823454E7205AC84F131FF40561FD8A22",
+          "explorer_url": "https://testnet.xrpl.org/transactions/2ECA193E90A3F36F43B4F0E393363498823454E7205AC84F131FF40561FD8A22",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462643
+        }
+      ],
+      "balances": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "before": "80",
+          "after": "87.5",
+          "payout_cents": 750
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "before": "95",
+          "after": "102.5",
+          "payout_cents": 750
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "before": "95",
+          "after": "110",
+          "payout_cents": 1500
+        }
+      ]
+    },
+    {
+      "name": "all-win",
+      "total_stake_cents": 1500,
+      "losses": [
+        false,
+        false,
+        false
+      ],
+      "collateral_per_member_cents": 1000,
+      "payouts": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "collateralCents": 1000,
+          "deltaCents": 0,
+          "payoutCents": 1000
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "collateralCents": 1000,
+          "deltaCents": 0,
+          "payoutCents": 1000
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "collateralCents": 1000,
+          "deltaCents": 0,
+          "payoutCents": 1000
+        }
+      ],
+      "escrow_hashes": [
+        "5B16763314331C1E7AC2D2530EEDB44E64F432D3C884CD5E4A08E8A6147F33B4",
+        "32698036853554FF28A59A77B2633221A588D37F20A296D5177DBA452F3A8811",
+        "BA1099A2115308D8FBF7B7A688E3A452F0C3CF7EA10B92FCF34B2161DB3C3C0C"
+      ],
+      "finish_hashes": [
+        "0A658EEE305E959125B3421CCD158D28916E70069B6F368786901F28B017A20D",
+        "CF6CF6C73B2B64C36AC5BB4207564BEDC8B769D763B29E94E1035F5AE5E6F689",
+        "EB08F11D0EBF0A847026A79302B8229EC5A73844A1D6E2E56633B1BFB4C90E57"
+      ],
+      "batch_hash": "71DB5C507D46757F0A4E1CE157F7A5664190E501147A623971A5E23A36770711",
+      "batch_explorer_url": "https://testnet.xrpl.org/transactions/71DB5C507D46757F0A4E1CE157F7A5664190E501147A623971A5E23A36770711",
+      "inner_transactions": [
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "B7B9D63284E13EFEB3628870767EBDA7362C6EF6D51B82F97DEEF6A2FFD7B769",
+          "explorer_url": "https://testnet.xrpl.org/transactions/B7B9D63284E13EFEB3628870767EBDA7362C6EF6D51B82F97DEEF6A2FFD7B769",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462657
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "C12F4F9B9EFFA4A01C4FE1CAE4AC53A3D364BD22DA75528E35C218B7C646504D",
+          "explorer_url": "https://testnet.xrpl.org/transactions/C12F4F9B9EFFA4A01C4FE1CAE4AC53A3D364BD22DA75528E35C218B7C646504D",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462657
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "29D9819C70CFE49B9EA02666EBB74AEA1D4B0107CD3A856A7E5D5BC5BD579856",
+          "explorer_url": "https://testnet.xrpl.org/transactions/29D9819C70CFE49B9EA02666EBB74AEA1D4B0107CD3A856A7E5D5BC5BD579856",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462657
+        }
+      ],
+      "balances": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "before": "77.5",
+          "after": "87.5",
+          "payout_cents": 1000
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "before": "92.5",
+          "after": "102.5",
+          "payout_cents": 1000
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "before": "100",
+          "after": "110",
+          "payout_cents": 1000
+        }
+      ]
+    },
+    {
+      "name": "all-lose",
+      "total_stake_cents": 1500,
+      "losses": [
+        true,
+        true,
+        true
+      ],
+      "collateral_per_member_cents": 1000,
+      "payouts": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "collateralCents": 1000,
+          "deltaCents": 0,
+          "payoutCents": 1000
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "collateralCents": 1000,
+          "deltaCents": 0,
+          "payoutCents": 1000
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "collateralCents": 1000,
+          "deltaCents": 0,
+          "payoutCents": 1000
+        }
+      ],
+      "escrow_hashes": [
+        "92208F2D121CD847E5A9AB4945FAD47683E1FCB84F6487D39FAB09EFC9FA7C19",
+        "29F2761E11E894B37FA440E75661E9143D882543D5245C4F7450D67AD334158F",
+        "7598C4633106872DDF528718CD287AD3D2BDB45582D7F511B5A18B677577F969"
+      ],
+      "finish_hashes": [
+        "F5F97F1C467746E25B329C1ED004F8EDE6748739689E0CC43C671EAF9B1D84C3",
+        "D57A15A950B01AD58FF385490ABF1A6BB0C2ED18513494EE49D231C5C2E325AC",
+        "8D6856CC3E0A7DDBD640E67BD7FEA1652B9F97DB45CC2C2B5060E2B3053F1988"
+      ],
+      "batch_hash": "A63E2735537C4B44A7E9830DC937B2ED39FA8074EB4136A38B2543A91588F1EF",
+      "batch_explorer_url": "https://testnet.xrpl.org/transactions/A63E2735537C4B44A7E9830DC937B2ED39FA8074EB4136A38B2543A91588F1EF",
+      "inner_transactions": [
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "87FF73CDF62A5D46795BD60F497E9657A42F91EE57FE5E91496B1F36D2B48036",
+          "explorer_url": "https://testnet.xrpl.org/transactions/87FF73CDF62A5D46795BD60F497E9657A42F91EE57FE5E91496B1F36D2B48036",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462671
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "C6CB5E90FD4C5CE2FA6DD3D814BA638DBFCE7B90A4AE2D32B356F306FB0B8F83",
+          "explorer_url": "https://testnet.xrpl.org/transactions/C6CB5E90FD4C5CE2FA6DD3D814BA638DBFCE7B90A4AE2D32B356F306FB0B8F83",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462671
+        },
+        {
+          "label": "Verified inner payout",
+          "type": "Payment",
+          "hash": "70336F6E330D17AC84149AE18CCFD22D2A33A38F02482515F16B053091E888A3",
+          "explorer_url": "https://testnet.xrpl.org/transactions/70336F6E330D17AC84149AE18CCFD22D2A33A38F02482515F16B053091E888A3",
+          "result": "tesSUCCESS",
+          "ledger_index": 21462671
+        }
+      ],
+      "balances": [
+        {
+          "address": "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+          "before": "77.5",
+          "after": "87.5",
+          "payout_cents": 1000
+        },
+        {
+          "address": "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+          "before": "92.5",
+          "after": "102.5",
+          "payout_cents": 1000
+        },
+        {
+          "address": "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY",
+          "before": "100",
+          "after": "110",
+          "payout_cents": 1000
+        }
+      ]
+    }
+  ],
+  "network_probes": [
+    {
+      "network": "testnet",
+      "network_id": 1,
+      "endpoint": "wss://s.altnet.rippletest.net:51233",
+      "ledger_index": 21462581,
+      "ledger_hash": "C5D256353FB053F30F7A5561765E14C928EAB0A1FC79F9650648301389719A87",
+      "ledger_close_time": 845066080,
+      "amendments": {
+        "TokenEscrow": true,
+        "Batch": false,
+        "BatchV1_1": true
+      },
+      "checked_at": "2026-10-11T20:34:42.339Z"
+    },
+    {
+      "network": "devnet",
+      "network_id": 2,
+      "endpoint": "wss://s.devnet.rippletest.net:51233",
+      "ledger_index": 6043876,
+      "ledger_hash": "EC2E261AA22808284A94BA82F993F688A6B7F8327B67A715EC00FDE05652CDDC",
+      "ledger_close_time": 845066080,
+      "amendments": {
+        "TokenEscrow": true,
+        "Batch": false,
+        "BatchV1_1": true
+      },
+      "checked_at": "2026-10-11T20:34:42.750Z"
+    }
+  ],
+  "accounts": {
+    "issuer": "rK8FFnUawKqP9hnbw8h5a6EPQvcNWR4CSZ",
+    "settlement": "rnTPcvFaGRw7izdjfsx62kEXv2Z94B2CQ4",
+    "members": [
+      "rMx9eisXDam6jSSwRXQBfQ5UUmSsYqie3z",
+      "rHsYtsYSkntcm5NAWE14MpAUdnPokXDSHC",
+      "rK14ggQNibu6gR5fUEie95F9bFqFiF1RGY"
+    ]
+  },
+  "refund": {
+    "escrow_hash": "9029439EFDAC76100DA830D66898ECE2157B9C886A2EF00BBBDB9155FBA0EB9A",
+    "cancel_hash": "D7104C4E5B09DBDFDF3738EFFC2B715899FCFE28A7202AEA7B917C8A0B34F766",
+    "explorer_url": "https://testnet.xrpl.org/transactions/D7104C4E5B09DBDFDF3738EFFC2B715899FCFE28A7202AEA7B917C8A0B34F766",
+    "cancel_after": 845066196
+  },
+  "completed_at": "2026-10-11T20:39:54.456Z",
+  "ok": true
+}

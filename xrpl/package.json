@@ -1,0 +1,25 @@
+{
+  "name": "spare-change-xrpl",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "check": "tsc --noEmit",
+    "cli": "tsx src/cli.ts",
+    "spike": "tsx ../spikes/xrpl-spike.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "five-bells-condition": "^5.0.1",
+    "xrpl": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "private": true,
+  "type": "module"
+}
