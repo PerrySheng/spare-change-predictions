@@ -58,8 +58,9 @@ Every input has `operation` and `network: "testnet"` or `"devnet"`. A probe need
 | Operation | Additional stdin fields | Result fields |
 | --- | --- | --- |
 | `probe` | None | `status`: network ID, validated ledger/time, amendments |
+| `account` | `address`, optional `issuer_address` | Current `xrp_balance`, `token_balance` from the validated ledger |
 | `setup` | None | `issuer` and `settlement`, each `{address, encrypted_seed}`; `currency` |
-| `wallet-create` | Optional `issuer: {address, encrypted_seed}` | `wallet: {address, encrypted_seed}`; creates a trust line and funds 100 SPC when issuer is supplied |
+| `wallet-create` | Optional `issuer: {address, encrypted_seed}`, `fund_cents` default 10000 | `wallet: {address, encrypted_seed}`; creates a trust line and funds 100 SPC when issuer is supplied. `fund_cents: 0` creates a squad account trust line without issuing extra collateral tokens. |
 | `escrow-create` | `encrypted_seed`, `destination`, `issuer_address`, `amount_cents`, `cancel_after` | `owner`, `offer_sequence`, `condition`, `encrypted_fulfillment`, `cancel_after`, `hash`, `explorer_url` |
 | `escrow-finish` | Signer's `encrypted_seed`, `owner`, `offer_sequence`, `condition`, `encrypted_fulfillment` | `hash`, `explorer_url` |
 | `escrow-cancel` | Signer's `encrypted_seed`, `owner`, `offer_sequence` | `hash`, `explorer_url` |
@@ -76,6 +77,38 @@ The application server must persist an operation journal before invoking the CLI
 The app should reconcile all escrow finishes, confirm the settlement account has the collateral, then submit the payout Batch once. It must never report "settled" merely because the outer Batch validated. It must confirm every inner Payment and expected balances. The app's Gemini event-resolution data controls when it decides to reveal fulfillments; XRPL does not independently verify prediction outcomes. Faucet-funded test balances do not establish any real-money payment flow.
 
 Reference implementation: [official token-escrow tutorial](https://xrpl.org/docs/tutorials/payments/send-fungible-token-escrows), [official single-account Batch tutorial](https://xrpl.org/docs/tutorials/best-practices/transaction-sending/send-a-single-account-batch-transaction), and [xrpl.js source](https://github.com/XRPLF/xrpl.js).
+
+## Enable the app's custodial test-wallet feature
+
+The application does not invent a persistent encryption key. Before starting the server, set `XRPL_NETWORK=testnet` and add a stable `XRPL_WALLET_KEY` in the project `.env`. This local command creates one without printing it, and refuses to overwrite an existing configured key:
+
+```sh
+python3 - <<'PY'
+from pathlib import Path
+import base64, secrets, re, os
+p = Path('.env')
+data = p.read_text() if p.exists() else ''
+if re.search(r'(?m)^XRPL_WALLET_KEY=.+$', data):
+    raise SystemExit('An encryption key is already configured; keep it stable.')
+line = 'XRPL_WALLET_KEY=' + base64.b64encode(secrets.token_bytes(32)).decode()
+if re.search(r'(?m)^XRPL_WALLET_KEY=.*$', data):
+    data = re.sub(r'(?m)^XRPL_WALLET_KEY=.*$', line, data)
+else:
+    data += '\n' + line + '\n'
+p.write_text(data)
+os.chmod(p, 0o600)
+PY
+```
+
+Back up this key securely. Changing or losing it makes existing encrypted wallet seeds and escrow fulfillments unusable. It must stay out of Git and chat messages. Without it, the app keeps XRPL actions disabled and says why.
+
+The Python integration provides `GET /xrpl/status`, `POST /xrpl/setup`, `GET/POST /xrpl/wallet`, and `GET /squads/{id}/xrpl`. Member collateral is locked through `POST /squads/{id}/xrpl/lock`; the creator uses `POST .../settle`; each member can request their own expired escrow cancellation with `POST .../refund`. POST bodies contain `user_id`. These follow this demo's profile identity model; they are not production account authentication. Public responses contain no seeds, encrypted secrets, or unrevealed fulfillments.
+
+When the key is configured, an optional onboarding background task creates the user's encrypted wallet. A faucet outage does not break onboarding. The first member collateral lock requires all **3–6** members and picks, freezes membership and legs, and freshly checks every Gemini event before submitting collateral. The account for each squad has its own trust line and starts with zero SPC; its payout funds come from the released collateral. A member starts with 100 SPC test tokens. Large stakes can exceed that balance and are rejected by the ledger; there is no counterfeit balance or automatic extra-token funding fallback.
+
+The app journals every operation before calling the Node executor. Known validated rejections can be retried after correcting their cause. Pending or uncertain submissions block retries and related wallet operations. A transport/process failure after broadcast requires inspecting the saved hashes or account history; automatic reconciliation and recovery across lost process results is not implemented. Deadlines are the latest expected leg close plus two days; this is headroom, not a guarantee of Gemini resolution time. If resolution is still pending when the deadline expires, members use explicit refunds. Settlement must complete its escrow releases before the deadline; interrupted partial releases require manual reconciliation.
+
+Final payout uses freshly fetched Gemini event results, independently of stored UI statuses. Invalid or voided legs count as not lost. The exact-cent payout plan handles division remainders deterministically using sorted user IDs. Python service tests cover conservation examples, identity scope, deadline gates, duplicate and concurrent locks, early published outcomes, known rejection retries, and unknown payouts. `xrpl/reports/app-wallet-verification.json` records a successful real wallet API check and its three genuine Testnet account transactions.
 
 ## Verified run on 2026-10-11
 

@@ -1,11 +1,13 @@
 import {AccountSetAsfFlags, Wallet, type Client} from 'xrpl';
-import {CURRENCY, centsToToken, connect, makeCondition, parseNetwork, probe, requireTokenEscrow, sendPayoutBatch, submit, type Network, type TxRecord} from './core.js';
+import {CURRENCY, centsToToken, connect, makeCondition, parseNetwork, probe, requireTokenEscrow, sendPayoutBatch, submit, tokenBalance, type Network, type TxRecord} from './core.js';
 import {encryptSecret, decryptSecret} from './vault.js';
 
 export type PrivateWallet = {address: string; encrypted_seed: string};
 export type Request = {
-  operation: 'probe'|'setup'|'wallet-create'|'escrow-create'|'escrow-finish'|'escrow-cancel'|'batch-payout';
+  operation: 'probe'|'account'|'setup'|'wallet-create'|'escrow-create'|'escrow-finish'|'escrow-cancel'|'batch-payout';
   network: string;
+  address?: string;
+  fund_cents?: number;
   encrypted_seed?: string;
   issuer?: PrivateWallet;
   issuer_address?: string;
@@ -43,6 +45,10 @@ export async function execute(request: Request, records: TxRecord[] = []) {
   try {
     const status = await probe(client, network);
     if (request.operation === 'probe') return {status};
+    if (request.operation === 'account') {
+      const address = requireValue(request.address, 'address');
+      return {status, address, xrp_balance: await client.getXrpBalance(address), token_balance: request.issuer_address ? await tokenBalance(client, address, request.issuer_address) : null};
+    }
     if (request.operation === 'setup') {
       requireTokenEscrow(status);
       const issuer = await fund(client);
@@ -58,7 +64,9 @@ export async function execute(request: Request, records: TxRecord[] = []) {
         const issuer = loadWallet(request.issuer.encrypted_seed);
         if (issuer.address !== request.issuer.address) throw new Error('Issuer address does not match encrypted issuer wallet.');
         await addTrust(client, wallet, issuer.address, network, records);
-        await submit(client, issuer, {TransactionType: 'Payment', Account: issuer.address, Destination: wallet.address, Amount: {currency: CURRENCY, issuer: issuer.address, value: '100'}}, network, 'Fund member with 100 SPC test tokens', records);
+        const fundCents = request.fund_cents ?? 10000;
+        if (!Number.isSafeInteger(fundCents) || fundCents < 0) throw new Error('Initial test-token funding must be nonnegative integer cents.');
+        if (fundCents) await submit(client, issuer, {TransactionType: 'Payment', Account: issuer.address, Destination: wallet.address, Amount: {currency: CURRENCY, issuer: issuer.address, value: centsToToken(fundCents)}}, network, 'Fund wallet with SPC test tokens', records);
       }
       return {status, wallet: privateWallet(wallet), currency: request.issuer ? CURRENCY : null};
     }

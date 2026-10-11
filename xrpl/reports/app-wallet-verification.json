@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "wallet": {
+    "status": "ready",
+    "network": "testnet",
+    "address": "rPNzT146fx1yJb5YimNAdadnmazT2qcE6u",
+    "currency": "SPC",
+    "custodial": true,
+    "token_label": "Custom SPC test token; not RLUSD or real dollars",
+    "balance": "100",
+    "xrp_balance": 99.999988
+  },
+  "same_address_on_repeat": true,
+  "transactions": [
+    {
+      "hash": "6CA3F186D172392A3A671FE130B28F9CA1AEB7AA6D4FF104194AAA61E45EEC2C",
+      "type": "Payment",
+      "result": "tesSUCCESS",
+      "explorer_url": "https://testnet.xrpl.org/transactions/6CA3F186D172392A3A671FE130B28F9CA1AEB7AA6D4FF104194AAA61E45EEC2C"
+    },
+    {
+      "hash": "96D38CE12E85A40B5CB10A4FB9237E2B124E99E4D47E39119D49D566039733A0",
+      "type": "TrustSet",
+      "result": "tesSUCCESS",
+      "explorer_url": "https://testnet.xrpl.org/transactions/96D38CE12E85A40B5CB10A4FB9237E2B124E99E4D47E39119D49D566039733A0"
+    },
+    {
+      "hash": "D409D6572A36C76DE612525BB1E37B713BD576F17D7F4A01F21B086116178052",
+      "type": "Payment",
+      "result": "tesSUCCESS",
+      "explorer_url": "https://testnet.xrpl.org/transactions/D409D6572A36C76DE612525BB1E37B713BD576F17D7F4A01F21B086116178052"
+    }
+  ]
+}
