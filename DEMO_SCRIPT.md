@@ -4,17 +4,17 @@ Read the script below. Aim for about 100 seconds of speech and 20 seconds of scr
 
 Screen sequence: purchase balance → market search/Yes-No → News sources → saved Swarm result → shared Squad Slip → confirmed SPC escrow link.
 
-“Hi, I’m Perry, and this is Spare. It brings everyday spare change, prediction markets, and friends into one app.
+“Hi, I’m Perry, and this is Spare. It connects spare change, prediction markets, and friends.
 
-A $4.63 purchase creates 37 cents of change. Every purchase adds to the balance, without a weekly cap. Plaid supplies sandbox transaction data, so users can import purchases instead of typing them.
+A $4.63 purchase creates 37 cents of change. Every purchase adds change, without a weekly cap. Plaid supplies sandbox transaction data, so purchases arrive without manual entry.
 
-Gemini’s Prediction Markets API powers the real questions, outcomes, and prices. I can search, choose Yes or No, and see the potential payout update with my amount. Personal bets in this demo are paper.
+Gemini’s Prediction Markets API powers the real questions, outcomes, and prices. Search, choose Yes or No, and preview the payout. Personal bets in this demo are paper.
 
-Context.dev powers our News tab. It finds short source summaries and links across sports, politics, weather, and more. That helps users understand a question before choosing a side.
+Context.dev powers our News tab. It finds source summaries across sports, politics, weather, and more. Read before choosing a side.
 
-Meet Swarm, our research bee. Google Gemini AI analyzes Context.dev evidence through four independent agents. They debate and revise; our code takes the median probability. Sources, disagreements, and actual streamed events make the research inspectable. This is a saved real run; forecasts can be wrong.
+Meet Swarm, our research bee. Google Gemini AI analyzes Context.dev evidence through four independent agents. They debate and revise; our code takes the median probability. Sources and real streamed events make research inspectable. This is a saved real run; forecasts can be wrong.
 
-For Squad Slips, friends join one shared slip and chat. The first confirmed pick reserves the event, blocking duplicate or opposing picks. Swarm research can inform my leg, but Swarm contributes no money.
+For Squad Slips, friends join one shared slip and chat. The first pick reserves its event, blocking duplicate or opposing picks. Swarm research can inform my leg, but Swarm contributes no money.
 
 The XRP Ledger powers SPC test-token escrow. Confirming a funded pick starts the transfer; pending becomes confirmed only after ledger validation. Funded picks freeze, and settlement requires published results and every member’s collateral.
 
