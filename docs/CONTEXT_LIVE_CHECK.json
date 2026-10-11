@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-10-11T21:34:57.606234+00:00",
+  "profile": "Temporary isolated profile; no changes to users or balances in the running app",
+  "gemini_market": {
+    "id": "GEMI-LIGAMXAP27-AMERICA",
+    "title": "Liga MX Apertura Champion",
+    "label": "America",
+    "category": "Sports",
+    "prices": {
+      "yes": "0.99"
+    },
+    "closes_at": "2028-11-10T00:00:00.000Z"
+  },
+  "first_request": {
+    "status": 200,
+    "provider": "Context.dev",
+    "cached": false,
+    "partial": false,
+    "fetched_at": "2026-10-11T21:34:57.518004+00:00"
+  },
+  "sources": [
+    {
+      "url": "https://www.facebook.com/beINSPORTSUSA/posts/am%C3%A9rica-are-crowned-for-the-third-time-in-a-row-champions-of-liga-mx-beinsports/1144410353719987/",
+      "title": "Am\u00e9rica are crowned for the third time in a row champions ...",
+      "snippet": "Mexican giant Club Am\u00e9rica defeated CF Monterrey with a 3-2 aggregate score to become Liga MX champions for a record 16th time,"
+    },
+    {
+      "url": "https://www.sofascore.com/football/tournament/mexico/liga-mx-apertura/11621",
+      "title": "Liga MX, Apertura table, schedule & stats - Mexico",
+      "snippet": "The current holder of the title is CD Toluca and the team that holds the most titles is Club Am\u00e9rica. the most titles in Liga MX, Apertura is Club Am\u00e9rica. ..."
+    },
+    {
+      "url": "https://www.mlssoccer.com/news/ccl-champs-monterrey-win-liga-mx-title-dramatic-shootout-over-club-america",
+      "title": "CCL champs Monterrey win Liga MX title in dramatic ...",
+      "snippet": "Liga MX crowned its 2019 Apertura champions on Sunday night, with CF Monterrey outlasting Club America in a gripping penalty-kick shootout ..."
+    },
+    {
+      "url": "https://www.goal.com/en-us/news/liga-mx-every-mexican-champion-all-time-winners/blt189dfe6bb8c7fdba",
+      "title": "Liga MX: Every Mexican champion & all-time winners list",
+      "snippet": "Liga MX champions (Short Tournament era) ; 2018-19, Club America, UANL ; 2019-20, UANL, Abandoned (Covid-19) ; 2020-21, Club Leon, Cruz Azul ; 2021- ..."
+    },
+    {
+      "url": "https://en.wikipedia.org/wiki/Liga_MX",
+      "title": "Liga MX",
+      "snippet": "Most championships Am\u00e9rica (16 titles) Am\u00e9rica is the most successful club with sixteen titles, Guadalajara and Toluca with twelve titles each, Cruz Azul with ..."
+    }
+  ],
+  "related_market_ids": [
+    "GEMI-LIGAMXAP27-AMERICA",
+    "GEMI-LALIGA-2610101200-ATH-RAY-M-ATH",
+    "GEMI-LALIGA-2610101200-ATH-RAY-M-D",
+    "GEMI-LALIGA-2610101200-ATH-RAY-M-RAY"
+  ],
+  "repeat_request": {
+    "status": 200,
+    "provider": "Shared research cache",
+    "cached": true,
+    "same_source_urls": true
+  },
+  "actual_context_search_requests": 1
+}

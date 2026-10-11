@@ -40,6 +40,8 @@ Add a purchase, choose an affordable outcome, then press **Place sandbox order**
 
 With `CONTEXT_DEV_API_KEY` configured server-side, open **News** or a market's **Read in News** link. Select a live market and press **Find reading materials**. Only short summaries and original-source links appear. Open an article's related markets, select Yes/No using an existing round-up, or add your own squad leg. **Share to squad** explicitly posts the link/summary to a selected group's chat, optionally with a leg reaction. Missing keys produce a configuration message. Recent News Scout evidence is reused from the shared cache.
 
+The local server now has Context.dev configured. Its live reading API returned five source links for a real Gemini market, and repeat retrieval used the shared cache. [Public API check](docs/CONTEXT_LIVE_CHECK.json). Clicking through the reading UI still requires a browser check.
+
 ## Group betting
 
 1. Open **Group betting**, create a squad, set a future lock time, and copy its invite code. A three-member squad supports the test-token escrow design.
