@@ -13,3 +13,6 @@ export function agentState(events,agent){
  return state;
 }
 export function safeSource(url){try{const u=new URL(url);return ['http:','https:'].includes(u.protocol)&&!u.username&&!u.password?u.href:null}catch{return null}}
+export function matchingForecast(run,userId,marketId,outcome){
+ return run?.status==='completed'&&run.user_id===userId&&run.market_id===marketId&&run.outcome===outcome&&run.result?run:null;
+}

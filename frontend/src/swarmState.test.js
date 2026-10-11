@@ -15,3 +15,12 @@ test('agent states come only from actual events; replay preserves ordering',()=>
  assert.equal(agentState(events.slice(0,1),'News Scout').state,'thinking');
 });
 test('source links refuse executable or credential-bearing URLs',()=>{assert.equal(safeSource('javascript:alert(1)'),null);assert.equal(safeSource('https://a:b@example.com'),null);assert.equal(safeSource('https://example.com/story'),'https://example.com/story')});
+test('a cached chip never reuses a forecast after a user, market, or side swap',async()=>{
+ const {matchingForecast}=await import('./swarmState.js');
+ const run={id:'run',status:'completed',user_id:'alice',market_id:'market-one',outcome:'yes',result:{probability:.6}};
+ assert.equal(matchingForecast(run,'alice','market-one','yes'),run);
+ assert.equal(matchingForecast(run,'bob','market-one','yes'),null);
+ assert.equal(matchingForecast(run,'alice','market-two','yes'),null);
+ assert.equal(matchingForecast(run,'alice','market-one','no'),null);
+ assert.equal(matchingForecast({...run,status:'running'},'alice','market-one','yes'),null);
+});

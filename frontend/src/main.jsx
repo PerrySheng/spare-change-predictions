@@ -5,6 +5,7 @@ import {api,post,money,closeDate} from './api';
 import './style.css';
 import GroupTab from './GroupTab';
 import NewsTab,{MarketBetDialog} from './NewsTab';
+import SwarmChip from './SwarmChip';
 const SwarmView=lazy(()=>import('./SwarmView'));
 const topics=[['sports','Sports',Trophy],['crypto','Crypto',Bitcoin],['politics','Politics',Flag],['weather','Weather',CloudSun],['entertainment','Culture',Music],['economy','Economy',ChartNoAxesCombined]];
 const topicIcon=t=>topics.find(x=>x[0]===t)?.[2]||TrendingUp;
@@ -16,11 +17,12 @@ function App(){
  const [user,setUser]=useState(null),[loading,setLoading]=useState(true),[page,setPage]=useState('change'),[health,setHealth]=useState(null),[feed,setFeed]=useState([]),[dashboard,setDashboard]=useState(null),[active,setActive]=useState(null),[suggestions,setSuggestions]=useState(null),[marketLoading,setMarketLoading]=useState(false),[selected,setSelected]=useState('savings'),[error,setError]=useState(''),[toast,setToast]=useState(''),[busy,setBusy]=useState(false),[dialog,setDialog]=useState(null),[inspect,setInspect]=useState(false);
  const deepHandled=useRef(false),mounted=useRef(true),suggestionRequest=useRef(0);
  const [marketRevision,setMarketRevision]=useState(0);
- const [tab,setTab]=useState('spare'),[newsMarket,setNewsMarket]=useState(null),[bet,setBet]=useState(null),[swarm,setSwarm]=useState(()=>location.pathname.startsWith('/swarm/')?{runId:location.pathname.split('/')[2],market:null}:null);
+ const readSwarmRoute=()=>location.pathname.startsWith('/swarm/')?{runId:location.pathname.split('/')[2],market:null,squadId:new URLSearchParams(location.search).get('squad_id')}:null;
+ const [tab,setTab]=useState('spare'),[newsMarket,setNewsMarket]=useState(null),[bet,setBet]=useState(null),[swarm,setSwarm]=useState(readSwarmRoute);
  function research(m){setNewsMarket(m);setTab('news')}
- function openSwarm(m){setSwarm({market:m,runId:null})}
- function closeSwarm(){setSwarm(null);if(location.pathname.startsWith('/swarm/'))history.replaceState({},'','/')}
- useEffect(()=>{const handler=()=>setSwarm(location.pathname.startsWith('/swarm/')?{runId:location.pathname.split('/')[2],market:null}:null);window.addEventListener('popstate',handler);return()=>window.removeEventListener('popstate',handler)},[]);
+ function openSwarm(m,options={}){setSwarm({market:m,runId:null,...options});if(options.runId)history.pushState({},'','/swarm/'+options.runId+(options.squadId?'?squad_id='+encodeURIComponent(options.squadId):''))}
+ function closeSwarm(){setSwarm(null);window.dispatchEvent(new Event('swarm-saved'));if(location.pathname.startsWith('/swarm/'))history.replaceState({},'','/')}
+ useEffect(()=>{const handler=()=>setSwarm(readSwarmRoute());window.addEventListener('popstate',handler);return()=>window.removeEventListener('popstate',handler)},[]);
  async function refresh(u=user){
   if(!u)return;
   const [f,d]=await Promise.all([api('/transactions?user_id='+u.id),api('/dashboard?user_id='+u.id)]);
@@ -96,7 +98,7 @@ function App(){
           </button>
          })}</div>
         </article>
-        <div className="market-reading-link"><button className="text-button" onClick={()=>research(m)}><BookOpen size={13}/>Read in News</button><button className="text-button" style={{marginLeft:'auto'}} onClick={()=>openSwarm({...m,prices:Object.fromEntries(m.outcomes.map(o=>[o.outcome,o.price]))})}><Network size={13}/>Swarm research</button></div>
+        <div className="market-reading-link"><button className="text-button" onClick={()=>research(m)}><BookOpen size={13}/>Read in News</button><SwarmChip user={user} market={{...m,prices:Object.fromEntries(m.outcomes.map(o=>[o.outcome,o.price]))}} onSwarm={openSwarm}/></div>
        </div>
       })}</div>:<div className="empty-markets"><Info size={17}/><p>{suggestions?.reason==='weekly_cap'?'Your weekly market cap is reached. Save this change.':suggestions?.reason==='paused'?'Resume market picks in preferences to explore.':suggestions?.reason==='no_affordable_markets'?'No open markets fit this amount including fees. You can save your change.':'Market choices are unavailable. You can still save your change.'}</p></div>}
       {suggestions?.rollover_cents>0&&<p className="rollover-note">{money(suggestions.rollover_cents)} from your pot is available for a market pick.</p>}
@@ -114,7 +116,7 @@ function App(){
    <div className="app-disclosure">{mode==='sandbox'?'Sandbox funds. Orders use test money.':'Paper mode. No money moves.'} <span>USD only.</span></div>
   </div></div>
   {toast&&<div className="toast" role="status"><Check size={18}/>{toast}</div>}
-  {user&&swarm&&<div className="swarm-overlay"><Suspense fallback={<div className="loading"><Spinner/>Opening the research workspace…</div>}><SwarmView user={user} market={swarm.market} runId={swarm.runId} onClose={closeSwarm} onRun={runId=>{setSwarm(old=>({...old,runId}));history.pushState({},'', '/swarm/'+runId)}}/></Suspense></div>}
+  {user&&swarm&&<div className="swarm-overlay"><Suspense fallback={<div className="loading"><Spinner/>Opening the research workspace…</div>}><SwarmView user={user} market={swarm.market} runId={swarm.runId} squadId={swarm.squadId} shareSquad={swarm.shareSquad} onClose={closeSwarm} onRun={runId=>{setSwarm(old=>({...old,runId}));history.pushState({},'', '/swarm/'+runId)}}/></Suspense></div>}
   {user&&bet&&<MarketBetDialog user={user} market={bet.market} side={bet.side} purchases={feed} onClose={()=>setBet(null)} onPurchase={()=>{setBet(null);setTab('spare');setDialog('purchase')}} onDone={async r=>{setBet(null);setToast(r.status==='paper'?'Paper position recorded.':r.message||'Sandbox order submitted.');try{await refresh()}catch(e){setError(e.message)}}}/>}
   {dialog&&<div className="modal-backdrop" onClick={e=>{if(e.target===e.currentTarget&&!busy)setDialog(null)}}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div className="modal-heading"><h2 id="modal-title">{dialog==='purchase'?'Add a purchase':'Your preferences'}</h2><button className="icon-button" aria-label="Close dialog" disabled={busy} onClick={()=>setDialog(null)}><X size={20}/></button></div>{error&&<div className="notice error" role="alert"><Info size={18}/><span>{error}</span></div>}{dialog==='purchase'?<PurchaseForm busy={busy} onSubmit={data=>runAction(async()=>{const p=await post('/purchases',{...data,user_id:user.id,source_id:crypto.randomUUID()});setDialog(null);setActive(p);setTab('spare');setPage('change');await refresh();if(p.roundup_cents===0)setToast('Already a whole dollar. No round-up needed.')})}/>:<SettingsForm user={user} busy={busy} onSubmit={saveSettings}/>}</section></div>}
  </div>
