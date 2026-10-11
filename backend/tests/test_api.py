@@ -75,7 +75,9 @@ def test_price_change_requires_a_new_choice(setup):
     assert r.status_code==409
     assert c.get('/transactions',params={'user_id':u}).json()[0]['allocation']=='pending'
 
-def test_plaid_missing_credentials_is_actionable(setup):
+def test_plaid_missing_credentials_is_actionable(setup,monkeypatch):
+    monkeypatch.delenv('PLAID_CLIENT_ID',raising=False)
+    monkeypatch.delenv('PLAID_SECRET',raising=False)
     c,_=setup; u=user(c)
     r=c.post('/demo/seed',json={'user_id':u})
     assert r.status_code==503 and 'PLAID' in r.json()['detail']

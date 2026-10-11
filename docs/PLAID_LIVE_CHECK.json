@@ -1,0 +1,131 @@
+{
+  "checked_at": "2026-10-11T22:02:01.902447+00:00",
+  "environment": "sandbox",
+  "profile": "Temporary isolated profile; running app users and balances unchanged",
+  "real_bank_connected": false,
+  "money_moved": false,
+  "webhook_delivery_verified": false,
+  "api_calls": [
+    {
+      "path": "/sandbox/public_token/create",
+      "status": "passed"
+    },
+    {
+      "path": "/item/public_token/exchange",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/sandbox/transactions/create",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/transactions/sync",
+      "status": "passed"
+    },
+    {
+      "path": "/item/remove",
+      "status": "passed"
+    }
+  ],
+  "demo_http_status": 200,
+  "imported_purchase_count": 174,
+  "requested_purchase_count_verified": 0,
+  "requested_three_purchase_check": "still_processing_or_unmatched",
+  "provider_amount_to_integer_cents": "passed",
+  "computed_roundups": "passed",
+  "purchase_samples": [
+    {
+      "merchant": "Interest charged",
+      "amount_cents": 2000,
+      "roundup_cents": 0
+    },
+    {
+      "merchant": "Interest charged",
+      "amount_cents": 2000,
+      "roundup_cents": 0
+    },
+    {
+      "merchant": "Interest charged",
+      "amount_cents": 2000,
+      "roundup_cents": 0
+    },
+    {
+      "merchant": "Interest",
+      "amount_cents": 11147,
+      "roundup_cents": 53
+    },
+    {
+      "merchant": "Interest charged",
+      "amount_cents": 2000,
+      "roundup_cents": 0
+    }
+  ],
+  "savings_allocation": {
+    "status": "passed",
+    "saved_cents": 53,
+    "repeat_allocation_rejected": true
+  },
+  "transaction_id_deduplication": "passed",
+  "status": "passed",
+  "temporary_sandbox_item_removed": true
+}

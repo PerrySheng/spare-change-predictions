@@ -1,6 +1,6 @@
 """USD input and accounting. Amounts in the database are integer cents."""
 import re
-from decimal import Decimal, ROUND_CEILING
+from decimal import Decimal, ROUND_CEILING, ROUND_HALF_UP, InvalidOperation
 import os
 TAKER_RATE=Decimal(os.getenv('GEMINI_TAKER_RATE','0.07'))
 def parse_cents(value):
@@ -10,6 +10,14 @@ def parse_cents(value):
     cents=int(Decimal(raw.replace(',',''))*100)
     if not 0<cents<=100_000_000: raise ValueError('Amount must be between $0.01 and $1,000,000.')
     return cents
+def bank_amount(value):
+    """Normalize provider USD numbers to cents before strict input/accounting."""
+    try:
+        amount=Decimal(str(value))
+        if not amount.is_finite(): raise ValueError('Non-finite bank amount')
+        return format(amount.quantize(Decimal('0.01'),rounding=ROUND_HALF_UP),'.2f')
+    except (InvalidOperation,ValueError) as exc:
+        raise ValueError('Bank returned an invalid USD amount.') from exc
 def roundup_cents(cents): return (-cents)%100
 def fee_cents(quantity,price):
     return int((TAKER_RATE*quantity*price*(1-price)*100).to_integral_value(rounding=ROUND_CEILING))

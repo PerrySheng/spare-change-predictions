@@ -28,7 +28,7 @@ Press **Run demo** once. It creates these test transactions through Plaid's sand
 | Shell | $32.56 | 44¢ |
 | Total | $55.40 | $1.60 |
 
-If Plaid is still processing, use **Sync purchases** shortly afterward. Repeating **Run demo** creates another batch; syncing reuses transaction IDs and does not duplicate an already ingested purchase. With missing keys, show the actionable error and continue with manual entry. The credentialed Plaid path has not been verified with supplied keys.
+If Plaid is still processing, use **Sync purchases** shortly afterward. Repeating **Run demo** creates another batch; syncing reuses transaction IDs and does not duplicate an already ingested purchase. With missing keys, show the actionable error and continue with manual entry. The supplied credentials passed sandbox authentication, sync, and an isolated import of 174 real sandbox purchases with verified round-ups. The three named custom purchases were not separately matched during the bounded check; show the rows that actually arrive and avoid promising a fixed feed or total. [Live check](docs/PLAID_LIVE_CHECK.json).
 
 ## Optional Gemini sandbox order
 
@@ -82,6 +82,6 @@ cd ..
 .venv/bin/python spikes/plaid_spike.py
 ```
 
-The Gemini spike attempts a one-contract sandbox order when keys exist; it is an action, not just a health check. Read its `status` and `filledQuantity`; “submitted” is not “filled.” Without keys, private Gemini and Plaid probes report missing configuration. Backend fixtures test local behavior without proving live provider access. A network failure or zero current affordable markets is a valid result to show rather than hiding it with sample data.
+The Gemini spike attempts a one-contract sandbox order when keys exist; it is an action, not just a health check. Read its `status` and `filledQuantity`; “submitted” is not “filled.” Without keys, private Gemini and Plaid probes report missing configuration. Supplied Gemini sandbox credentials passed read-only authentication; supplied Plaid credentials passed Item exchange and actual transaction ingestion. Backend fixtures test local behavior without proving live provider access. A network failure or zero current affordable markets is a valid result to show rather than hiding it with sample data.
 
 For a phone demo, serve the built app on port 8000 and follow [SHORTCUT_SETUP.md](SHORTCUT_SETUP.md). Use a trusted temporary tunnel because this local MVP has no login. Keep one browser origin/profile throughout the demonstration. A new origin or cleared browser storage creates a fresh profile; previous data remains in the local database.

@@ -14,7 +14,7 @@ from pydantic import BaseModel,Field,field_validator
 from sqlalchemy import select,func,text
 from sqlalchemy.orm import Session
 from .database import User,Pot,Purchase,Roundup,Position,PlaidItem,SandboxOrder,build_engine,timestamp,uid
-from .money import parse_cents,roundup_cents,order_quote,fee_cents
+from .money import parse_cents,roundup_cents,order_quote,fee_cents,bank_amount
 from .providers import Gemini,Plaid,ProviderError,ProviderRejected
 from .scoring import TOPICS,WEIGHTS,rank_markets,topic_for
 from .context_reading import ContextReading
@@ -303,13 +303,18 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
         count=0
         for t in data['added']+data['modified']:
             tid=t['transaction_id']; existing=s.scalar(select(Purchase).where(Purchase.user_id==item.user_id,Purchase.source=='plaid',Purchase.source_id==tid))
-            if t.get('pending') or t.get('iso_currency_code')!='USD' or t['amount']<=0:
+            eligible=not t.get('pending') and t.get('iso_currency_code')=='USD'
+            if eligible:
+                try: amount=bank_amount(t.get('amount'))
+                except ValueError: raise ProviderError('Plaid returned an invalid USD transaction amount. Try syncing again.') from None
+                eligible=Decimal(amount)>0
+            if not eligible:
                 if existing:
                     r=s.scalar(select(Roundup).where(Roundup.purchase_id==existing.id))
                     existing.notice='Plaid changed this purchase to pending, non-USD, or non-positive. Review any prior allocation.'
                     if r.allocation in ['pending','no_change']: r.allocation='removed'
                 continue
-            payload=PurchaseInput(user_id=item.user_id,amount=str(t['amount']),merchant=t.get('merchant_name') or t['name'],category=(t.get('personal_finance_category') or {}).get('primary',''),source='plaid',source_id=tid)
+            payload=PurchaseInput(user_id=item.user_id,amount=amount,merchant=t.get('merchant_name') or t['name'],category=(t.get('personal_finance_category') or {}).get('primary',''),source='plaid',source_id=tid)
             if existing:
                 r=s.scalar(select(Roundup).where(Roundup.purchase_id==existing.id)); new_amount=parse_cents(payload.amount)
                 if r.allocation in ['pending','no_change','removed']:

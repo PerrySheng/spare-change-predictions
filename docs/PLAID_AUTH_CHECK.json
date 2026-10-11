@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-10-11T21:48:40.784612+00:00",
+  "environment": "sandbox",
+  "real_bank_connected": false,
+  "money_moved": false,
+  "authentication": "passed",
+  "sandbox_item_exchange": "passed",
+  "transaction_sync": "passed",
+  "returned_transaction_count": 0,
+  "temporary_sandbox_item_removed": true
+}
