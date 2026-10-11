@@ -6,7 +6,7 @@ The frontend uses React, Vite, Tailwind CSS, and Lucide icons. The backend uses 
 
 ## Run locally
 
-Use Python 3.11+ and Node.js 20.19+ within the 20.x line, or 22.12+ (the installed Vite version's supported Node ranges). Run these commands from the project root:
+Use Python 3.11+ and Node.js 22.12+ for the frontend, Claude worker, and XRPL executor. Run these commands from the project root:
 
 ```sh
 python3 -m venv .venv
@@ -15,6 +15,11 @@ cp .env.example .env
 cd frontend
 npm ci
 npm run build
+cd ../swarm
+npm ci
+npm run build
+cd ../xrpl
+npm ci
 cd ../backend
 ../.venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
@@ -39,7 +44,11 @@ Vite proxies `/api` to the backend on port 8000. Use the backend on port 8000 fo
 - Choose savings or hold the round-up for a future market pick, or explore up to three contracts from distinct live events. Each market card lets you choose **Yes or No** using Gemini's actual buy quote for that side, with its own contract count and fee. A side that exceeds the available budget or has no executable quote is visible but unavailable to select. Savings is selected first, and each allocation requires a user choice.
 - See the calculation, scoring factors, and market rules under **How it works**. Deterministic ranking combines interests, spending, prior topic picks, affordability, time to close, and reported event volume. Wins and losses do not affect ranking.
 - Track saved change, rollover available for future picks, pending round-ups, positions, wins/losses, and a comparison with saving every allocated round-up.
-- In the optional Context.dev reading panel, load source links and snippets for a market. Reading material is informational and does not change ranking or predict the outcome. Credentialed retrieval has not been verified in this delivery.
+- Switch between **Group betting**, **Spare**, and **News**. Spare keeps Your change, Activity, and Your pot as secondary pages.
+- Build a squad slip with 2–6 friends, invite codes, one Yes/No leg each, pre-lock swaps, agree/disagree votes, comments, live chat, and real resolved track records. Picks are proposed until a provider transaction is separately confirmed.
+- Use **News / The Digger** for Context.dev source links and short summaries. Its topic order reflects interests and actual paper/squad picks, with a sample-weighted positive category edge boost. Read an original article, choose a related live market, add your own squad leg, or explicitly share an article into squad chat.
+- Open **Swarm research** for four independent Claude forecasts, one debate round, a computed median, and a mobile React Flow workspace. Agent states, public notes, queries, sources, and estimate revisions are driven by persisted provider events. Credentialed Claude calls remain unverified.
+- With XRPL configured, use encrypted custodial Testnet/Devnet wallets and custom SPC token escrows for squads of 3–6 members. A confirmed settlement pays every recipient in one atomic Batch. SPC has no real monetary value; round-ups and savings stay separate.
 
 Market discovery is cached for 15 seconds. Before allocating a position, the backend fetches the event again, rejects closed markets, rejects a price increase above the displayed price, and never exceeds the displayed contract count or total cost. It buys whole contracts that fit the available round-up plus rollover, the weekly cap, and the contract's quantity grid. Unspent change stays in rollover; saved change is separate.
 
@@ -62,7 +71,11 @@ No private provider credentials are supplied. Add only credentials you own to th
 | `PLAID_CLIENT_ID`, `PLAID_SECRET` | Optional client ID and **sandbox** secret for test purchases. |
 | `PLAID_ENV=sandbox` | The only supported Plaid environment. |
 | `PLAID_WEBHOOK_URL` | Optional public HTTPS URL ending in `/webhooks/plaid`, configured before the first demo connection. |
-| `CONTEXT_DEV_API_KEY` | Optional server-side key for the market reading panel. |
+| `CONTEXT_DEV_API_KEY` | Optional server-side key for News reading materials. |
+| `ANTHROPIC_API_KEY` | Server-side key for real research swarm calls. |
+| `ANTHROPIC_MODEL=claude-sonnet-5-5` | Documented model; the worker checks actual account/model capabilities before paid calls. |
+| `XRPL_NETWORK=testnet` | Only `testnet` or `devnet`; mainnet is refused. |
+| `XRPL_WALLET_KEY` | Stable base64 32-byte encryption key for custodial test-wallet seeds and escrow fulfillments. Back it up with the database. |
 | `DATABASE_URL=sqlite:///./spare_change.db` | SQLite database, relative to the backend working directory. |
 
 ### Gemini sandbox keys
@@ -86,9 +99,32 @@ Obtain a client ID and sandbox secret yourself from the [Plaid Dashboard](https:
 
 Only posted, positive USD purchases are ingested. Transaction IDs prevent repeated syncs from duplicating purchases. Changed amounts update unallocated round-ups; an amount changed after allocation is flagged for review. Removed unallocated purchases and modifications that become pending, non-positive, or non-USD are made unavailable for allocation. Without credentials, the demo shows an actionable error and leaves manual entry available. See the [sandbox API](https://plaid.com/docs/api/sandbox/), [Transactions API](https://plaid.com/docs/api/products/transactions/), and [webhook verification reference](https://plaid.com/docs/api/webhooks/webhook-verification/).
 
-### Optional Context.dev reading
+### News and Context.dev reading
 
-Add `CONTEXT_DEV_API_KEY` to the root `.env` and restart to enable reading materials. The adapter searches with only the public Gemini event title and contract label; purchase history, interests, balances, and positions are not sent. It returns at most five source links with short snippets and a fetch timestamp, and caches public queries for ten minutes. Empty results and partial results are shown as such. The panel does not generate an answer or alter market scores. Without a key, it shows an actionable configuration message. Credentialed retrieval remains untested. See the [Context.dev Search API](https://docs.context.dev/api-reference/web-scraping/search).
+Add `CONTEXT_DEV_API_KEY` to the root `.env` and restart to enable reading materials. The adapter searches with only the public Gemini event title and contract label; purchase history, interests, balances, and positions are not sent. It returns at most five source links with short snippets and a fetch timestamp, and caches public queries for ten minutes. News and the Swarm also share normalized public sources in SQLite for 30 minutes, so a recent result set can be reused without another search. Empty results and partial results are shown as such. News does not alter round-up suggestion scores or produce a forecast. Source summaries are shown alongside live Gemini contracts matched by topic; topic matching does not establish that an article supports an outcome. Without a key, it shows an actionable configuration message. Credentialed retrieval remains untested. See the [Context.dev Search API](https://docs.context.dev/api-reference/web-scraping/search).
+
+
+### Research swarm
+
+Install/build `swarm/` as above, add `ANTHROPIC_API_KEY` to the root `.env`, and restart. On a market, choose **Swarm research**, select which quote to compare, then press **Run the research swarm**. The run has a shareable local route `/swarm/{runId}` for the same browser profile. Source links and public evidence notes appear when the actual provider emits them; hidden model reasoning is never exposed.
+
+News Scout researches recent reporting; Base Rate Analyst looks for documented historical reference classes; Market Reader uses only the real Gemini snapshot; Skeptic examines counter-evidence. The first four calls run in parallel without seeing each other's estimates. Each then sees the independent answers and may revise. Application code takes the median of the four revised Yes probabilities (the mean of the middle two). A ninth Synthesizer call explains that fixed result. A No comparison uses `1 − p(Yes)` and Gemini's actual No quote, never a fabricated complementary price.
+
+Runs are limited to two per profile per hour and two concurrent globally, with a 30-minute completed-run cache. Search-enabled roles get at most two searches each; debate and synthesis do not search. Fresh cached evidence can omit a new search tool. Actual token/search usage is stored. Every event is saved before being streamed over SSE, and saved runs can be stepped through using **Replay saved run**. Failed or interrupted calls never produce a completed forecast.
+
+Prospective results retain their entry quote. When Gemini resolves a market, the backend computes Brier score `(p(Yes) − actual_yes)^2`, and side edge `hit − side_quote_at_forecast`. Voids are excluded, and only one score is recorded per forecast. Lower Brier is better; a small sample proves little. The leaderboard/profile/chat forecast integrations and optional trading bot are later swarm phases. No bot trades are enabled.
+
+See [research and primary sources](RESEARCH.md), [phase plan](docs/SWARM_PLAN.md), and [backend API/setup](docs/SWARM_BACKEND.md). The live two-market forecast check and two-window visualization check need a configured Anthropic account. Browser permission was denied earlier; no rendered UI verification is claimed.
+
+### Squad slips and test-token settlement
+
+Create a squad in **Group betting**, give friends the invite code, and have each friend join from a separate browser profile. Members can change their own leg before locking, react with optional comments, and share reading. The friends table shows actual wins/losses/voids, hit rate, entry-price edge, category records, streaks, and resolved disagree accuracy. **Refresh results** reads Gemini's published outcome; it never chooses a result for the demo.
+
+The Gemini combo adapter supports the documented canonical-combo plus single FOK order flow, but combined placement remains gated: no sandbox keys were supplied, and a reliable decimal contract-ID mapping has not been verified. The UI says **Not placed**. See [Gemini combo verification](docs/GEMINI_COMBOS.md).
+
+For XRPL, follow [XRPL setup and evidence](docs/XRPL.md). Configure a stable encryption key before creating wallets. When configured, onboarding requests a faucet-funded custodial test wallet in the background; an outage leaves onboarding usable and the wallet panel shows its actual state. Existing profiles can use **Create & fund my test wallet**. Each member explicitly locks their own SPC collateral; the first lock freezes the complete squad. Two-member slips can collaborate but cannot use this Batch escrow design. Stake cents must divide evenly by member count.
+
+The creator can settle only after every member's collateral is confirmed and every leg has a fresh final Gemini result. The server reveals escrow fulfillments and submits one all-or-nothing payout Batch, verifying inner payments and balances. The app journals each external action before submission and blocks uncertain retries. Refunds require a real **EscrowCancel** after validated ledger time passes the deadline; `CancelAfter` does not automatically refund. This is a test-token experiment, with app-held keys and app-observed Gemini outcomes; multisign approval is not implemented.
 
 ## Checks and provider spikes
 
@@ -114,4 +150,4 @@ This is a local hackathon MVP without login. A browser stores its profile ID in 
 
 The PWA manifest and service worker support a home-screen app shell in a secure browser context. The service worker caches the shell/assets, never financial/provider responses; allocations and fresh data still need the backend and network. Device installation, Apple Pay trigger fields, credentialed exchange orders, and credentialed reading retrieval require separate testing on your device/accounts.
 
-Project layout: `frontend/` holds the React PWA; `backend/app/` holds API, accounting, scoring, and provider adapters; `backend/tests/` holds deterministic tests; `spikes/` holds standalone provider probes.
+Project layout: `swarm/` holds the official Claude TypeScript worker; `xrpl/` holds the test-network executor and public ledger evidence; `frontend/` holds the React PWA; `backend/app/` holds API, accounting, scoring, and provider adapters; `backend/tests/` holds deterministic tests; `spikes/` holds standalone provider probes.

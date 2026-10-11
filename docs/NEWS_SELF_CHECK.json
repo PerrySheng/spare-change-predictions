@@ -1,0 +1,38 @@
+[
+  {
+    "reader": "sports",
+    "paper_position": {
+      "status": "paper",
+      "quantity": 6,
+      "fee_cents": 6,
+      "leftover_cents": 9
+    },
+    "first_news_topic": "sports",
+    "first_news_market_id": "GEMI-LALIGA-2610101200-ATH-RAY-M-ATH",
+    "topic_history": {
+      "weight": 1.0,
+      "picks": 1,
+      "resolved": 0,
+      "edge_score": null
+    },
+    "swarm_missing_key_status": 503
+  },
+  {
+    "reader": "crypto",
+    "paper_position": {
+      "status": "paper",
+      "quantity": 1,
+      "fee_cents": 2,
+      "leftover_cents": 16
+    },
+    "first_news_topic": "crypto",
+    "first_news_market_id": "GEMI-BTC05M2610112050-UP",
+    "topic_history": {
+      "weight": 1.0,
+      "picks": 1,
+      "resolved": 0,
+      "edge_score": null
+    },
+    "swarm_missing_key_status": 503
+  }
+]

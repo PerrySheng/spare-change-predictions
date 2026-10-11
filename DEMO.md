@@ -36,9 +36,31 @@ Follow the [sandbox setup in README.md](README.md#gemini-sandbox-keys). Use your
 
 Add a purchase, choose an affordable outcome, then press **Place sandbox order**. A `filled` response with verified full quantity creates a sandbox position. A cancelled no-fill order keeps the change in rollover. An `unknown` or `open` result remains reserved; use **Verify order status** in Your pot, and inspect the sandbox account if no exchange order ID is available. Do not retry an uncertain order as a new purchase. No production order route exists in this MVP. Credentialed sandbox execution is not claimed as tested.
 
-## Optional reading material
+## News and shared reading
 
-With `CONTEXT_DEV_API_KEY` configured server-side, use the market card’s **Research this market** panel to request Context.dev source links and excerpts. Explain that these are reading materials, not forecasts or additional ranking inputs. Without a key or when the provider fails, the app shows the configuration/provider message. Credentialed retrieval has not been tested in this delivery. See the [Context.dev Search API](https://docs.context.dev/api-reference/web-scraping/search).
+With `CONTEXT_DEV_API_KEY` configured server-side, open **News** or a market's **Read in News** link. Select a live market and press **Find reading materials**. Only short summaries and original-source links appear. Open an article's related markets, select Yes/No using an existing round-up, or add your own squad leg. **Share to squad** explicitly posts the link/summary to a selected group's chat, optionally with a leg reaction. Missing keys produce a configuration message. Recent News Scout evidence is reused from the shared cache.
+
+## Group betting
+
+1. Open **Group betting**, create a squad, set a future lock time, and copy its invite code. A three-member squad supports the test-token escrow design.
+2. Have two friends use separate browser profiles and join with the code. Each chooses their own live Yes/No leg. Change one leg before lock to show a real swap event.
+3. React with **Agree** or **Disagree** and an optional comment. Open Chat to see persisted picks, swaps, votes, and shared articles. Two open profiles receive new chat events over SSE.
+4. Lock the full slip. Changes and reactions now fail. Use **Refresh results** when Gemini publishes actual outcomes. Track records and category edge use those results, with unresolved picks excluded.
+5. Optionally configure XRPL following [XRPL.md](docs/XRPL.md). Open **Orders & settlement**, create/fund each custom-SPC test wallet, and have each member explicitly lock collateral. After all real market outcomes are final, the creator can settle. Open actual transaction explorer links. Do not claim the proposed combined Gemini slip has been placed; that integration is gated.
+
+The reproducible XRPL spike already validated all four three-member payout cases and an expired escrow refund on Testnet. Those are labeled test inputs in the spike, not invented Gemini results in the app. Read [the public ledger evidence](xrpl/reports/2026-10-11-testnet-spike.json).
+
+## Live swarm research
+
+Configure `ANTHROPIC_API_KEY`, build `swarm/`, and restart first. The credentialed path has not been exercised in this delivery.
+
+1. Open a live market from Spare, News, or a squad leg, then choose **Swarm research**. Start a run. Show the real market at the center of the graph and four independent agents around it.
+2. Tap News Scout. Show actual search queries, source links, public evidence notes, and its submitted Yes estimate. A quiet panel means the provider hasn't sent those events; no progress is manufactured.
+3. Watch Round 2 arrive from the real stream. Revised nodes show the change in percentage points; open the agent panel to read its brief explanation.
+4. Show the final research estimate versus the actual recorded Gemini side quote. Explain that the median is computed in code and a price gap does not guarantee a profitable trade.
+5. Use **Replay saved run** and **Next event** to step through persisted events. Open the same `/swarm/{runId}` route in a second window of the same profile to verify both receive the same event IDs.
+
+“The Swarm” leaderboard and profile comparisons are a subsequent integration phase, not part of this demo yet. No automated bot trades are enabled.
 
 ## Verify before presenting
 

@@ -1,34 +1,45 @@
 # Verification record
 
-Checked on October 11, 2026. This is a local hackathon MVP, with paper mode enabled by default.
+Checked on October 11, 2026. Paper mode is enabled by default. Controlled provider fixtures are confined to tests; the application never returns sample forecasts, articles, markets, or transaction hashes.
 
 | Check | Result |
 | --- | --- |
-| Backend suite | 80 tests passed. One dependency deprecation warning from Starlette's TestClient/httpx integration. |
-| Frontend production build | Passed with Vite 7.3.7. |
-| Python dependency consistency | `pip check` passed. |
-| Launch script syntax | `bash -n run.sh` passed. |
-| Local server | `/health`, `/`, both built assets, manifest, and service worker returned HTTP 200. |
-| Public Gemini data | Retrieved real production and sandbox prediction-market quotes. |
-| Paper flow with public data | Two isolated profiles produced sports and crypto suggestions, fee-aware paper allocations, and dashboard valuations using Gemini responses. Test databases were temporary. |
-| Yes/No choices with public data | Both sides matched Gemini's actual buy quotes for the same contract. Selecting No recorded a No paper position at that side's price, contract count and estimated fee in an isolated temporary database. |
-| Context.dev without credentials | Returned an actionable HTTP 503 mentioning `CONTEXT_DEV_API_KEY`; no substitute reading materials. |
-| Review | Backend accounting/provider review and frontend integration review completed; reported correctness issues were fixed. |
+| Python backend suite | **179 passed**. One existing Starlette TestClient/httpx deprecation warning. |
+| Frontend production build | Passed with Vite 7.3.7. Swarm loads in a separate chunk; initial JS 312 kB before gzip. |
+| Frontend event reducer | **2 Node tests passed**: real-event state transitions, revision history, replay order/deduplication, safe source links. |
+| Claude TypeScript worker | Build and **5 tests passed**: median, search-tool permissions, JSON/source validation, actual stream query parsing, public text versus hidden thinking. |
+| XRPL TypeScript executor | TypeScript checks and **8 tests passed**: networks, crypto-condition, payout conservation, issued-token cents, atomic Batch flags, encryption. |
+| Python dependencies / launch | `pip check`, `bash -n run.sh`, and Git whitespace checks passed. |
+| Local server | `/health`, `/`, current built assets, manifest, service worker, and `/swarm/example` frontend route returned HTTP 200. OpenAPI confirms squads/news/swarm/quote/XRPL routes. |
+| Live Gemini | Actual public production and sandbox market data retrieved; prior fee-aware Yes/No paper allocations verified. |
+| Digger personalization | Two new isolated profiles made actual paper allocations against live Gemini quotes. Sports history put sports first; crypto history put crypto first. [Raw check](NEWS_SELF_CHECK.json). |
+| Shared research sources | Controlled tests prove News reuses persisted News Scout metadata without requiring another Context.dev call, and users/history/related instruments are scoped and computed. |
+| Claude missing key | Live-market run requests returned actionable HTTP 503 before a run/agent event was created. No replacement forecast. |
+| Squad collaboration | Tests cover joining/concurrent capacity, private membership, fresh Yes/No quotes, swaps, deadline/lock, votes/comments, shared article atomicity, chat SSE replay, final resolution, track records, payout conservation, and escrow freeze. |
+| XRPL Testnet spike | Four three-member payout cases and explicit expired escrow refund validated. **50 actual transaction records**, including inner atomic Payments; recipient balances checked. [Public report](../xrpl/reports/2026-10-11-testnet-spike.json). |
+| Real app wallet API | Isolated test database created a Testnet wallet with **100 SPC**, verified on-chain balances, and returned the same address on repeated read. [Public report](../xrpl/reports/app-wallet-verification.json). |
+| XRPL server safeguards | **19 focused Python tests** cover journaling before effects, wallet/escrow concurrency, uncertain retries, network gating, complete frozen membership, fresh open/final Gemini results, expiry/refund, atomic inner-payment validation, and idempotency. |
 
-The backend tests cover currency parsing, roundup arithmetic, fees and whole-contract grids, deterministic ranking, Yes/No quotes grouped by exact instrument, unavailable/unaffordable sides, consistent duplicate quote snapshots, No allocation, user separation, purchase idempotency, single allocation, caps and pausing, price changes, displayed quantity/cost limits, rollover pooling, settlement credited once, Plaid modifications/removals, sandbox reservations/rejections, and Context.dev response validation and failure handling. Provider fixtures verify local behavior without proving authenticated access.
+The application now has Group betting, Spare, and News tabs, plus a React Flow swarm workspace. Source inspection, event-state tests, and production compilation passed. Browser access to the local preview was previously denied, so rendered layout, clicking through flows, and two-window live visualization have **not** been verified in a browser. No screenshot is presented as evidence. iPhone Shortcuts and PWA device installation remain untested.
 
-No private provider credentials were supplied. Actual Context.dev retrieval, Plaid Sandbox ingestion/webhook delivery, and Gemini sandbox order execution remain unverified. These paths need the corresponding keys in the root `.env` and a backend restart. Production money trading is disabled.
+No Anthropic, Context.dev, Plaid, or private Gemini credentials were supplied. Therefore actual Claude forecasts on two markets, real Context.dev reading, Plaid ingestion/webhook delivery, and authenticated Gemini order/combo creation/fill remain unverified. Missing credentials remain visible errors, not substitute content. Build/run setup is in [README](../README.md), and [DEMO](../DEMO.md) lists manual checks.
 
-Browser access to the local preview was denied by the tool's permission check. Rendered layout and interaction have therefore not been verified in-browser. iPhone Shortcut triggers and PWA installation also remain untested on a device. The manifest and assets are served, but that alone does not confirm installation.
+The actual XRPL transaction checks use only Testnet/Devnet custom SPC tokens. Persistent app wallets need a stable `XRPL_WALLET_KEY`. The full app path from a real finalized Gemini squad through its UI to an XRPL payout has not yet been exercised; the reusable executor's four payout cases and wallet API are verified independently. Recovery after an unknown submission or a partial escrow release near its deadline requires manual reconciliation. Mainnet, RLUSD, multisign, automatic refunds, automated trading, and an authenticated combined Gemini order are not claimed.
 
-Reproduce local checks from the project root:
+The next swarm integration phase (cached suggestion chips, The Swarm leaderboard/player comparison, and posting a forecast into squad chat) remains pending the user's phase checkpoint. The separate Digger reading/share/related-market request is implemented.
+
+Reproduce checks from the project root:
 
 ```sh
 .venv/bin/python -m pytest -q -c backend/pytest.ini backend/tests
 .venv/bin/python -m pip check
 bash -n run.sh
-cd frontend
-npm run build
+npm --prefix frontend run build
+node --test frontend/src/swarmState.test.js
+npm --prefix swarm run build
+npm --prefix swarm test
+npm --prefix xrpl run check
+npm --prefix xrpl test
 ```
 
-Follow [README.md](../README.md) for configuration and [DEMO.md](../DEMO.md) for the walkthrough. Provider spike commands can create sandbox test data or orders when keys are supplied; review their documented behavior before running them.
+The XRPL spike submits real test-network transactions. The Gemini combo spike can place a sandbox order when credentials and explicit contract IDs are supplied. Read their documentation before rerunning; never treat submission alone as confirmation.
