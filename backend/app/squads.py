@@ -6,6 +6,7 @@ escrow, payment, or agent forecast exists.
 import asyncio
 import json
 import secrets
+import os
 import ipaddress
 from contextlib import contextmanager
 from datetime import datetime, timezone, timedelta
@@ -337,6 +338,7 @@ def register_squads(app, engine, feed):
 
     @app.post('/squads/{squad_id}/join')
     def join_by_id(squad_id: str, payload: MemberInput):
+        if os.getenv('APP_ENV')=='production':raise HTTPException(403,'Use the squad invite code to join this demo.')
         with db(write=True) as session:
             squad = session.get(Squad, squad_id)
             if not squad: raise HTTPException(404, 'Squad not found.')

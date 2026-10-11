@@ -28,6 +28,9 @@ def test_separate_sessions_can_use_own_profiles_but_cannot_impersonate(protected
         assert b.get('/users/'+one).status_code==404
         assert a.post('/purchases',json={'user_id':two,'amount':'4.63','merchant':'Shop'}).status_code==404
         assert b.post('/purchases',json={'user_id':two,'amount':'4.63','merchant':'Shop'}).status_code==201
+        squad=a.post('/squads',json={'user_id':one,'name':'Invite protected','stake_cents':1500,'member_limit':3,'lock_at':(datetime.now(timezone.utc)+timedelta(hours=1)).isoformat()}).json()
+        assert b.post('/squads/'+squad['id']+'/join',json={'user_id':two}).status_code==403
+        assert b.post('/squads/join',json={'user_id':two,'invite_code':squad['invite_code']}).status_code==200
         assert a.get('/dashboard',params={'user_id':one}).json()['available_cents']==0
         assert b.get('/dashboard',params={'user_id':two}).json()['available_cents']==37
 

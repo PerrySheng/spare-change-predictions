@@ -1,0 +1,121 @@
+{
+  "checked_at": "2026-10-11T23:27:51.261487+00:00",
+  "url": "https://spare-production.up.railway.app",
+  "mode": "paper",
+  "wallet_network": "testnet",
+  "real_money_moved": false,
+  "browser_check": false,
+  "clients": 3,
+  "public_access_without_code": "passed",
+  "separate_profile_sessions": "passed",
+  "live_event_count": 778,
+  "distinct_confirmed_test_wallets": "passed",
+  "wallets": [
+    {
+      "status": "ready",
+      "address": "rGrcL7q4ZgFEZFp1D42iDcHTvgdd5Ruwu4",
+      "network": "testnet",
+      "balance": "90",
+      "currency": "SPC"
+    },
+    {
+      "status": "ready",
+      "address": "r4Y88fC5VEoaFm6BGxABpPTzaQK4TsCX6w",
+      "network": "testnet",
+      "balance": "90",
+      "currency": "SPC"
+    },
+    {
+      "status": "ready",
+      "address": "rayLQHwMNQA1bvL3Ev1QZcTMcK7pD8aVbk",
+      "network": "testnet",
+      "balance": "100",
+      "currency": "SPC"
+    }
+  ],
+  "immediate_funding_request_recorded": true,
+  "first_pick_confirmed_before_other_friends_join": true,
+  "first_pick_wallet_balance_before": "100",
+  "first_pick_wallet_balance_after": "90",
+  "first_pick_escrow": {
+    "status": "locked",
+    "amount_cents": 1000,
+    "create_hash": "65FEB5A352A45CAAB3B6DB3876150A82C93BC0ECA99882FBCC945E6253BDA1B2",
+    "owner": "rGrcL7q4ZgFEZFp1D42iDcHTvgdd5Ruwu4",
+    "cancel_after": 856223999
+  },
+  "actual_spc_balance_deducted": "passed",
+  "opposing_outcome_rejected": "passed",
+  "first_pick_reservation": "passed",
+  "shared_membership_legs_and_three_escrows": "passed",
+  "cross_profile_impersonation_rejected": "passed",
+  "live_chat_sse_across_sessions": "passed",
+  "purchase_change_accumulates": "passed",
+  "topic_reading": {
+    "politics": {
+      "source_count": 5,
+      "related_market_count": 4,
+      "provider": "Context.dev",
+      "sources": [
+        {
+          "url": "https://economictimes.indiatimes.com/news/politics-and-nation/privilege-motion-against-rahul-gandhi-check-latest-development-from-the-parliament-budget-session-bjp-congress/articleshow/128245590.cms",
+          "title": "Privilege motion against Rahul Gandhi? Check latest developments from the Parliament Budget Session",
+          "snippet": "The government is reportedly not planning to move a privilege motion against Rahul Gandhi, despite his allegations against PM Modi and ministers concerning Epstein files. However, parts of Gandhi's speech may be expunged as the claims were not authenticated."
+        },
+        {
+          "url": "https://m.economictimes.com/news/politics-and-nation/privilege-motion-against-rahul-gandhi-check-latest-development-from-the-parliament-budget-session-bjp-congress/articleshow/128245590.cms",
+          "title": "Privilege motion against Rahul Gandhi? Check latest developments from the Parliament Budget Session",
+          "snippet": "The government is reportedly not planning a privilege motion against Rahul Gandhi. This follows his allegations against Prime Minister Modi and ministers concerning Epstein files. Portions of Gandhi's speech may be expunged as they were not authenticated. BJP MP Nishikant Dubey has moved a motion seeking termination of Gandhi's membership."
+        },
+        {
+          "url": "https://www.nbcnews.com/politics",
+          "title": "Politics News: Latest on Trump Administration, Congress ...",
+          "snippet": "Find the latest political news stories, photos, and videos on NBCNews.com. Read breaking headlines covering Congress, Democrats, Republicans, and more."
+        },
+        {
+          "url": "https://hindustantimes.com/world-news/us-news/houthis-seize-2-strategic-red-sea-islands-and-other-mideast-developments-101789412688271.html",
+          "title": "Houthis seize 2 strategic Red Sea islands, and other Mideast developments",
+          "snippet": "Houthis seize 2 strategic Red Sea islands, and other Mideast developments"
+        },
+        {
+          "url": "https://www.politico.com/politics",
+          "title": "Latest and breaking political news today",
+          "snippet": "The U.S. president lashed out at Zelenskyy over Ukrainian strikes on Russian oil infrastructure. President Donald Trump listens as Republican ..."
+        }
+      ]
+    },
+    "weather": {
+      "source_count": 5,
+      "related_market_count": 4,
+      "provider": "Context.dev",
+      "sources": [
+        {
+          "url": "https://www.nbcnews.com/news/weather",
+          "title": "Weather News: Headlines and Video on Storms, Climate ...",
+          "snippet": "Get the latest weather news, photos & videos. Stay updated on national forecasts, severe storms, climate change and more from NBC News."
+        },
+        {
+          "url": "https://www.clickorlando.com/weather/2026/10/06/tropical-development-possible-in-the-gulf-heres-the-latest/",
+          "title": "Tropical development possible in the Gulf: Here\u2019s the latest",
+          "snippet": "ORLANDO, Fla. \u2013 The Gulf is becoming the area to watch in the tropics this week. The National Hurricane Center now gives a system in the..."
+        },
+        {
+          "url": "https://hindustantimes.com/india-news/el-ninos-impact-on-global-rainfall-in-four-maps-weather-bee-101791006999305.html",
+          "title": "Weather Bee: El Nino's impact on global rainfall in four maps",
+          "snippet": "El Nino has suppressed India\u2019s monsoon rainfall in 2026, while its impact on rainfall patterns across Australia, Asia and the Americas varies. | India News"
+        },
+        {
+          "url": "https://cbs12.com/weather/hurricane-maps/national-hurricane-center-monitoring-new-area-for-possible-tropical-development-in-gulf",
+          "title": "National Hurricane Center monitoring new area for possible tropical development in Gulf",
+          "snippet": "The National Hurricane Center is now monitoring a second wave in the eastern Atlantic for possible tropical development."
+        },
+        {
+          "url": "https://www.gulfcoastnewsnow.com/article/weather-forecast-florida-hurricane-tropical-storm-atllantic-bertha/71779124",
+          "title": "Chances for tropical development remain low in the Atlantic",
+          "snippet": "FORT MYERS, Fla. \u2014. The Gulf Coast News Storm Team was monitoring an area in the southwestern Atlantic. As of 2 p.m. Tuesday, development..."
+        }
+      ]
+    }
+  },
+  "status": "passed"
+}

@@ -1,6 +1,6 @@
 # Research swarm backend
 
-The backend coordinates four independent Claude forecasting calls, four separate debate revisions, and one summary call. The final Yes probability is the application-computed median of the four revised estimates. For four numbers, that is the mean of the middle two. The summary model cannot replace the number.
+The backend coordinates four independent AI forecasting calls, four separate debate revisions, and one summary call. The final Yes probability is the application-computed median of the four revised estimates. For four numbers, that is the mean of the middle two. The summary model cannot replace the number.
 
 This is research, not an order-placement bot. It has no trading tools or access to roundup funds. A stored Gemini buy quote is the comparison baseline; the displayed gap does not account for fees and does not guarantee profit.
 
@@ -15,7 +15,7 @@ cd ..
 .venv/bin/python -m pytest -q -c backend/pytest.ini backend/tests/test_swarm.py
 ```
 
-Set `ANTHROPIC_API_KEY` in the server's `.env`. `ANTHROPIC_MODEL` defaults to `claude-sonnet-5-5`, documented in the [current model catalog](https://platform.claude.com/docs/en/models/overview). The worker queries the actual Models API for account access and web-search/thinking capabilities before any paid Messages call. Model access and web-search permission must be available on that account. An optional `SWARM_NODE_BIN` points to a Node executable if it is absent from the server PATH. Restart the backend after changing environment settings.
+For the public demo, set `SWARM_PROVIDER=gemini`, `GOOGLE_AI_API_KEY`, `GOOGLE_AI_MODEL=gemini-3.5-flash-lite`, and `CONTEXT_DEV_API_KEY`. This uses the official Google GenAI TypeScript SDK, streamed public JSON notes, and Context.dev source metadata; paid Google Search is disabled. Calls start at most four per 61 seconds, with one active run and a one-minute cooldown across friends. For the original Claude path, set `SWARM_PROVIDER=anthropic` and `ANTHROPIC_API_KEY` in the server’s environment. `ANTHROPIC_MODEL` defaults to `claude-sonnet-5-5`, documented in the [current model catalog](https://platform.claude.com/docs/en/models/overview). The worker queries the actual Models API for account access and web-search/thinking capabilities before any paid Messages call. Model access and web-search permission must be available on that account. An optional `SWARM_NODE_BIN` points to a Node executable if it is absent from the server PATH. Restart the backend after changing environment settings.
 
 The worker uses pinned `@anthropic-ai/sdk` version `0.133.0`, verified against the published official SDK and installed types on October 11, 2026. The application integration imports `swarm_models` before `build_engine`, then calls `register_swarm(app, engine, feed, reading)`. This returns the service and sets `app.state.swarm`. Existing lifespan cleanup is preserved.
 
@@ -64,4 +64,4 @@ Every completed forecast retains its original market snapshot and both buy quote
 
 The TypeScript build and five controlled stream/schema tests pass. Twenty-seven focused Python tests pass for missing-key boundaries, account isolation, cache/dedup/rate limits, SSE replay IDs, quote/median integrity, schema rejection, source reuse, allowed search rounds, restart handling, and one-time scoring. Controlled worker estimates live only in tests and are never seeded into the application.
 
-A direct launch of the built worker without credentials returned only `Set ANTHROPIC_API_KEY in the server .env to run the research swarm.` and exited 1. No Anthropic API key is configured, so model access, real research events, two actual market forecasts, differing provider results, and live browser streaming remain unverified. Do not label that live self-check complete until credentials are configured and two actual runs are recorded.
+Two real Google Gemini + Context.dev forecasts completed on different live Gemini markets; outputs and raw persisted events are in [SWARM_GOOGLE_LIVE_CHECK.json](SWARM_GOOGLE_LIVE_CHECK.json). A separate actual Railway forecast, two HTTP readers receiving the same event, a member-funded researched leg, and a friend opening the shared result passed in [RAILWAY_SWARM_CHECK.json](RAILWAY_SWARM_CHECK.json). No Anthropic key was supplied, so Claude calls remain unverified. Browser rendering and two-window UI checks remain unverified; HTTP readers are not browser windows.

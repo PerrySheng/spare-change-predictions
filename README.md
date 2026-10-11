@@ -170,3 +170,5 @@ A winning contract pays $1. The fractional earnings preview uses amount / price 
 [Live demo](https://spare-production.up.railway.app) · [Public source](https://github.com/PerrySheng/spare-change-predictions) · [Two-minute demo script](DEMO_SCRIPT.md).
 
 News now includes the complete open-market list instead of the first 40 contracts, recognizes political/climate category aliases, and offers real Context.dev subject reading when no related market is open. [Two genuine Google + Context.dev forecast runs and event logs](docs/SWARM_GOOGLE_LIVE_CHECK.json) are saved as public verification evidence, not runtime fixtures.
+
+Live deployment evidence: [three-profile collaboration and actual SPC escrow](docs/RAILWAY_MULTIPLAYER_CHECK.json), [real cloud Swarm, streamed events, and researched member-funded leg](docs/RAILWAY_SWARM_CHECK.json). CI builds and tests the public source without provider keys.
