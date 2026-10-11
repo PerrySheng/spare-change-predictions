@@ -41,6 +41,6 @@ The existing user UUID mechanism remains a local demo identity, not production a
 npm --prefix frontend run build
 ```
 
-Twelve focused controlled tests cover earliest forecast selection, lock timing, unrelated-user isolation, missing side quotes, exact-side sharing, membership, completed-only access, cached asks without credentials, real worker completion callbacks, failure handling, concurrent/idempotent posting, and void/replaced pick exclusion. The full backend suite has 191 passing tests; 17 Node tests and the production build pass.
+Twelve focused controlled tests cover earliest forecast selection, lock timing, unrelated-user isolation, missing side quotes, exact-side sharing, membership, completed-only access, cached asks without credentials, real worker completion callbacks, failure handling, concurrent/idempotent posting, and void/replaced pick exclusion. The full backend suite has 195 passing tests; 17 Node tests and the production build pass.
 
 The required check with real completed Claude research is still pending an API key. Browser permission was previously denied, so rendered layout and multi-window click-through checks are not claimed. The separate sandbox trading bot remains disabled and outside this approved phase.

@@ -66,6 +66,7 @@ No private provider credentials are supplied. Add only credentials you own to th
 | `TRADING_MODE=sandbox` | Enables sandbox order submission and uses sandbox market prices. |
 | `GEMINI_MARKET_URL=https://api.gemini.com` | Public discovery host in paper mode; sandbox mode selects the sandbox host. |
 | `GEMINI_API_KEY`, `GEMINI_API_SECRET` | Optional Gemini **sandbox** key pair for test orders. Never enter production keys. |
+| `GEMINI_ACCOUNT` | Required for master keys: the sandbox account short name returned by `/v1/account/list`. Account keys do not use this default. |
 | `GEMINI_NONCE_MODE=time` | Match the key's nonce setting; `incremental` is also supported. |
 | `GEMINI_TAKER_RATE=0.07` | Taker fee estimate. |
 | `PLAID_CLIENT_ID`, `PLAID_SECRET` | Optional client ID and **sandbox** secret for test purchases. |
@@ -80,7 +81,7 @@ No private provider credentials are supplied. Add only credentials you own to th
 
 ### Gemini sandbox keys
 
-Register or sign in yourself at the [Gemini sandbox exchange](https://exchange.sandbox.gemini.com), following Gemini's [sandbox guide](https://developer.gemini.com/get-started/sandbox). In that sandbox account, open Settings → API and create an account API key with the required trading/order-status permissions. Match its nonce mode to `GEMINI_NONCE_MODE`. Store the key and secret in `.env`. See [Gemini API key authentication](https://developer.gemini.com/authentication/api-key).
+Register or sign in yourself at the [Gemini sandbox exchange](https://exchange.sandbox.gemini.com), following Gemini's [sandbox guide](https://developer.gemini.com/get-started/sandbox). In that sandbox account, open Settings → API and create an account API key with the required trading/order-status permissions. Match its nonce mode to `GEMINI_NONCE_MODE`. Store the key and secret in `.env`. A master key also requires `GEMINI_ACCOUNT`, using its actual account short name; the adapter includes it in signed prediction-market requests. Sandbox account-list, balance, and accepted-terms access have passed a read-only credentialed check; no order was placed or filled. [Public check](docs/GEMINI_AUTH_CHECK.json). See [Gemini API key authentication](https://developer.gemini.com/authentication/api-key).
 
 Review and accept the latest Predictions terms in your sandbox account. The app checks acceptance before placing an order; it does not accept terms for you. Set:
 
@@ -120,7 +121,7 @@ See [research and primary sources](RESEARCH.md), [phase plan](docs/SWARM_PLAN.md
 
 Create a squad in **Group betting**, give friends the invite code, and have each friend join from a separate browser profile. Members can change their own leg before locking, react with optional comments, and share reading. The friends table shows actual wins/losses/voids, hit rate, entry-price edge, category records, streaks, and resolved disagree accuracy. **Refresh results** reads Gemini's published outcome; it never chooses a result for the demo.
 
-The Gemini combo adapter supports the documented canonical-combo plus single FOK order flow, but combined placement remains gated: no sandbox keys were supplied, and a reliable decimal contract-ID mapping has not been verified. The UI says **Not placed**. See [Gemini combo verification](docs/GEMINI_COMBOS.md).
+The Gemini combo adapter supports the documented canonical-combo plus single FOK order flow, but combined placement remains gated: authenticated order creation/fill and a reliable decimal contract-ID mapping have not been verified. Read-only sandbox authentication and accepted terms have passed. The UI says **Not placed**. See [Gemini combo verification](docs/GEMINI_COMBOS.md).
 
 For XRPL, follow [XRPL setup and evidence](docs/XRPL.md). Configure a stable encryption key before creating wallets. When configured, onboarding requests a faucet-funded custodial test wallet in the background; an outage leaves onboarding usable and the wallet panel shows its actual state. Existing profiles can use **Create & fund my test wallet**. Each member explicitly locks their own SPC collateral; the first lock freezes the complete squad. Two-member slips can collaborate but cannot use this Batch escrow design. Stake cents must divide evenly by member count.
 
@@ -140,7 +141,7 @@ cd ..
 
 Backend tests cover money parsing, round-ups, fee-aware quantity sizing, scoring, duplicate IDs, isolation by user ID, single allocation, caps/pausing, price changes, provider failures, and settlement credited once. Tests use controlled provider fixtures; passing them does not verify a credentialed provider integration.
 
-The Gemini spike first reads public production markets, then reads sandbox markets and attempts **one sandbox contract order** if keys are present. Run it only when you intend that test. It prints `sandbox_order: not_verified` and an actionable reason if the private path fails; submission alone is not proof of a fill. The Plaid spike creates one sandbox test purchase and polls for its actual transaction. Missing keys yield a clear error; a delayed transaction is reported as processing rather than substituted. Credentialed Gemini and Plaid calls remain unverified until you configure keys and inspect successful responses. Context.dev search and shared-cache retrieval have been verified separately.
+The Gemini spike first reads public production markets, then reads sandbox markets and attempts **one sandbox contract order** if keys are present. Run it only when you intend that test. It prints `sandbox_order: not_verified` and an actionable reason if the private path fails; submission alone is not proof of a fill. The Plaid spike creates one sandbox test purchase and polls for its actual transaction. Missing keys yield a clear error; a delayed transaction is reported as processing rather than substituted. Gemini order creation/fill and credentialed Plaid calls remain unverified. Read-only Gemini sandbox authentication, Context.dev search, and shared-cache retrieval have been verified separately.
 
 ## Phone demo and limitations
 

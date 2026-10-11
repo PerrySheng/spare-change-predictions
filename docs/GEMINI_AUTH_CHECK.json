@@ -1,0 +1,13 @@
+{
+  "checked_at": "2026-10-11T21:46:01.762335+00:00",
+  "host": "https://api.sandbox.gemini.com",
+  "checks": {
+    "master_account_list": "authenticated",
+    "account_balances": "authenticated",
+    "app_prediction_terms_status": "passed using the existing Gemini client; latest terms accepted"
+  },
+  "account_setting": "Read from the sole open exchange account; stored only in local .env",
+  "orders_submitted": 0,
+  "order_creation_or_fill_verified": false,
+  "private_account_data_in_report": false
+}

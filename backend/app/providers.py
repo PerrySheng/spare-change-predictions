@@ -67,10 +67,16 @@ class Gemini:
     def private(self,path,params=None,method='POST'):
         key=os.getenv('GEMINI_API_KEY'); secret=os.getenv('GEMINI_API_SECRET')
         if not key or not secret: raise ProviderError('Set GEMINI_API_KEY and GEMINI_API_SECRET from a Gemini sandbox account in .env.')
+        params=dict(params or {})
+        if key.startswith('master-') and path.startswith('/v1/prediction-markets/'):
+            account=params.get('account') or os.getenv('GEMINI_ACCOUNT','').strip()
+            if not isinstance(account,str) or not account.strip():
+                raise ProviderRejected('Master Gemini keys require GEMINI_ACCOUNT in .env. Use the account short name returned by /v1/account/list.')
+            params['account']=account.strip()
         with self._lock:
             nonce=time.time() if os.getenv('GEMINI_NONCE_MODE','time')=='time' else max(int(time.time()*1000),self._nonce+1)
             self._nonce=nonce
-            payload=base64.b64encode(json.dumps({'request':path,'nonce':nonce,**(params or {})},separators=(',',':')).encode())
+            payload=base64.b64encode(json.dumps({'request':path,'nonce':nonce,**params},separators=(',',':')).encode())
             headers={'Content-Type':'text/plain','Content-Length':'0','Cache-Control':'no-cache','X-GEMINI-APIKEY':key,'X-GEMINI-PAYLOAD':payload.decode(),'X-GEMINI-SIGNATURE':hmac.new(secret.encode(),payload,hashlib.sha384).hexdigest()}
             return http_json(method,self.SANDBOX+path,headers=headers,content=b'')
     def ensure_trading_ready(self):
