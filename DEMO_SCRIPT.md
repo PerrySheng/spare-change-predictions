@@ -1,30 +1,39 @@
 # Spare — two-minute demo script
 
-Read the script below. Aim for about 100 seconds of speech and 20 seconds of screen actions. Start with a completed real Swarm run ready to open; free-tier research takes longer than the video limit.
+Read the script below. Aim for about 100 seconds of speech and 20 seconds of screen actions. Start with a completed real Swarm run and a funded Squad Slip ready to open; free-tier research takes longer than the video limit.
 
-Screen sequence: purchase balance → market search/Yes-No → News sources → saved Swarm result → shared Squad Slip → confirmed SPC escrow link.
+Screen sequence: purchase change → accumulated pot → savings or market allocation → shared Squad Slip → confirmed SPC escrow link → News sources → saved Swarm result.
 
-“Hi, I’m Perry, and this is Spare. It connects spare change, prediction markets, and friends.
+“Hi, I’m Perry, and this is Spare: use the change from everyday purchases to save or invest in prediction markets, and explore them with friends.
 
-A $4.63 purchase creates 37 cents of change. Every purchase adds change, without a weekly cap. Plaid supplies sandbox transaction data, so purchases arrive without manual entry.
+Spend $4.63, and Spare calculates 37 cents of change. Every purchase adds more, with no weekly cap. Plaid Sandbox supplies purchase data. Save the change, use it for a pick, or hold it in your pot for a bigger bet later.
 
-Gemini’s Prediction Markets API powers the real questions, outcomes, and prices. Search, choose Yes or No, and preview the payout. Personal bets in this demo are paper.
+Gemini’s Prediction Markets API supplies real events, Yes and No prices, and final results. Search any market, choose a side and amount, and preview potential earnings. This demo uses paper funds.
 
-Context.dev powers our News tab. It finds source summaries across sports, politics, weather, and more. Read before choosing a side.
+Squad Slips bring friends onto one shared, combo-style slip. Share an invite code; each friend adds a different Gemini market as their leg. Chat, compare picks, and avoid duplicate or opposing bets on the same event.
 
-Meet Swarm, our research bee. Google Gemini AI analyzes Context.dev evidence through four independent agents. They debate and revise; our code takes the median probability. Sources and real streamed events make research inspectable. This is a saved real run; forecasts can be wrong.
+Here’s the twist: if your leg cashes, you owe nothing in the squad’s cost-sharing settlement. Members with losing legs split the winning members’ shares.
 
-For Squad Slips, friends join one shared slip and chat. The first pick reserves its event, blocking duplicate or opposing picks. Swarm research can inform my leg, but Swarm contributes no money.
+Everyone first locks SPC test-token collateral into XRP Ledger escrow, with confirmed ledger receipts. Connecting purchase change directly to SPC is planned, so one change wallet can fund both personal picks and squad legs.
 
-The XRP Ledger powers SPC test-token escrow. Confirming a funded pick starts the transfer; pending becomes confirmed only after ledger validation. Funded picks freeze, and settlement requires published results and every member’s collateral.
+Context.dev supplies short reading summaries and source links. Swarm, our research bee, uses Google Gemini AI and that evidence: four agents estimate independently, debate, and combine their forecasts. Research can inform your leg; Swarm contributes no money. This is a saved real run.
 
-Railway hosts the shared demo. Spare makes markets easier to research and explore together—with no real money moving here.”
+Railway hosts Spare so friends can use it together.”
+
+## Explain the squad rule if someone asks
+
+For a three-person squad with a 15 SPC proposed stake, each person's base share is 5 SPC, and each locks 10 SPC of collateral. If one person's leg loses and the other two win, the losing member covers both winners' 5 SPC shares. The loser receives 0 SPC back; each winner receives 15 SPC: their 10 SPC collateral plus 5 SPC. If everyone wins or everyone loses, each gets their 10 SPC collateral back. These are the app's cost-sharing rules, separate from any Gemini exchange payout.
 
 ## Keep these details accurate during the demo
 
 - Plaid is Sandbox; personal bets are paper. SPC has no real monetary value.
+- The intended product uses one change wallet: 37 cents becomes 0.37 SPC, available to hold, spend on a personal pick, or lock into squad escrow. **That connection is planned.** The current demo accumulates change in the app and funds Testnet SPC wallets separately; it does not withdraw real bank money or convert round-ups into SPC yet.
+- For a bigger pick later, choose **Hold in pot for a future market pick**, then **Hold my change**. Dedicated **Keep it in savings** stays separate from the current market budget.
+- Say **XRPL**, meaning **XRP Ledger**. Escrow locks SPC collateral on the ledger until it is released or canceled; it is not just an ordinary wallet transfer.
+- A winning leg owes nothing in the group cost-sharing calculation, but its owner still deposits collateral first. If everyone wins or everyone loses, collateral is returned without a cost-sharing charge. Voided legs count as not lost.
 - Google AI has free-tier limits; a complete Swarm run can take a couple of minutes.
-- A proposed leg is not proof of a Gemini exchange order. Show confirmed ledger status before calling SPC funding successful.
+- Gemini powers market data and published results. The shared combo-style slip is recorded in Spare; the UI still says **Not placed** for a combined Gemini exchange order. Show confirmed ledger status before calling SPC funding successful.
+- Forecasts can be wrong. A saved Swarm run is real research that previously completed, not a new live run.
 - The complete finalized-market-to-payout app flow still needs end-to-end live verification. The escrow executor’s payout cases were verified separately on Testnet.
 - XRPL is the open-source XRP Ledger, associated with Ripple’s ecosystem; do not imply Ripple operates this app or sponsors it.
 
