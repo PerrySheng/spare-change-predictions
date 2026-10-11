@@ -105,6 +105,7 @@ async function run(input: Input): Promise<void> {
   const disableThinking = capabilities.thinking.types.disabled.supported;
   const publicSources = (input.sources ?? []).filter(s => safeUrl(s.url)).slice(0, 15);
   for (const source of publicSources) knownSources.set(source.url, source);
+  const observedUrls = () => new Set([...knownSources.keys(), ...(safeUrl(input.market.terms_url) ? [input.market.terms_url] : [])]);
   const snapshot = JSON.stringify(input.market);
   const outputShape = '{"probability": number from 0 to 1, "confidence": "low"|"medium"|"high", "reasons": [three brief reasons], "sources": [only source URLs actually observed]}';
   const round1 = await Promise.all(AGENTS.map(async agent => {
@@ -113,7 +114,7 @@ async function run(input: Input): Promise<void> {
     const tools = allowSearch(agent, 1, ownSources) ? [{type: "web_search_20250305" as const, name: "web_search" as const, max_uses: 2}] : [];
     const allowed = agent === "Market Reader" ? new Set<string>(safeUrl(input.market.terms_url) ? [input.market.terms_url] : []) : undefined;
     const answer = await modelCall(client, input, agent, `${roleInstruction[agent]}\nIndependent round: you must not see or infer other agents' forecasts.\nGemini snapshot: ${snapshot}\nExisting public reading evidence: ${JSON.stringify(ownSources)}\nReturn ${outputShape}`, tools, disableThinking);
-    const estimate = validateEstimate(answer.json, allowed ?? new Set(knownSources.keys()));
+    const estimate = validateEstimate(answer.json, allowed ?? observedUrls());
     emit({type: "estimate_submitted", data: {agent, round: 1, ...estimate}});
     return {agent, ...estimate};
   }));
@@ -121,7 +122,7 @@ async function run(input: Input): Promise<void> {
   const round2 = await Promise.all(AGENTS.map(async agent => {
     emit({type: "agent_started", data: {agent, round: 2}});
     const answer = await modelCall(client, input, agent, `${roleInstruction[agent]}\nDebate round. Review the independent forecasts below. Explain whether new evidence warrants revising your estimate. No further search is permitted. Do not agree merely to reduce disagreement.\nGemini snapshot: ${snapshot}\nRound 1 estimates: ${JSON.stringify(round1)}\nVerified source metadata: ${JSON.stringify([...knownSources.values()])}\nReturn ${outputShape} plus a nonempty "revision_reason" string.`, [], disableThinking);
-    const estimate = validateEstimate(answer.json, new Set(knownSources.keys()), true);
+    const estimate = validateEstimate(answer.json, observedUrls(), true);
     emit({type: "estimate_revised", data: {agent, round: 2, ...estimate}});
     return {agent, ...estimate};
   }));
