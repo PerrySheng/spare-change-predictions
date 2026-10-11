@@ -48,11 +48,11 @@ def test_market_uses_live_price_fee_and_rollover(setup):
     assert d['rollover_cents']==15 and d['weekly_spent_cents']==84
     assert d['positions'][0]['quantity']==2 and d['positions'][0]['fee_cents']==4
 
-def test_cap_pause_and_whole_dollar(setup):
+def test_legacy_cap_does_not_limit_change_but_pause_still_applies(setup):
     c,_=setup; u=user(c,cap=0); p=purchase(c,u)
-    assert c.get('/suggestions',params={'user_id':u,'roundup_id':p['roundup_id']}).json()['markets']==[]
+    assert c.get('/suggestions',params={'user_id':u,'roundup_id':p['roundup_id']}).json()['markets']
+    c.patch('/users/'+u,json={'paused':True})
     assert c.post('/roundups/'+p['roundup_id']+'/allocate',json={'user_id':u,'destination':'market','market_id':'GEMI-TEST-A'}).status_code==409
-    c.patch('/users/'+u,json={'weekly_cap_cents':100,'paused':True})
     assert c.get('/suggestions',params={'user_id':u,'roundup_id':p['roundup_id']}).json()['reason']=='paused'
     assert purchase(c,u,'5')['allocation']=='no_change'
 

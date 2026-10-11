@@ -11,7 +11,8 @@ class User(Base):
     id:Mapped[str]=mapped_column(String,primary_key=True,default=uid)
     name:Mapped[str]=mapped_column(String)
     interests:Mapped[list]=mapped_column(JSON)
-    weekly_cap_cents:Mapped[int]=mapped_column(Integer)
+    # Retained for existing SQLite files; spending no longer uses this column.
+    weekly_cap_cents:Mapped[int]=mapped_column(Integer,default=0)
     paused:Mapped[bool]=mapped_column(Boolean,default=False)
 class Pot(Base):
     __tablename__='pots'

@@ -7,7 +7,7 @@ from typing import Literal
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parents[2]/'.env')
-from fastapi import FastAPI,HTTPException,Request,BackgroundTasks
+from fastapi import FastAPI,HTTPException,Request,BackgroundTasks,Query,Response
 from fastapi.responses import JSONResponse,FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel,Field,field_validator
@@ -17,6 +17,8 @@ from .database import User,Pot,Purchase,Roundup,Position,PlaidItem,SandboxOrder,
 from .money import parse_cents,roundup_cents,order_quote,fee_cents,bank_amount
 from .providers import Gemini,Plaid,ProviderError,ProviderRejected
 from .scoring import TOPICS,WEIGHTS,rank_markets,topic_for
+from .market_catalog import event_catalog
+from .access import register_access
 from .context_reading import ContextReading
 from . import squad_models,swarm_models,xrpl_models
 from .squads import register_squads
@@ -28,7 +30,6 @@ from .xrpl_service import register_xrpl,xrpl_configured
 class Onboarding(BaseModel):
     name:str=Field(min_length=1,max_length=50)
     interests:list[str]=Field(default_factory=list,max_length=6)
-    weekly_cap_cents:int=Field(ge=0,le=100000)
     @field_validator('name')
     @classmethod
     def name_not_blank(cls,v):
@@ -41,7 +42,6 @@ class Onboarding(BaseModel):
         return list(dict.fromkeys(v))
 class Settings(BaseModel):
     interests:list[str]|None=None
-    weekly_cap_cents:int|None=Field(default=None,ge=0,le=100000)
     paused:bool|None=None
     @field_validator('interests')
     @classmethod
@@ -68,10 +68,11 @@ class Allocation(BaseModel):
     max_price:str|None=None
     max_quantity:int|None=Field(default=None,ge=1,le=100000)
     max_total_cents:int|None=Field(default=None,ge=1,le=100000)
+    amount_cents:int|None=Field(default=None,ge=1)
 class UserInput(BaseModel): user_id:str
 
 
-def user_json(u): return {'id':u.id,'name':u.name,'interests':u.interests,'weekly_cap_cents':u.weekly_cap_cents,'paused':u.paused}
+def user_json(u): return {'id':u.id,'name':u.name,'interests':u.interests,'paused':u.paused}
 def purchase_json(p,r):
     return {'id':p.id,'roundup_id':r.id,'amount_cents':p.amount_cents,'merchant':p.merchant,'category':p.category,'source':p.source,'created_at':p.created_at,'roundup_cents':r.amount_cents,'allocation':r.allocation,'market_title':r.market_title,'notice':p.notice}
 def week_start():
@@ -80,6 +81,7 @@ def week_start():
 
 def create_app(database_url=None,feed=None,plaid=None,mode=None):
     app=FastAPI(title='Spare Change Predictions',version='1.0.0')
+    access=register_access(app)
     engine=build_engine(database_url or os.getenv('DATABASE_URL','sqlite:///./spare_change.db'))
     mode=mode or os.getenv('TRADING_MODE','paper')
     feed=feed or Gemini(Gemini.SANDBOX if mode=='sandbox' else None); plaid=plaid or Plaid()
@@ -106,6 +108,21 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
         spent=s.scalar(select(func.coalesce(func.sum(Position.cost_cents+Position.fee_cents),0)).where(Position.user_id==u,Position.created_at>=week_start()))
         reserved=s.scalar(select(func.coalesce(func.sum(SandboxOrder.reserved_cents),0)).where(SandboxOrder.user_id==u,SandboxOrder.created_at>=week_start(),SandboxOrder.status.in_(['submitting','unknown','open'])))
         return spent+reserved
+    def pending_roundups(s,user_id):
+        return s.scalars(select(Roundup).join(Purchase,Purchase.id==Roundup.purchase_id).where(Purchase.user_id==user_id,Roundup.allocation=='pending')).all()
+    def market_budget(available,amount_cents=None):
+        budget=available
+        if amount_cents is not None:
+            if amount_cents>available: raise HTTPException(409,'The chosen amount exceeds your accumulated change balance.')
+            budget=amount_cents
+        return budget
+    def collect_change(s,user_id,anchor):
+        rows=pending_roundups(s,user_id)
+        collected=sum(row.amount_cents for row in rows)
+        for row in rows:
+            if row.id!=anchor.id:
+                row.allocation='rollover';row.allocated_at=timestamp()
+        return collected
     def record(s,payload):
         get_user(s,payload.user_id)
         try: amount=parse_cents(payload.amount)
@@ -124,10 +141,11 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
     @app.get('/health')
     def health(): return {'status':'ok','trading_mode':mode,'plaid_configured':bool(os.getenv('PLAID_CLIENT_ID') and os.getenv('PLAID_SECRET')),'gemini_configured':bool(os.getenv('GEMINI_API_KEY') and os.getenv('GEMINI_API_SECRET')),'context_configured':bool(os.getenv('CONTEXT_DEV_API_KEY')),'anthropic_configured':bool(os.getenv('ANTHROPIC_API_KEY'))}
     @app.post('/users',status_code=201)
-    def create_user(payload:Onboarding,background_tasks:BackgroundTasks):
+    def create_user(payload:Onboarding,background_tasks:BackgroundTasks,response:Response):
         with db(True) as s:
             u=User(**payload.model_dump()); s.add(u); s.flush(); s.add(Pot(user_id=u.id)); result=user_json(u)
         if xrpl_configured(): background_tasks.add_task(app.state.xrpl_service.create_wallet_in_background,result['id'])
+        access.set_profile(response,result['id'])
         return result
     @app.get('/users/{id}')
     def read_user(id:str):
@@ -150,18 +168,28 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
     @app.get('/suggestions')
     def suggestions(user_id:str,roundup_id:str|None=None):
         with db() as s:
-            u=get_user(s,user_id); pot=s.get(Pot,user_id); spent=weekly_spent(s,user_id); cap=max(0,u.weekly_cap_cents-spent)
+            u=get_user(s,user_id); pot=s.get(Pot,user_id)
             purchase=None; change=0
             if roundup_id:
                 p,r=get_roundup(s,roundup_id,user_id); purchase=purchase_json(p,r)
                 if r.allocation=='pending': change=r.amount_cents
-            budget=min(pot.rollover_cents+change,cap)
-            reason='paused' if u.paused else ('weekly_cap' if cap==0 else ('no_change' if budget==0 else None))
+            budget=pot.rollover_cents+sum(row.amount_cents for row in pending_roundups(s,user_id))
+            reason='paused' if u.paused else ('no_change' if budget==0 else None)
             history=[{'amount_cents':p.amount_cents,'merchant':p.merchant,'category':p.category} for p in s.scalars(select(Purchase).where(Purchase.user_id==user_id,Purchase.notice.is_(None))).all()]
             past=[topic_for(p.category) for p in s.scalars(select(Position).where(Position.user_id==user_id)).all()]
             interests=u.interests
-        ranked=[] if reason else rank_markets(feed.markets(),interests,history,past,budget)
-        return {'markets':ranked,'reason':reason or ('no_affordable_markets' if not ranked else None),'budget_cents':budget,'rollover_cents':pot.rollover_cents,'remaining_cap_cents':cap,'purchase':purchase,'weights':WEIGHTS,'fetched_at':timestamp(),'mode':mode}
+        rows=[] if reason else feed.markets()
+        ranked=rank_markets(rows,interests,history,past,budget) if rows else []
+        grouped={event['id']:event for event in event_catalog(rows)}
+        events=[]; seen_events=set()
+        for market in ranked:
+            ticker=market['event_ticker']
+            if ticker in grouped and ticker not in seen_events:
+                events.append({**grouped[ticker],'why':market['why']}); seen_events.add(ticker)
+        return {'markets':ranked,'events':events,'reason':reason or ('no_affordable_markets' if not ranked else None),'budget_cents':budget,'rollover_cents':pot.rollover_cents,'purchase':purchase,'weights':WEIGHTS,'fetched_at':timestamp(),'mode':mode}
+    @app.get('/markets/events')
+    def market_events(query:str|None=None):
+        return {'events':event_catalog(feed.markets(),query),'source':'gemini'}
     @app.get('/markets/context')
     def market_context(user_id:str,market_id:str,outcome:Literal['yes','no']='yes'):
         with db() as s: get_user(s,user_id)
@@ -169,13 +197,13 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
         if not market: raise HTTPException(404,'This contract is no longer in the open market feed.')
         return reading.materials(market.get('title',''),market.get('label',''))
     @app.get('/markets/quote')
-    def market_quote(user_id:str,roundup_id:str,market_id:str,outcome:Literal['yes','no']='yes'):
+    def market_quote(user_id:str,roundup_id:str,market_id:str,outcome:Literal['yes','no']='yes',amount_cents:int|None=Query(default=None,ge=1)):
         with db() as s:
             u=get_user(s,user_id); p,r=get_roundup(s,roundup_id,user_id)
             if r.allocation!='pending': raise HTTPException(409,'This round-up already has a destination.')
             if u.paused: raise HTTPException(409,'Market picks are paused in your preferences.')
-            remaining=max(0,u.weekly_cap_cents-weekly_spent(s,user_id))
-            budget=min(r.amount_cents+s.get(Pot,user_id).rollover_cents,remaining)
+            available=sum(row.amount_cents for row in pending_roundups(s,user_id))+s.get(Pot,user_id).rollover_cents
+            budget=market_budget(available,amount_cents)
         market=feed.market(market_id,outcome)
         if not market or market.get('id')!=market_id or market.get('outcome')!=outcome or market.get('status')!='active' or market.get('market_state') not in (None,'open') or market.get('resolution'): raise HTTPException(404,'This market is no longer open.')
         try:
@@ -185,8 +213,8 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
             if not price.is_finite() or not 0<price<1: raise ValueError()
         except (ValueError,KeyError,TypeError,ArithmeticError): raise HTTPException(409,'A current buy quote is unavailable.')
         quote=order_quote(budget,price,market.get('quantity_minimum') or '1',market.get('quantity_increment') or '1')
-        if not quote or not quote['quantity']: raise HTTPException(409,'This quote exceeds your available change or weekly cap.')
-        return {'market':market,'quote':quote,'budget_cents':budget,'mode':mode}
+        if not quote or not quote['quantity']: raise HTTPException(409,'This quote exceeds your accumulated change balance.')
+        return {'market':market,'quote':quote,'budget_cents':budget,'available_cents':available,'mode':mode}
     def position_from(s,u,r,m,q,entry,trade_mode):
         pos=Position(user_id=u,roundup_id=r.id,market_id=m['id'],event_ticker=m['event_ticker'],title=m['title']+' · '+m.get('label',''),category=m['category'],outcome=m['outcome'],quantity=q['quantity'],entry_price=str(entry),cost_cents=q['cost_cents'],fee_cents=q['fee_cents'],mode=trade_mode)
         s.add(pos); r.allocation='market'; r.market_title=pos.title; r.allocated_at=timestamp(); return pos
@@ -224,8 +252,7 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
                 pot.rollover_cents+=r.amount_cents; r.allocation='rollover'; r.allocated_at=timestamp()
                 return {'status':'rollover','amount_cents':r.amount_cents,'message':'Change held in your pot for a future market pick.'}
             if u.paused: raise HTTPException(409,'Market picks are paused. You can still save your change.')
-            remaining=u.weekly_cap_cents-weekly_spent(s,u.id)
-            if remaining<=0: raise HTTPException(409,'Your weekly market cap is reached. Savings is available.')
+            budget=market_budget(pot.rollover_cents+sum(row.amount_cents for row in pending_roundups(s,u.id)),payload.amount_cents)
             if not payload.market_id: raise HTTPException(422,'Choose a market.')
             m=feed.market(payload.market_id,payload.outcome)
             if m.get('status')!='active' or m.get('market_state') not in [None,'open'] or not m.get('price'):
@@ -234,19 +261,18 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
             price=Decimal(m['price'])
             try:
                 if payload.max_price is not None and price>Decimal(payload.max_price): raise HTTPException(409,'The price increased. Refresh the choices before confirming.')
-                budget=min(pot.rollover_cents+r.amount_cents,remaining)
                 if payload.max_total_cents is not None: budget=min(budget,payload.max_total_cents)
                 q=order_quote(budget,price,m.get('quantity_minimum') or '1',m.get('quantity_increment') or '1',payload.max_quantity)
             except (ValueError,ArithmeticError): raise HTTPException(409,'The contract price or quantity is invalid.')
             if q['quantity']==0: raise HTTPException(409,'Your change cannot cover one whole contract and its fee. Save it or wait for more change.')
             if mode=='paper':
-                pot.rollover_cents=pot.rollover_cents+r.amount_cents-q['total_cents']; position_from(s,u.id,r,m,q,price,'paper')
+                pot.rollover_cents+=collect_change(s,u.id,r)-q['total_cents']; position_from(s,u.id,r,m,q,price,'paper')
                 return {'status':'paper','quantity':q['quantity'],'fee_cents':q['fee_cents'],'leftover_cents':pot.rollover_cents}
             # Reserve locally before touching the exchange. FOK avoids a resting partial order.
             if not os.getenv('GEMINI_API_KEY') or not os.getenv('GEMINI_API_SECRET'): raise ProviderError('Set GEMINI_API_KEY and GEMINI_API_SECRET from a Gemini sandbox account in .env.')
             feed.ensure_trading_ready()
             o=SandboxOrder(user_id=u.id,roundup_id=r.id,market=m,quote=q,reserved_cents=q['total_cents']); s.add(o); s.flush(); order_id=o.id
-            pot.rollover_cents+=r.amount_cents-q['total_cents']; r.allocation='order_pending'; r.allocated_at=timestamp(); r.market_title=m['title']
+            pot.rollover_cents+=collect_change(s,u.id,r)-q['total_cents']; r.allocation='order_pending'; r.allocated_at=timestamp(); r.market_title=m['title']
         try: response=feed.place_order(m,q['quantity'])
         except ProviderRejected as exc:
             with db(True) as s:
@@ -294,11 +320,12 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
                     except ArithmeticError: complete=False
                 serialized.append({'id':p.id,'market_id':p.market_id,'title':p.title,'category':p.category,'outcome':p.outcome,'quantity':p.quantity,'entry_price':p.entry_price,'cost_cents':p.cost_cents,'fee_cents':p.fee_cents,'status':p.status,'current_value_cents':value,'payout_cents':p.payout_cents,'mode':p.mode})
             s.flush(); rows=s.execute(select(Purchase,Roundup).join(Roundup,Roundup.purchase_id==Purchase.id).where(Purchase.user_id==user_id)).all()
-            baseline=sum(r.amount_cents for _,r in rows if r.allocation in ['savings','market','order_pending','rollover'])
+            baseline=sum(r.amount_cents for _,r in rows if r.allocation in ['pending','savings','market','order_pending','rollover'])
             orders=s.scalars(select(SandboxOrder).where(SandboxOrder.user_id==user_id,SandboxOrder.status.in_(['unknown','open','submitting']))).all()
             pending_orders=[{'id':o.id,'exchange_id':o.exchange_id,'status':o.status,'title':o.market['title'],'reserved_cents':o.reserved_cents,'message':o.message} for o in orders]
-            total=pot.savings_cents+pot.rollover_cents+current if complete and not orders else None
-            return {'user':user_json(u),'mode':mode,'pot_cents':pot.savings_cents+pot.rollover_cents,'savings_cents':pot.savings_cents,'rollover_cents':pot.rollover_cents,'market_value_cents':current if complete else None,'total_value_cents':total,'savings_comparison_cents':baseline,'difference_cents':total-baseline if total is not None else None,'pending_cents':sum(r.amount_cents for _,r in rows if r.allocation=='pending'),'weekly_spent_cents':weekly_spent(s,user_id),'remaining_cap_cents':max(0,u.weekly_cap_cents-weekly_spent(s,user_id)),'positions':serialized,'wins':sum(p.status=='won' for p in positions),'losses':sum(p.status=='lost' for p in positions),'pending_orders':pending_orders,'price_errors':errors,'valued_at':timestamp()}
+            pending=sum(r.amount_cents for _,r in rows if r.allocation=='pending');available=pot.rollover_cents+pending
+            total=pot.savings_cents+available+current if complete and not orders else None
+            return {'user':user_json(u),'mode':mode,'pot_cents':pot.savings_cents+available,'savings_cents':pot.savings_cents,'rollover_cents':pot.rollover_cents,'available_cents':available,'market_value_cents':current if complete else None,'total_value_cents':total,'savings_comparison_cents':baseline,'difference_cents':total-baseline if total is not None else None,'pending_cents':pending,'weekly_spent_cents':weekly_spent(s,user_id),'positions':serialized,'wins':sum(p.status=='won' for p in positions),'losses':sum(p.status=='lost' for p in positions),'pending_orders':pending_orders,'price_errors':errors,'valued_at':timestamp()}
     def ingest(s,item,data):
         count=0
         for t in data['added']+data['modified']:

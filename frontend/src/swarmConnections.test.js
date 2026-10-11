@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 
 // Node component rendering only; this is not a browser/layout verification.
 test('News related-market chip receives its profile and renders both live sides',async()=>{
- const server=await createServer({root:fileURLToPath(new URL('../',import.meta.url)),optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true},appType:'custom'});
+ const server=await createServer({root:fileURLToPath(new URL('../',import.meta.url)),optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true,hmr:false},appType:'custom'});
  try{
   const {RelatedMarket}=await server.ssrLoadModule('/src/NewsTab.jsx');
   const html=renderToStaticMarkup(React.createElement(RelatedMarket,{user:{id:'controlled-profile'},market:{id:'controlled-market',title:'Controlled contract',prices:{yes:'.3',no:'.8'}},onBet:()=>{},onSwarm:()=>{},onAdd:()=>{}}));

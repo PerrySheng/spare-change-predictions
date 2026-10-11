@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+!.env.example
+.railway
+work
+.venv
+**/node_modules
+**/dist
+**/__pycache__
+**/.pytest_cache
+**/*.db
+**/*.db-*
+**/*.pyc
+**/*.log

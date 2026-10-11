@@ -1,9 +1,11 @@
-import React,{useEffect,useState,useRef} from 'react';
+import React,{useEffect,useState,useRef,useId} from 'react';
 import {Newspaper,ArrowUpRight,BookOpen,UsersRound,Plus,Search,Network,Info,X,ArrowRight,Check,LoaderCircle} from 'lucide-react';
 import {api,post,money,closeDate} from './api';
 import {safeSource} from './swarmState';
 import './news.css';
 import SwarmChip from './SwarmChip';
+import EarningsPreview from './EarningsPreview';
+import {parseBetAmount,outcomePrice,amountError,betQuoteKey,matchingBetQuote,formatBetMoney} from './betMath';
 const price=p=>p==null?'No quote':`${(Number(p)*100).toFixed(1).replace(/\.0$/,'')}¢`;
 const topics=['sports','crypto','politics','weather','entertainment','economy'];
 export default function NewsTab({user,selectedMarket,onSwarm,onBet}){
@@ -38,9 +40,104 @@ function SquadShare({user,item,onClose,onDone}){
  async function submit(e){e.preventDefault();setBusy(true);setError('');try{if(item.type==='leg'){await post(`/squads/${id}/legs`,{user_id:user.id,market_id:item.market.id,outcome:side,max_price:item.market.prices[side]});onDone('Your squad leg was updated with a fresh quote.')}else{await post(`/squads/${id}/articles`,{user_id:user.id,title:item.source.title,url:item.source.url,summary:item.source.snippet||'',leg_id:legId||null,reaction:legId&&vote?vote:null});onDone('The reading link is in your squad chat.')}}catch(e){setError(e.message)}finally{setBusy(false)}}
  return <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="share-title"><div className="modal-heading"><h2 id="share-title">{item.type==='leg'?'Add your squad leg':'Share a reading link'}</h2><button className="icon-button" onClick={onClose} aria-label="Close"><X size={19}/></button></div>{error&&<div className="notice error"><Info size={16}/>{error}</div>}<form onSubmit={submit}><label>Your squad<select required value={id} onChange={e=>setId(e.target.value)}><option value="">Choose a squad</option>{squads.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>{!squads.length&&<p className="fine-print">Create or join a squad in Group betting first.</p>}{item.type==='leg'?<><p className="form-intro">This replaces your own leg before the slip locks.</p><label>Choose your side<select value={side} onChange={e=>setSide(e.target.value)}>{['yes','no'].map(s=><option disabled={item.market.prices[s]==null} key={s} value={s}>{s.toUpperCase()} · {price(item.market.prices[s])}</option>)}</select></label></>:<><label>Attach to a leg (optional)<select value={legId} onChange={e=>setLegId(e.target.value)}><option value="">Just share the article</option>{detail?.legs.map(l=><option key={l.id} value={l.id}>{l.user_name} · {l.outcome.toUpperCase()} · {l.title}</option>)}</select></label>{legId&&<label>Your reaction (optional)<select value={vote} onChange={e=>setVote(e.target.value)}><option value="">No vote</option><option value="agree">Agree</option><option value="disagree">Disagree</option></select></label>}</>}<button className="primary" disabled={busy||!id}>{busy?<LoaderCircle className="spin" size={16}/>:<UsersRound size={16}/>} {item.type==='leg'?'Add my leg':'Share to squad'}</button></form></section></div>
 }
-export function MarketBetDialog({user,market,side,purchases,onClose,onDone,onPurchase}){
- const pending=purchases.filter(p=>p.allocation==='pending');const [roundup,setRoundup]=useState(pending[0]?.roundup_id||''),[outcome,setOutcome]=useState(side||'yes'),[quote,setQuote]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(false);
- useEffect(()=>{let live=true;setQuote(null);setError('');if(!roundup)return;setLoading(true);api('/markets/quote?'+new URLSearchParams({user_id:user.id,roundup_id:roundup,market_id:market.id,outcome})).then(d=>live&&setQuote(d)).catch(e=>live&&setError(e.message)).finally(()=>live&&setLoading(false));return()=>{live=false}},[roundup,outcome,market.id,user.id]);
- async function confirm(){setBusy(true);setError('');try{const r=await post(`/roundups/${roundup}/allocate`,{user_id:user.id,destination:'market',market_id:market.id,outcome,max_price:quote.market.price,max_quantity:quote.quote.quantity,max_total_cents:quote.quote.total_cents});onDone(r)}catch(e){setError(e.message);setQuote(null)}finally{setBusy(false)}}
- return <div className="modal-backdrop"><section className="modal" role="dialog" aria-modal="true" aria-labelledby="bet-title"><div className="modal-heading"><h2 id="bet-title">Your perspective</h2><button className="icon-button" disabled={busy} onClick={onClose} aria-label="Close"><X size={19}/></button></div><p className="form-intro">{market.title} {market.label}</p>{error&&<div className="notice error"><Info size={16}/>{error}</div>}{pending.length?<><label>Use spare change from<select value={roundup} onChange={e=>setRoundup(e.target.value)}>{pending.map(p=><option key={p.roundup_id} value={p.roundup_id}>{p.merchant} · {p.roundup_cents}¢</option>)}</select></label><div className="related-choices">{['yes','no'].map(s=><button key={s} aria-pressed={outcome===s} className={s} onClick={()=>setOutcome(s)}>{s.toUpperCase()} · {price(market.prices[s])}</button>)}</div>{loading&&<p className="news-loading"><LoaderCircle className="spin" size={15}/>Checking your budget and current quote…</p>}{quote&&<div className="news-quote"><strong>{quote.quote.quantity} {outcome.toUpperCase()} contract{quote.quote.quantity===1?'':'s'} · {money(quote.quote.total_cents)}</strong><p>Including {money(quote.quote.fee_cents)} estimated fee. {money(quote.quote.leftover_cents)} stays in your pot.</p></div>}<button className="primary" disabled={!quote||busy||loading} onClick={confirm}>{busy?<LoaderCircle className="spin" size={16}/>:<Check size={16}/>} {quote?.mode==='sandbox'?'Place sandbox order':'Record paper position'}</button><p className="fine-print">Markets can lose their full value. Your weekly cap and pause preference still apply.</p></>:<><p className="form-intro">Add a purchase first so there is spare change to allocate.</p><button className="primary" onClick={onPurchase}><Plus size={16}/>Add a purchase</button></>}</section></div>
+function useBetDialogFocus(dialogRef){
+ useEffect(()=>{
+  const previous=document.activeElement;
+  const first=dialogRef.current?.querySelector('[data-bet-amount],button:not(:disabled)');
+  first?.focus();
+  return()=>{if(previous?.isConnected)previous.focus()};
+ },[dialogRef]);
+}
+function betDialogKeys(event,onClose,locked=false){
+ if(event.key==='Escape'&&!locked){event.preventDefault();onClose();return;}
+ if(event.key!=='Tab')return;
+ const controls=[...event.currentTarget.querySelectorAll('button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href]')];
+ if(!controls.length){event.preventDefault();return;}
+ const first=controls[0],last=controls[controls.length-1];
+ if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+ else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+}
+function BetEventTitle({market}){return <div className="bet-event"><strong>{market.title}</strong>{market.label&&market.label!==market.title&&<p>{market.label}</p>}</div>}
+function BetSides({market,outcome,onChange,disabled=false}){
+ return <div className="related-choices bet-side-options" role="group" aria-label="Choose Yes or No">{['yes','no'].map(s=><button type="button" key={s} disabled={disabled||outcomePrice(market,s)==null} aria-pressed={outcome===s} className={s} onClick={()=>onChange(s)}><span>{s==='yes'?'Yes':'No'}</span><strong>{price(outcomePrice(market,s))}</strong></button>)}</div>;
+}
+function BetAmount({id,amount,onChange,error,disabled=false}){
+ return <><label className="bet-amount-label" htmlFor={id}>Bet amount<div className="bet-amount-input"><span aria-hidden="true">$</span><input data-bet-amount id={id} type="text" inputMode="decimal" autoComplete="off" spellCheck={false} maxLength={24} value={amount} disabled={disabled} onChange={e=>onChange(e.target.value)} aria-invalid={!!error} aria-describedby={`${id}-help${error?` ${id}-error`:''}`} aria-label="Bet amount in US dollars"/><span>USD</span></div></label>{error&&<p className="bet-field-error" id={`${id}-error`} role="alert">{error}</p>}</>;
+}
+const balance=value=>Number.isSafeInteger(value)&&value>=0?value:0;
+export function MarketBetDialog({user,market,side,purchases=[],initialRoundupId,rolloverCents=0,onClose,onDone,onPurchase}){
+ const pending=purchases.filter(p=>p.allocation==='pending'),initial=pending.find(p=>p.roundup_id===initialRoundupId)||pending[0];
+ const availableFor=()=>pending.reduce((total,p)=>total+balance(p.roundup_cents),balance(rolloverCents));
+ const defaultAmount=()=>(availableFor()/100).toFixed(2);
+ const [roundup,setRoundup]=useState(initial?.roundup_id||''),[outcome,setOutcome]=useState(side||'yes'),[amount,setAmount]=useState(()=>defaultAmount(initial));
+ const [record,setRecord]=useState(null),[errorState,setErrorState]=useState(null),[busy,setBusy]=useState(false),[loadingKey,setLoadingKey]=useState(null),[refresh,setRefresh]=useState(0);
+ const request=useRef(0),dialogRef=useRef(null),amountId=useId(),titleId=useId();
+ const selected=pending.find(p=>p.roundup_id===roundup),available=availableFor(selected),cents=parseBetAmount(amount);
+ let inputError=amountError(amount,available);
+ const context={userId:user.id,roundupId:roundup,marketId:market.id,outcome,amountCents:cents};
+ const publishedPrice=outcomePrice(market,outcome);
+ const key=!inputError&&!user.paused&&selected&&publishedPrice!=null?betQuoteKey(context):null;
+ const quote=key?matchingBetQuote(record,context):null,loading=!!key&&loadingKey===key,error=errorState?.key===key?errorState?.message:'';
+ const pendingIds=pending.map(p=>p.roundup_id).join(',');
+ useBetDialogFocus(dialogRef);
+ useEffect(()=>{setOutcome(side||'yes')},[side,market.id]);
+ useEffect(()=>{
+  if(!pending.some(p=>p.roundup_id===roundup)&&pending.length){setRoundup(pending[0].roundup_id);setAmount(defaultAmount(pending[0]));}
+ },[pendingIds,roundup]);
+ useEffect(()=>{
+  const token=++request.current;setRecord(null);setErrorState(null);setLoadingKey(null);
+  if(!key)return;
+  setLoadingKey(key);
+  const params=new URLSearchParams({user_id:user.id,roundup_id:roundup,market_id:market.id,outcome,amount_cents:String(cents)});
+  api('/markets/quote?'+params).then(data=>{
+   if(token!==request.current)return;
+   if(!matchingBetQuote({key,data},context))throw new Error('The quote did not match this choice. Refresh the quote before confirming.');
+   setRecord({key,data});
+  }).catch(e=>{if(token===request.current)setErrorState({key,message:e.message})}).finally(()=>{if(token===request.current)setLoadingKey(null)});
+  return()=>{request.current++};
+ },[key,refresh]);
+ async function confirm(){
+  const current=key?matchingBetQuote(record,context):null;
+  if(!current||busy||loading||inputError||user.paused)return;
+  setBusy(true);setErrorState(null);
+  try{
+   const result=await post(`/roundups/${roundup}/allocate`,{user_id:user.id,destination:'market',market_id:market.id,outcome,amount_cents:cents,max_price:current.market.price,max_quantity:current.quote.quantity,max_total_cents:current.quote.total_cents});
+   onDone(result);
+  }catch(e){setErrorState({key,message:e.message});setRecord(null)}finally{setBusy(false)}
+ }
+ const quotedAvailable=Number.isSafeInteger(quote?.available_cents)?quote.available_cents:available;
+ return <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)onClose()}}><section ref={dialogRef} className="modal bet-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={e=>betDialogKeys(e,onClose,busy)}>
+  <div className="modal-heading"><h2 id={titleId}>Your perspective</h2><button className="icon-button" type="button" disabled={busy} onClick={onClose} aria-label="Close"><X size={19}/></button></div>
+  <BetEventTitle market={market}/>
+  {pending.length?<>
+   <div className="bet-funding"><strong>Your accumulated change</strong><details><summary>{pending.length} purchase{pending.length===1?'':'s'}{rolloverCents>0?' + leftover change':''}</summary>{pending.map(p=><p key={p.roundup_id}>{p.merchant}<span>{formatBetMoney(p.roundup_cents)}</span></p>)}</details></div>
+   <BetSides market={market} outcome={outcome} onChange={setOutcome} disabled={busy}/>
+   <BetAmount id={amountId} amount={amount} onChange={setAmount} error={inputError} disabled={busy}/>
+   <p className="bet-budget" id={`${amountId}-help`}><span>{formatBetMoney(quotedAvailable)} available from all your purchases + pot</span></p>
+   <EarningsPreview amountCents={cents} price={quote?.market.price??publishedPrice} outcome={outcome} quote={quote?.quote} invalid={!!inputError}/>
+   {quote&&<p className="bet-leftover">{formatBetMoney(quotedAvailable-quote.quote.total_cents)} stays in your pot.</p>}
+   {user.paused&&<div className="notice error" role="alert"><Info size={16}/>Market picks are paused in your preferences.</div>}
+   {publishedPrice==null&&<div className="notice error" role="alert"><Info size={16}/>A current buy quote is unavailable for this outcome.</div>}
+   {loading&&<p className="news-loading bet-loading" role="status"><LoaderCircle className="spin" size={15}/>Checking your amount and current quote…</p>}
+   {error&&<div className="notice error" role="alert"><Info size={16}/><span>{error}</span></div>}
+   <button className="primary" type="button" disabled={!quote||busy||loading||!!inputError||user.paused} onClick={confirm}>{busy?<LoaderCircle className="spin" size={16}/>:<Check size={16}/>} {quote?.mode==='sandbox'?'Place sandbox order':'Record paper position'}</button>
+   {error&&key&&<button className="bet-retry" type="button" disabled={busy} onClick={()=>{setRecord(null);setRefresh(value=>value+1)}}>Refresh quote</button>}
+   <p className="fine-print">Markets can lose their full value. Confirmation uses the whole-contract quote and estimated fee.</p>
+  </>:<><p className="form-intro">Add a purchase first so there is spare change to allocate.</p><button className="primary" onClick={onPurchase}><Plus size={16}/>Add a purchase</button></>}
+ </section></div>;
+}
+export function DemoBetDialog({market,side,onClose}){
+ const [outcome,setOutcome]=useState(side||'yes'),[amount,setAmount]=useState('0.73'),dialogRef=useRef(null),amountId=useId(),titleId=useId();
+ const cents=parseBetAmount(amount),inputError=cents==null?'Enter an amount above $0.00 with up to two decimal places.':'';
+ useBetDialogFocus(dialogRef);
+ useEffect(()=>{setOutcome(side||'yes')},[side,market.id]);
+ return <div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><section ref={dialogRef} className="modal bet-modal" role="dialog" aria-modal="true" aria-labelledby={titleId} onKeyDown={e=>betDialogKeys(e,onClose)}>
+  <div className="modal-heading"><h2 id={titleId}>Try your perspective</h2><button className="icon-button" type="button" onClick={onClose} aria-label="Close"><X size={19}/></button></div>
+  <span className="bet-mode">Demo preview</span><BetEventTitle market={market}/>
+  <p className="bet-demo-note" id={`${amountId}-help`}>Sample prices and practice money. No order or position is created.</p>
+  <BetSides market={market} outcome={outcome} onChange={setOutcome}/>
+  <BetAmount id={amountId} amount={amount} onChange={setAmount} error={inputError}/>
+  <EarningsPreview amountCents={cents} price={outcomePrice(market,outcome)} outcome={outcome} invalid={!!inputError}/>
+  <button className="primary" type="button" onClick={onClose}>Done exploring<Check size={16}/></button>
+ </section></div>;
 }
