@@ -134,7 +134,7 @@ The app uses React and Vite on the frontend, and Python, FastAPI, and SQLite on 
 
 ## Evidence and next steps
 
-The release passed **244 backend tests, 26 frontend tests, 9 Swarm tests, and 8 XRPL tests**. Real checks covered [three-profile squad collaboration and SPC escrow](docs/RAILWAY_MULTIPLAYER_CHECK.json), [Google/Context.dev research and a funded Swarm leg](docs/RAILWAY_SWARM_CHECK.json), and [two different live forecasts](docs/SWARM_GOOGLE_LIVE_CHECK.json).
+The release passed **245 backend tests, 27 frontend tests, 9 Swarm tests, and 8 XRPL tests**. Real checks covered [three-profile squad collaboration and SPC escrow](docs/RAILWAY_MULTIPLAYER_CHECK.json), [Google/Context.dev research and a funded Swarm leg](docs/RAILWAY_SWARM_CHECK.json), and [two different live forecasts](docs/SWARM_GOOGLE_LIVE_CHECK.json).
 
 Planned or awaiting verification: the shared purchase-change-to-SPC wallet, combined Gemini exchange orders, the complete resolved-squad payout flow, and device/browser checks. See the [verification record](docs/VERIFICATION.md).
 

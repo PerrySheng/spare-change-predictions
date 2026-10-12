@@ -313,7 +313,7 @@ def register_squads(app, engine, feed):
                                                      'closes_at': closes.isoformat(), 'prices': {}, 'outcomes': []})
             row['prices'][market['outcome']] = str(price)
             row['outcomes'].append({'outcome': market['outcome'], 'price': str(price)})
-        return [row for row in grouped.values() if set(row['prices']) == {'yes', 'no'}][:40]
+        return [row for row in grouped.values() if set(row['prices']) == {'yes', 'no'}]
 
     def join(session, squad, user_id):
         user = get_user(session, user_id)

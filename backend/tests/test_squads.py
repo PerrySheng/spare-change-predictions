@@ -40,6 +40,22 @@ def add_leg(c, squad, user='a', market='m1', outcome='yes'):
     assert response.status_code == 200, response.text
     return response.json()
 
+def test_squad_catalog_keeps_other_events_beyond_first_forty_contracts(setup):
+    c, feed, _ = setup
+    rows = []
+    for index in range(50):
+        for side in ['yes', 'no']:
+            row = feed.market(f'm{index}', side)
+            row['event_ticker'] = 'FIRST_GAME' if index < 40 else f'EVENT_{index}'
+            row['category'] = 'sports' if index < 40 else 'weather'
+            rows.append(row)
+    feed.markets = lambda: rows
+    result = c.get('/squads/markets', params={'user_id': 'b'})
+    assert result.status_code == 200
+    assert len(result.json()) == 50
+    assert any(row['event_ticker'] == 'EVENT_49' for row in result.json())
+    assert any(row['category'] == 'weather' for row in result.json())
+
 def test_duplicate_market_is_rejected_even_for_the_opposite_side(setup):
     c,_,_=setup;s=create(c)['id']
     c.post('/squads/'+s+'/join',json={'user_id':'b'})
