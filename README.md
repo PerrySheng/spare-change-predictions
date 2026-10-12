@@ -1,12 +1,20 @@
 # Spare — make more of your everyday change
 
-**Build up purchase change, research a market, and create a bet slip with friends.**
+**Spare is an Acorns-like round-up app for prediction markets.**
 
 [Try the live app](https://spare-production.up.railway.app/) · [Two-minute demo script](DEMO_SCRIPT.md) · [Developer setup](docs/DEVELOPER_GUIDE.md)
 
-Spare brings personal picks, shared Squad Slips, news, AI research, and results into one app. You choose where your change goes and can see what happened to your picks afterward.
+Buy an apple or groceries for **$4.63**, and Spare records the **37¢** difference to the next dollar. Choose to save it, hold it for later, or put it toward a Gemini prediction-market position. Personal picks, shared **Squad Slips**, reading, AI research, and results live in one customer hub.
 
-**Demo:** personal bets use paper funds; squad escrow uses SPC tokens on XRP Ledger Testnet. SPC has no real monetary value, and bank money is not withdrawn. Connecting purchase change directly to SPC is planned.
+Three integrations connect that experience:
+
+| Integration | Its role in Spare |
+| --- | --- |
+| **Gemini Prediction Markets** | Supplies actual market quotes and published results for personal picks and shared Squad Slip legs. It does not fund the bets. |
+| **Context.dev** | Supplies News reading materials and source evidence used by Swarm's research. |
+| **XRP Ledger (XRPL)** | Acts as a shared squad treasury: escrow locks collateral before outcomes, reducing reliance on promises to pay after a loss. |
+
+**Demo:** personal betting uses paper funds; squad escrow uses custom SPC tokens on XRPL Testnet, not native XRP collateral. SPC has no real monetary value, and bank money is not withdrawn. Connecting recorded purchase change to the shared SPC wallet is **planned, not implemented**.
 
 ## Judges: start here
 
@@ -63,11 +71,11 @@ Accuracy comes from Gemini's published results. **Hit rate** means the percentag
 | **Market Reader** | Examine the real Gemini snapshot and market rules, identifying missing data. |
 | **Skeptic** | Make the strongest evidence-based case against the leading view. |
 
-First, each agent makes its own estimate without seeing the others' answers. Next, they review one another's estimates and explain any revisions. Application code calculates the **median** of the four revised probabilities: the average of the middle two. A final Synthesizer call explains that fixed result.
+The four agents make **separate Google Gemini AI calls**, each estimating the outcome without seeing the others' answers. They then debate the estimates and explain any revisions. Application code calculates the **median** of the four revised probabilities: the average of the middle two. A final Synthesizer call explains that fixed result. Google Gemini AI is a separate service from the Gemini prediction-market exchange.
 
 The customer sees **Swarm's probability versus the market price**, supporting reasons, disagreements, and source links. The live visualization follows real agent events; completed runs can be replayed.
 
-### Why this is more useful than one generic AI answer
+### Benefits over one generic AI answer
 
 | Swarm's design | Benefit for the customer |
 | --- | --- |
@@ -78,7 +86,7 @@ The customer sees **Swarm's probability versus the market price**, supporting re
 | Sources and disagreement shown | Customers can inspect the evidence and uncertainty behind the result. |
 | Saved forecasts and later scoring | Accuracy can be measured against resolved events over time. |
 
-The advantage is **a structured, visible cross-checking process**. The agents currently use the same underlying Google Gemini model in separate calls; they can still share biases. Spare has not yet demonstrated higher forecasting accuracy than a single-model baseline. Research takes more calls and time than one answer, and forecasts can be wrong.
+Swarm provides **a structured, visible cross-checking process**. The agents use the same underlying Google Gemini model and can still share biases. Spare has not demonstrated higher forecasting accuracy than a single-model baseline. Research takes more calls and time than one answer, and forecasts can be wrong.
 
 The approach draws on published work on [multi-agent debate](https://arxiv.org/abs/2305.14325) and [retrieval and forecast aggregation](https://arxiv.org/abs/2402.18563). Those studies motivate the design; they do not establish Spare's accuracy.
 
@@ -107,7 +115,7 @@ Related markets connect reading to personal picks or squad legs. Completed Swarm
 
 ### Hold your change for a bigger bet later
 
-A **$4.63** purchase creates **37¢** of round-up change. Every purchase can add more, with no weekly cap. A whole-dollar purchase adds zero.
+Round-ups accumulate across purchases, with no weekly cap. A whole-dollar purchase adds zero. Activity shows six recent purchases that generate positive change, with **Show more purchases** for the rest; interest charges and zero-cent entries are hidden.
 
 | Your goal | Choose in Spare → Your change |
 | --- | --- |
@@ -119,22 +127,13 @@ A **$4.63** purchase creates **37¢** of round-up change. Every purchase can add
 
 The planned wallet connection makes **37¢ equal 0.37 SPC**, with that same change balance available to hold, use for a personal pick, or lock into squad escrow. Today, purchase change and paper positions work in the app; SPC wallets receive separate test-token funding. **The shared change-to-SPC balance is planned, not implemented.**
 
-## What powers Spare?
+## Supporting services and stack
 
-| Service | What it contributes |
-| --- | --- |
-| **Plaid Sandbox** | Test purchase data for calculating round-ups. |
-| **Gemini Prediction Markets API** | Real market questions, Yes/No prices, and published outcomes. |
-| **Context.dev** | Reading summaries and source links, cached and shared between News and Swarm. |
-| **Google Gemini AI** | Swarm's research agents and debate; this is a separate service from Gemini's exchange. |
-| **XRP Ledger** | Test-token balances, collateral escrow, and inspectable transaction receipts. |
-| **Railway** | A shared deployment and persistent database for friends to collaborate. |
-
-The app uses React and Vite on the frontend, and Python, FastAPI, and SQLite on the backend. Click effects adapt React Bits ClickSpark with its license retained.
+**Plaid Sandbox** supplies test purchases for round-ups. **Railway** hosts the shared app and persistent database so friends can collaborate. The app uses React and Vite on the frontend, and Python, FastAPI, and SQLite on the backend. Click effects adapt React Bits ClickSpark with its license retained.
 
 ## Evidence and next steps
 
-The release passed **245 backend tests, 27 frontend tests, 9 Swarm tests, and 8 XRPL tests**. Real checks covered [three-profile squad collaboration and SPC escrow](docs/RAILWAY_MULTIPLAYER_CHECK.json), [Google/Context.dev research and a funded Swarm leg](docs/RAILWAY_SWARM_CHECK.json), and [two different live forecasts](docs/SWARM_GOOGLE_LIVE_CHECK.json).
+The release passed **252 backend tests, 28 frontend tests, 9 Swarm tests, and 8 XRPL tests**. Real checks covered [three-profile squad collaboration and SPC escrow](docs/RAILWAY_MULTIPLAYER_CHECK.json), [Google/Context.dev research and a funded Swarm leg](docs/RAILWAY_SWARM_CHECK.json), and [two different live forecasts](docs/SWARM_GOOGLE_LIVE_CHECK.json).
 
 Planned or awaiting verification: the shared purchase-change-to-SPC wallet, combined Gemini exchange orders, the complete resolved-squad payout flow, and device/browser checks. See the [verification record](docs/VERIFICATION.md).
 

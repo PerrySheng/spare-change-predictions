@@ -176,3 +176,10 @@ A winning contract pays $1. The fractional earnings preview uses amount / price 
 News now includes the complete open-market list instead of the first 40 contracts, recognizes political/climate category aliases, and offers real Context.dev subject reading when no related market is open. [Two genuine Google + Context.dev forecast runs and event logs](SWARM_GOOGLE_LIVE_CHECK.json) are saved as public verification evidence, not runtime fixtures.
 
 Live deployment evidence: [three-profile collaboration and actual SPC escrow](RAILWAY_MULTIPLAYER_CHECK.json), [real cloud Swarm, streamed events, and researched member-funded leg](RAILWAY_SWARM_CHECK.json). CI builds and tests the public source without provider keys.
+
+
+## Purchase feed cleanup
+
+Plaid bank fees (including interest charges), debt payments, and account transfers do not create new purchase round-ups. Previously imported financial entries remain recorded but are marked `is_purchase=false` and excluded from the available pending-change balance. Activity displays only purchases with positive change, six at a time, with Show more for the rest. Names use Plaid merchant data, with transaction descriptions as a fallback; no merchant brand is invented.
+
+The Sandbox demo tags its three requested transactions and waits for those records instead of counting the default Sandbox history as successful demo purchases. The bounded credentialed check still reported the three custom transactions as processing or unmatched; do not claim live verification of that path. [Latest check](PLAID_NAMED_DEMO_CHECK.json).

@@ -113,7 +113,7 @@ class Plaid:
             current=cursor; added=[]; modified=[]; removed=[]
             try:
                 for _ in range(100):
-                    data=self.call('/transactions/sync',{'access_token':access_token,'cursor':current,'count':500})
+                    data=self.call('/transactions/sync',{'access_token':access_token,'cursor':current,'count':500,'options':{'include_original_description':True}})
                     added.extend(data['added']); modified.extend(data['modified']); removed.extend(data['removed']); current=data['next_cursor']
                     if not data['has_more']: return {'added':added,'modified':modified,'removed':removed,'cursor':current}
                 raise ProviderError('Plaid sync exceeded the supported page limit.')
@@ -122,4 +122,4 @@ class Plaid:
         raise ProviderError('Plaid transactions changed during all three sync attempts. Try again.')
     def create_purchases(self,access_token,purchases):
         today=date.today().isoformat()
-        return self.call('/sandbox/transactions/create',{'access_token':access_token,'transactions':[{'amount':p['amount'],'description':p['merchant'],'date_posted':today,'date_transacted':today,'iso_currency_code':'USD'} for p in purchases]})
+        return self.call('/sandbox/transactions/create',{'access_token':access_token,'transactions':[{'amount':p['amount'],'description':p.get('description',p['merchant']),'date_posted':today,'date_transacted':today,'iso_currency_code':'USD'} for p in purchases]})

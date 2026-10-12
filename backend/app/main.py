@@ -15,6 +15,7 @@ from sqlalchemy import select,func,text
 from sqlalchemy.orm import Session
 from .database import User,Pot,Purchase,Roundup,Position,PlaidItem,SandboxOrder,build_engine,timestamp,uid
 from .money import parse_cents,roundup_cents,order_quote,fee_cents,bank_amount
+from .purchase_metadata import is_purchase_entry,plaid_purchase_name,is_demo_purchase
 from .providers import Gemini,Plaid,ProviderError,ProviderRejected
 from .scoring import TOPICS,WEIGHTS,rank_markets,topic_for
 from .market_catalog import event_catalog
@@ -74,7 +75,7 @@ class UserInput(BaseModel): user_id:str
 
 def user_json(u): return {'id':u.id,'name':u.name,'interests':u.interests,'paused':u.paused}
 def purchase_json(p,r):
-    return {'id':p.id,'roundup_id':r.id,'amount_cents':p.amount_cents,'merchant':p.merchant,'category':p.category,'source':p.source,'created_at':p.created_at,'roundup_cents':r.amount_cents,'allocation':r.allocation,'market_title':r.market_title,'notice':p.notice}
+    return {'id':p.id,'roundup_id':r.id,'amount_cents':p.amount_cents,'merchant':p.merchant,'category':p.category,'source':p.source,'created_at':p.created_at,'roundup_cents':r.amount_cents,'allocation':r.allocation,'market_title':r.market_title,'notice':p.notice,'is_purchase':is_purchase_entry(p.merchant,p.category,p.source)}
 def week_start():
     now=datetime.now(ZoneInfo('America/Los_Angeles'))
     return (now-timedelta(days=now.weekday())).replace(hour=0,minute=0,second=0,microsecond=0).astimezone(timezone.utc).isoformat()
@@ -103,13 +104,15 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
     def get_roundup(s,id,user_id):
         pair=s.execute(select(Purchase,Roundup).join(Roundup,Roundup.purchase_id==Purchase.id).where(Roundup.id==id,Purchase.user_id==user_id)).first()
         if not pair: raise HTTPException(404,'Round-up not found.')
+        if not is_purchase_entry(pair[0].merchant,pair[0].category,pair[0].source): raise HTTPException(409,'This Plaid entry is a financial charge or transfer, not a purchase.')
         return pair
     def weekly_spent(s,u):
         spent=s.scalar(select(func.coalesce(func.sum(Position.cost_cents+Position.fee_cents),0)).where(Position.user_id==u,Position.created_at>=week_start()))
         reserved=s.scalar(select(func.coalesce(func.sum(SandboxOrder.reserved_cents),0)).where(SandboxOrder.user_id==u,SandboxOrder.created_at>=week_start(),SandboxOrder.status.in_(['submitting','unknown','open'])))
         return spent+reserved
     def pending_roundups(s,user_id):
-        return s.scalars(select(Roundup).join(Purchase,Purchase.id==Roundup.purchase_id).where(Purchase.user_id==user_id,Roundup.allocation=='pending')).all()
+        rows=s.execute(select(Purchase,Roundup).join(Roundup,Purchase.id==Roundup.purchase_id).where(Purchase.user_id==user_id,Roundup.allocation=='pending')).all()
+        return [r for p,r in rows if is_purchase_entry(p.merchant,p.category,p.source)]
     def market_budget(available,amount_cents=None):
         budget=available
         if amount_cents is not None:
@@ -175,7 +178,7 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
                 if r.allocation=='pending': change=r.amount_cents
             budget=pot.rollover_cents+sum(row.amount_cents for row in pending_roundups(s,user_id))
             reason='paused' if u.paused else ('no_change' if budget==0 else None)
-            history=[{'amount_cents':p.amount_cents,'merchant':p.merchant,'category':p.category} for p in s.scalars(select(Purchase).where(Purchase.user_id==user_id,Purchase.notice.is_(None))).all()]
+            history=[{'amount_cents':p.amount_cents,'merchant':p.merchant,'category':p.category} for p in s.scalars(select(Purchase).where(Purchase.user_id==user_id,Purchase.notice.is_(None))).all() if is_purchase_entry(p.merchant,p.category,p.source)]
             past=[topic_for(p.category) for p in s.scalars(select(Position).where(Position.user_id==user_id)).all()]
             interests=u.interests
         rows=[] if reason else feed.markets()
@@ -320,28 +323,29 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
                     except ArithmeticError: complete=False
                 serialized.append({'id':p.id,'market_id':p.market_id,'title':p.title,'category':p.category,'outcome':p.outcome,'quantity':p.quantity,'entry_price':p.entry_price,'cost_cents':p.cost_cents,'fee_cents':p.fee_cents,'status':p.status,'current_value_cents':value,'payout_cents':p.payout_cents,'mode':p.mode})
             s.flush(); rows=s.execute(select(Purchase,Roundup).join(Roundup,Roundup.purchase_id==Purchase.id).where(Purchase.user_id==user_id)).all()
-            baseline=sum(r.amount_cents for _,r in rows if r.allocation in ['pending','savings','market','order_pending','rollover'])
+            baseline=sum(r.amount_cents for p,r in rows if r.allocation in ['pending','savings','market','order_pending','rollover'] and (is_purchase_entry(p.merchant,p.category,p.source) or r.allocation!='pending'))
             orders=s.scalars(select(SandboxOrder).where(SandboxOrder.user_id==user_id,SandboxOrder.status.in_(['unknown','open','submitting']))).all()
             pending_orders=[{'id':o.id,'exchange_id':o.exchange_id,'status':o.status,'title':o.market['title'],'reserved_cents':o.reserved_cents,'message':o.message} for o in orders]
-            pending=sum(r.amount_cents for _,r in rows if r.allocation=='pending');available=pot.rollover_cents+pending
+            pending=sum(r.amount_cents for r in pending_roundups(s,user_id));available=pot.rollover_cents+pending
             total=pot.savings_cents+available+current if complete and not orders else None
             return {'user':user_json(u),'mode':mode,'pot_cents':pot.savings_cents+available,'savings_cents':pot.savings_cents,'rollover_cents':pot.rollover_cents,'available_cents':available,'market_value_cents':current if complete else None,'total_value_cents':total,'savings_comparison_cents':baseline,'difference_cents':total-baseline if total is not None else None,'pending_cents':pending,'weekly_spent_cents':weekly_spent(s,user_id),'positions':serialized,'wins':sum(p.status=='won' for p in positions),'losses':sum(p.status=='lost' for p in positions),'pending_orders':pending_orders,'price_errors':errors,'valued_at':timestamp()}
-    def ingest(s,item,data):
+    def ingest(s,item,data,demo_batch=None):
         count=0
         for t in data['added']+data['modified']:
+            if demo_batch and not is_demo_purchase(t,demo_batch): continue
             tid=t['transaction_id']; existing=s.scalar(select(Purchase).where(Purchase.user_id==item.user_id,Purchase.source=='plaid',Purchase.source_id==tid))
             eligible=not t.get('pending') and t.get('iso_currency_code')=='USD'
             if eligible:
                 try: amount=bank_amount(t.get('amount'))
                 except ValueError: raise ProviderError('Plaid returned an invalid USD transaction amount. Try syncing again.') from None
-                eligible=Decimal(amount)>0
+                eligible=Decimal(amount)>0 and is_purchase_entry(plaid_purchase_name(t),(t.get('personal_finance_category') or {}).get('primary',''))
             if not eligible:
                 if existing:
                     r=s.scalar(select(Roundup).where(Roundup.purchase_id==existing.id))
-                    existing.notice='Plaid changed this purchase to pending, non-USD, or non-positive. Review any prior allocation.'
+                    existing.notice='Plaid changed this entry to pending, non-USD, non-positive, or a financial charge/transfer. Review any prior allocation.'
                     if r.allocation in ['pending','no_change']: r.allocation='removed'
                 continue
-            payload=PurchaseInput(user_id=item.user_id,amount=amount,merchant=t.get('merchant_name') or t['name'],category=(t.get('personal_finance_category') or {}).get('primary',''),source='plaid',source_id=tid)
+            payload=PurchaseInput(user_id=item.user_id,amount=amount,merchant=plaid_purchase_name(t),category=(t.get('personal_finance_category') or {}).get('primary',''),source='plaid',source_id=tid)
             if existing:
                 r=s.scalar(select(Roundup).where(Roundup.purchase_id==existing.id)); new_amount=parse_cents(payload.amount)
                 if r.allocation in ['pending','no_change','removed']:
@@ -365,14 +369,16 @@ def create_app(database_url=None,feed=None,plaid=None,mode=None):
                 existing=s.scalar(select(PlaidItem).where(PlaidItem.user_id==payload.user_id))
                 if existing: raise HTTPException(409,'A Plaid connection was created concurrently. Retry the demo.')
                 s.add(PlaidItem(item_id=connected['item_id'],user_id=payload.user_id,access_token=access,cursor=cursor))
-        plaid.create_purchases(access,[{'amount':4.63,'merchant':'Starbucks'},{'amount':18.21,'merchant':'Ticketmaster'},{'amount':32.56,'merchant':'Shell'}])
+        batch=uid()
+        purchases=[{'amount':4.63,'merchant':'Starbucks'},{'amount':18.21,'merchant':'Ticketmaster'},{'amount':32.56,'merchant':'Shell'}]
+        plaid.create_purchases(access,[{**p,'description':f'Spare demo {batch}: {p["merchant"]}'} for p in purchases])
         count=0
         for _ in range(8):
             data=plaid.sync(access,cursor)
             with db(True) as s:
                 item=s.scalar(select(PlaidItem).where(PlaidItem.user_id==payload.user_id))
                 if item.cursor!=cursor: raise HTTPException(409,'Plaid was synced concurrently. Your purchases are in the feed; refresh it.')
-                count+=ingest(s,item,data); cursor=data['cursor']
+                count+=ingest(s,item,data,batch); cursor=data['cursor']
             if count>=3: break
             time.sleep(1)
         return {'created':count,'status':'synced' if count>=3 else 'processing','message':'Purchases were created in Plaid sandbox. '+('Open the feed to allocate your change.' if count>=3 else 'Plaid is still processing; use Sync purchases in a moment.')}
