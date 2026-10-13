@@ -10,6 +10,8 @@ import PurchaseHistory from './PurchaseHistory';
 import {DashboardSidebar,BalanceOverview} from './DashboardShell';
 import './dashboard.css';
 import SwarmChip from './SwarmChip';
+import BrandIntro,{useBrandIntro} from './BrandIntro';
+import './glass.css';
 const SwarmView=lazy(()=>import('./SwarmView'));
 const topics=[['sports','Sports',Trophy],['crypto','Crypto',Bitcoin],['politics','Politics',Flag],['weather','Weather',CloudSun],['entertainment','Culture',Music],['economy','Economy',ChartNoAxesCombined]];
 const topicIcon=t=>topics.find(x=>x[0]===t)?.[2]||TrendingUp;
@@ -18,6 +20,7 @@ const contractPrice=price=>price==null?'No quote':`${(Number(price)*100).toLocal
 function Spinner(){return <LoaderCircle className="spin" size={18}/>}
 function Button({children,busy,...props}){return <button {...props} disabled={props.disabled||busy}>{busy?<Spinner/>:null}{children}</button>}
 function App(){
+ const opening=useBrandIntro();
  const [user,setUser]=useState(null),[loading,setLoading]=useState(true),[page,setPage]=useState('change'),[health,setHealth]=useState(null),[feed,setFeed]=useState([]),[dashboard,setDashboard]=useState(null),[active,setActive]=useState(null),[suggestions,setSuggestions]=useState(null),[marketLoading,setMarketLoading]=useState(false),[selected,setSelected]=useState('savings'),[error,setError]=useState(''),[toast,setToast]=useState(''),[busy,setBusy]=useState(false),[dialog,setDialog]=useState(null),[inspect,setInspect]=useState(false);
  const deepHandled=useRef(false),mounted=useRef(true),suggestionRequest=useRef(0);
  const [marketRevision,setMarketRevision]=useState(0);
@@ -69,7 +72,7 @@ function App(){
  const pending=feed.filter(p=>p.allocation==='pending'&&p.is_purchase!==false);
  const pick=suggestions?.markets.flatMap(m=>(m.outcomes||[]).filter(o=>o.selectable).map(o=>({...m,...o}))).find(m=>m.id+':'+m.outcome===selected)||null;
  const mode=health?.trading_mode||'paper';
- return <div className="workspace" data-section={tab} data-page={page}>
+ return <>{opening.visible&&<BrandIntro onComplete={opening.finish}/>}<div className="workspace" data-section={tab} data-page={page} inert={opening.visible||undefined} aria-hidden={opening.visible||undefined}>
   <DashboardSidebar user={user} tab={tab} page={page} mode={mode} onNavigate={(next,nextPage)=>{setTab(next);if(nextPage)setPage(nextPage)}} onAddPurchase={()=>setDialog('purchase')}/>
   <div className="phone-area"><div className="phone">
    <header className="app-header"><a className="wordmark" href="/"><Mark small/>spare<span className="wordmark-dot">.</span></a><div className="header-actions"><span className="header-product">Prediction markets, together</span><span className="mode-badge">{mode==='sandbox'?'Sandbox funds':'Paper mode'}</span>{user&&<button className="icon-button" title="Preferences" aria-label="Open preferences" onClick={()=>setDialog('settings')}><SlidersHorizontal size={20}/></button>}</div></header>
@@ -110,7 +113,7 @@ function App(){
   {user&&swarm&&<div className="swarm-overlay"><Suspense fallback={<div className="loading"><Spinner/>Opening the research workspace…</div>}><SwarmView user={user} market={swarm.market} runId={swarm.runId} squadId={swarm.squadId} shareSquad={swarm.shareSquad} defaultSquadId={swarm.defaultSquadId} onClose={closeSwarm} onRun={runId=>{setSwarm(old=>({...old,runId}));history.pushState({},'', '/swarm/'+runId)}}/></Suspense></div>}
   {user&&bet&&(bet.demo?<DemoBetDialog market={bet.market} side={bet.side} onClose={()=>setBet(null)}/>:<MarketBetDialog user={user} market={bet.market} side={bet.side} purchases={feed} initialRoundupId={bet.roundupId} rolloverCents={dashboard?.rollover_cents||0} onClose={()=>setBet(null)} onPurchase={()=>{setBet(null);setTab('spare');setDialog('purchase')}} onDone={async r=>{setBet(null);setToast(r.status==='paper'?'Paper position recorded.':r.message||'Sandbox order submitted.');try{await refresh()}catch(e){setError(e.message)}}}/>)}
   {dialog&&<div className="modal-backdrop" onClick={e=>{if(e.target===e.currentTarget&&!busy)setDialog(null)}}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div className="modal-heading"><h2 id="modal-title">{dialog==='purchase'?'Add a purchase':'Your preferences'}</h2><button className="icon-button" aria-label="Close dialog" disabled={busy} onClick={()=>setDialog(null)}><X size={20}/></button></div>{error&&<div className="notice error" role="alert"><Info size={18}/><span>{error}</span></div>}{dialog==='purchase'?<PurchaseForm busy={busy} onSubmit={data=>runAction(async()=>{const p=await post('/purchases',{...data,user_id:user.id,source_id:crypto.randomUUID()});setDialog(null);setActive(p);setTab('spare');setPage('change');await refresh();if(p.roundup_cents===0)setToast('Already a whole dollar. No round-up needed.')})}/>:<SettingsForm user={user} busy={busy} onSubmit={saveSettings}/>}</section></div>}
- </div>
+ </div></>
 }
 function Empty({title,text}){return <div className="empty"><Coins size={28}/><h3>{title}</h3><p>{text}</p></div>}
 function InterestPicker({value,onChange}){return <div className="interest-grid">{topics.map(([id,label,Icon])=><button type="button" key={id} aria-pressed={value.includes(id)} className={value.includes(id)?'selected':''} onClick={()=>onChange(value.includes(id)?value.filter(t=>t!==id):[...value,id])}><Icon size={20}/>{label}{value.includes(id)&&<Check size={14}/>}</button>)}</div>}

@@ -2,7 +2,7 @@ import React from 'react';
 import {Coins,UsersRound,Newspaper,Plus,ArrowUpRight,Wallet,TrendingUp,ShieldCheck,Activity} from 'lucide-react';
 import {money} from './api';
 import SwarmMascot from './SwarmMascot';
-import SpotlightCard from './reactbits/SpotlightCard';
+import GlareHover from './reactbits/GlareHover';
 
 export function DashboardSidebar({user,tab,page,mode,onNavigate,onAddPurchase}){
  return <aside className="companion app-sidebar">
@@ -16,6 +16,6 @@ export function DashboardSidebar({user,tab,page,mode,onNavigate,onAddPurchase}){
 
 export function BalanceOverview({dashboard}){
  return <section className="balance-overview" aria-label="Your balances">
-  {[["available_cents","Available change",Wallet,"Ready for your next pick","available"],["savings_cents","Savings",ShieldCheck,"Set aside, little by little","saved"],["market_value_cents","Market value",TrendingUp,"Current value of your positions","positions"]].map(([key,title,Icon,note,kind])=><SpotlightCard as="article" className={'balance-card '+kind} key={key} spotlightColor={kind==='available'?'#57d6a1':'#7da7ff'} intensity={.09} borderGlow={.3} flare={false} grain={0} style={{'--spotlight-card-surface':'var(--surface)','--spotlight-card-border':'var(--line)','--spotlight-card-shadow':'none'}}><div className="balance-label"><span>{title}</span><Icon size={18}/></div><strong className={dashboard?.[key]==null?'balance-unavailable':''}>{money(dashboard?.[key])}</strong><p>{note}</p></SpotlightCard>)}
+  {[["available_cents","Available change",Wallet,"Ready for your next pick","available"],["savings_cents","Savings",ShieldCheck,"Set aside, little by little","saved"],["market_value_cents","Market value",TrendingUp,"Current value of your positions","positions"]].map(([key,title,Icon,note,kind])=><GlareHover as="article" className={'balance-card '+kind} key={key} glareColor="#c9fff0" glareOpacity={.13} glareSize={45} transitionDuration={800} mode="hover" playOnce borderRadius="26px"><div className="balance-label"><span>{title}</span><Icon size={18}/></div><strong className={dashboard?.[key]==null?'balance-unavailable':''}>{money(dashboard?.[key])}</strong><p>{note}</p></GlareHover>)}
  </section>;
 }
