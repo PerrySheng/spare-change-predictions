@@ -4,6 +4,7 @@ import {api,closeDate,money} from './api';
 import SwarmChip from './SwarmChip';
 import {marketProbability,orderMarketOutcomes,selectMarketEvents,sideChoice} from './marketEvents.js';
 import './marketBrowser.css';
+import SpotlightCard from './reactbits/SpotlightCard';
 
 const icons={crypto:Bitcoin,sports:Trophy,politics:Flag,weather:CloudSun,entertainment:Music,economy:ChartNoAxesCombined};
 const quoteLabel=value=>value==null||!Number.isFinite(Number(value))||Number(value)<=0||Number(value)>=1?'No quote':`${(Number(value)*100).toLocaleString('en-US',{maximumFractionDigits:2})}¢`;
@@ -55,7 +56,7 @@ function ClickSpark({children}){
   context.setTransform(ratio,0,0,ratio,0,0);
   const x=(event.detail?event.clientX:buttonRect.left+buttonRect.width/2)-rect.left;
   const y=(event.detail?event.clientY:buttonRect.top+buttonRect.height/2)-rect.top;
-  const start=performance.now(),color=button.dataset.side==='no'?'#8f6eb4':'#4c9c7d';
+  const start=performance.now(),color=button.dataset.side==='no'?'#fc8c95':'#57d6a1';
   function draw(now){
    context.clearRect(0,0,rect.width,rect.height);
    const progress=Math.min((now-start)/360,1),eased=progress*(2-progress);
@@ -101,7 +102,7 @@ export function MarketEventCard({event,user,onBet,onResearch,onSwarm,selected=''
  const [expanded,setExpanded]=useState(false),outcomeId=useId();
  const outcomes=orderMarketOutcomes(event.outcomes||[]),multiple=outcomes.length>1,demo=isDemo(event),visible=expanded?outcomes:outcomes.slice(0,4);
  const Icon=icons[event.topic]||TrendingUp,chosen=outcomes.some(m=>selected.startsWith(`${m.id}:`));
- return <article className={`mb-event${chosen?' mb-event-selected':''}${demo?' mb-demo-event':''}`}>
+ return <SpotlightCard as="article" spotlightColor="#7da7ff" intensity={.07} borderGlow={.22} flare={false} style={{'--spotlight-card-surface':'var(--surface)','--spotlight-card-border':'var(--line)','--spotlight-card-shadow':'none'}} className={`mb-event${chosen?' mb-event-selected':''}${demo?' mb-demo-event':''}`}>
   <div className="mb-event-meta"><span className={`mb-topic mb-topic-${event.topic}`}><Icon size={14}/>{event.category||event.topic||'Market'}</span>{demo?<span className="mb-source mb-demo-source"><FlaskConical size={11}/>Demo</span>:<span className="mb-source">Gemini</span>}</div>
   <h4>{event.title}</h4>
   {event.why&&!demo&&<p className="mb-why"><Sparkles size={11}/>{event.why}</p>}
@@ -125,13 +126,15 @@ export function MarketEventCard({event,user,onBet,onResearch,onSwarm,selected=''
   {multiple&&outcomes.length>4&&<button type="button" className="mb-show-more" aria-expanded={expanded} aria-controls={outcomeId} onClick={()=>setExpanded(v=>!v)}>{expanded?'Show fewer outcomes':`Show ${outcomes.length-4} more outcomes`}<ChevronDown size={13} className={expanded?'mb-rotated':''}/></button>}
   {!multiple&&!demo&&outcomes[0]&&<ResearchActions market={outcomes[0]} user={user} onResearch={onResearch} onSwarm={onSwarm} disabled={disabled}/>}
   <div className="mb-event-footer">{demo?<span>Illustrative prices</span>:<span>{event.closes_at?`Closes ${closeDate(event.closes_at)}`:'Closing time not published'}</span>}<span>{multiple?'Independent Yes / No quotes':'Yes / No quotes'}</span></div>
- </article>;
+ </SpotlightCard>;
 }
 
 export default function MarketBrowser({suggestions,user,onBet,onResearch,onSwarm,disabled=false,loading:tailoredLoading=false}){
+ const [visibleCount,setVisibleCount]=useState(24);
  const [query,setQuery]=useState(''),[demo,setDemo]=useState(false),[catalog,setCatalog]=useState(null),[status,setStatus]=useState('idle'),[error,setError]=useState(''),[selected,setSelected]=useState('');
  const mounted=useRef(true),inFlight=useRef(false),catalogLoaded=useRef(false),searchId=useId(),descriptionId=useId();
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
+ useEffect(()=>{setVisibleCount(24)},[query,demo]);
  const searching=Boolean(query.trim());
  const loadCatalog=useCallback(async()=>{
   if(inFlight.current||catalogLoaded.current)return;
@@ -154,7 +157,8 @@ export default function MarketBrowser({suggestions,user,onBet,onResearch,onSwarm
   <p id={descriptionId} className="mb-search-description">{demo?'Demo examples use illustrative prices. Choices open a demo preview.':'Search all open Gemini markets, or explore your tailored picks below.'}</p>
   {demo&&<p className="mb-demo-notice"><FlaskConical size={14}/><span>Demo examples · sample events and prices</span></p>}
   <div className="mb-results-heading"><h3>{demo?'Try a perspective':searching?'Search results':'Picked for you'}</h3><span role="status" aria-live="polite">{loading?(searching?'Loading catalog…':'Finding picks…'):`${events.length} event${events.length===1?'':'s'}`}</span></div>
-  {loading?<div className="mb-loading" role="status"><LoaderCircle size={17} className="mb-spinner"/><span>{searching?'Loading open Gemini markets…':'Finding markets that fit your change…'}</span></div>:!demo&&searching&&status==='error'?<div className="mb-state mb-error" role="alert"><Info size={17}/><div><strong>Market search is unavailable</strong><p>{error}</p><button type="button" onClick={()=>setStatus('idle')}>Try again</button></div></div>:events.length?<div className="mb-events" key={demo?'demo':'gemini'}>{events.map(event=><MarketEventCard key={event.id} event={event} user={user} onBet={onBet?choose:null} onResearch={onResearch} onSwarm={onSwarm} selected={selected} disabled={disabled}/>)}</div>:<div className="mb-state"><Search size={18}/><div><strong>{searching?'No matching events':'No tailored markets available'}</strong><p>{searching?'Try a different event, topic, or outcome.':suggestions?.reason==='paused'?'Market picks are paused. You can still browse the catalog.':'Search the open catalog to explore more events.'}</p></div></div>}
+  {loading?<div className="mb-loading" role="status"><LoaderCircle size={17} className="mb-spinner"/><span>{searching?'Loading open Gemini markets…':'Finding markets that fit your change…'}</span></div>:!demo&&searching&&status==='error'?<div className="mb-state mb-error" role="alert"><Info size={17}/><div><strong>Market search is unavailable</strong><p>{error}</p><button type="button" onClick={()=>setStatus('idle')}>Try again</button></div></div>:events.length?<div className="mb-events" key={demo?'demo':'gemini'}>{events.slice(0,visibleCount).map(event=><MarketEventCard key={event.id} event={event} user={user} onBet={onBet?choose:null} onResearch={onResearch} onSwarm={onSwarm} selected={selected} disabled={disabled}/>)}</div>:<div className="mb-state"><Search size={18}/><div><strong>{searching?'No matching events':'No tailored markets available'}</strong><p>{searching?'Try a different event, topic, or outcome.':suggestions?.reason==='paused'?'Market picks are paused. You can still browse the catalog.':'Search the open catalog to explore more events.'}</p></div></div>}
+  {events.length>visibleCount&&!loading&&<button className="mb-more-events" type="button" onClick={()=>setVisibleCount(value=>value+24)}>Show more markets <span>{events.length-visibleCount} remaining</span></button>}
   {suggestions?.budget_cents!=null&&!demo&&!searching&&<p className="mb-budget">{money(suggestions.budget_cents)} available for your perspective. Your final quote includes fees.</p>}
  </section>;
 }

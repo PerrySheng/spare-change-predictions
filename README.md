@@ -129,7 +129,7 @@ The planned wallet connection makes **37¢ equal 0.37 SPC**, with that same chan
 
 ## Supporting services and stack
 
-**Plaid Sandbox** supplies test purchases for round-ups. **Railway** hosts the shared app and persistent database so friends can collaborate. The app uses React and Vite on the frontend, and Python, FastAPI, and SQLite on the backend. Click effects adapt React Bits ClickSpark with its license retained.
+**Plaid Sandbox** supplies test purchases for round-ups. **Railway** hosts the shared app and persistent database so friends can collaborate. The app uses React and Vite on the frontend, and Python, FastAPI, and SQLite on the backend. The dark dashboard uses [React Bits](https://reactbits.dev/) SpotlightCard for pointer and keyboard lighting, and ClickSpark for outcome selection. Both preserve their upstream licenses and respect reduced motion. Swarm’s working states come from actual agent events.
 
 ## Evidence and next steps
 
